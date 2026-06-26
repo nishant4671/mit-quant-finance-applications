@@ -33,7 +33,7 @@ mit-quant-finance-applications/
 
 ## 📖 Course Reference
 
-- [MIT OCW 18.642](https://ocw.mit.edu/courses/18-s096-topics-in-mathematics-with-applications-in-finance-fall-2013/)
+- [MIT OCW 18.642 (Fall 2024)](https://ocw.mit.edu/courses/18-642-topics-in-mathematics-with-applications-in-finance-fall-2024/pages/)
 
 ---
 

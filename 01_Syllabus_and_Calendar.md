@@ -2,6 +2,7 @@
 
 ## Course Information
 **Course:** Topics in Mathematics with Applications in Finance (Updated from Fall 2013 18.S096)
+**Course Homepage:** [MIT OCW 18.642 (Fall 2024)](https://ocw.mit.edu/courses/18-642-topics-in-mathematics-with-applications-in-finance-fall-2024/pages/)
 **Lectures:** 2 sessions/week, 1.5 hours/session
 
 ### Prerequisites
