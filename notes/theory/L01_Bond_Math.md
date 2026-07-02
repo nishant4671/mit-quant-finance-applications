@@ -4,47 +4,67 @@
 
 ## 🕒 Lesson 1.1: Time Value of Money & Compounding
 
-### 1. The Core Intuition (ELIF5)
-Imagine you have a slice of fresh bread. If you eat it today, it's delicious. If you wait a year to eat it, it will be moldy and worthless. 
-
-Money is the opposite. If you have $100 today, you can buy things now. If you choose *not* to spend it and lend it to someone else (like a bank or a government) for a year, they have to pay you "rent" for using your money. That rent is **interest**. 
-
-Because of this rent, **a dollar today is worth more than a dollar tomorrow**. 
-* **Future Value (FV):** What your money will grow into if you let it gather interest.
-* **Present Value (PV):** What a future payment promised to you is worth *right now* (we "discount" it because we have to wait for it).
+> [!NOTE]
+> **Summary in 1 Sentence:** 
+> Money has a time value because you can earn interest on it; therefore, a dollar today is worth more than a dollar tomorrow.
 
 ---
 
-### 2. The Mathematics
+### 1. Intuition (ELIF5)
+If you have **$100 today**, you can put it in a bank. The bank pays you "rent" to borrow your money. This rent is called **interest**. 
 
-#### Discrete Compounding ($m$ times per year)
-If you compound interest $m$ times a year (e.g., quarterly $m=4$, monthly $m=12$), the formula for Future Value after $n$ years is:
+If you choose to receive that $100 five years from now instead, you lose out on 5 years of interest. 
 
- • Formula:
-
-                       m·t
-              ⎛     r ⎞
-    FV = PV × ⎜1 + ───⎟
-              ⎝     m ⎠
-
-
-Where:
-* $r$ = Annual interest rate (nominal rate)
-* $m$ = Number of compounding periods per year
-* $n$ = Number of years
-
-#### Continuous Compounding ($m \to \infty$)
-What if interest is compounded every day? Every second? Every instant? As $m$ goes to infinity, the math converges to the mathematical constant $e$ (Euler's number $\approx 2.71828$):
-
-$$FV = PV \times e^{r \cdot n}$$
-
-#### Why Quants Love Continuous Compounding
-In the real world, bonds pay interest semi-annually or quarterly (discrete). But in quantitative finance, we almost always assume **continuous compounding** because:
-1. **Calculus is clean:** The derivative of $e^{rx}$ is just $r e^{rx}$. It makes solving complex differential equations (like Black-Scholes) vastly simpler.
-2. **Time transitions are smooth:** There are no sudden jumps in your portfolio value graph; it is a smooth, continuous curve.
+* **Future Value (FV):** What your money grows into over time.
+* **Present Value (PV):** What a future payment is worth to you right now (discounted to today).
 
 ---
 
-### 3. Python Implementation
+### 2. The Formulas (Simplified)
 
-Let's write a simple implementation to compare how money grows under daily compounding versus continuous compounding.
+#### Option A: Discrete Compounding (Interest calculated monthly, quarterly, etc.)
+The bank calculates interest at regular intervals $m$ times a year.
+
+* **Plain Text Formula:**
+  `FV = PV * (1 + r/m)**(m * t)`
+* **Variables:**
+  * `PV` = Present Value (Starting money)
+  * `r`  = Annual interest rate (e.g., 0.05 for 5%)
+  * `m`  = Times compounded per year (12 for monthly, 4 for quarterly)
+  * `t`  = Time in years
+
+---
+
+#### Option B: Continuous Compounding (Interest calculated every instant)
+The bank calculates interest constantly, without stopping. This uses the mathematical constant `e` (approx 2.718).
+
+* **Plain Text Formula:**
+  `FV = PV * e**(r * t)`
+* **Why Quants Use This:**
+  It makes calculus easy. There are no abrupt steps or jumps in your returns; they flow along a smooth, predictable curve.
+
+---
+
+#### Option C: Discounting (Going backward in time)
+Calculating what future money is worth to you today.
+
+* **Plain Text Formula (Continuous):**
+  `PV = FV * e**(-r * t)`
+
+---
+
+### 3. Cheat Sheet Table
+
+| Frequency | Formula | Python Code |
+| :--- | :--- | :--- |
+| **Discrete (compounding)** | `FV = PV * (1 + r/m)**(m*t)` | `PV * (1 + r/m)**(m*t)` |
+| **Continuous (compounding)** | `FV = PV * e**(r*t)` | `PV * np.exp(r * t)` |
+| **Continuous (discounting)** | `PV = FV * e**(-r*t)` | `FV * np.exp(-r * t)` |
+
+---
+
+> [!TIP]
+> **Quick Rule of 72:**
+> To estimate how long it takes to double your money at a discrete interest rate `R%`, divide 72 by `R`. 
+> * For 6% interest: `72 / 6 = 12 years` (approximate).
+> * Using the exact continuous formula: `ln(2) / 0.06 = 11.55 years` (exact).
