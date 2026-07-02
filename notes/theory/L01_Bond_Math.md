@@ -20,7 +20,13 @@ Because of this rent, **a dollar today is worth more than a dollar tomorrow**.
 #### Discrete Compounding ($m$ times per year)
 If you compound interest $m$ times a year (e.g., quarterly $m=4$, monthly $m=12$), the formula for Future Value after $n$ years is:
 
-$$FV = PV \times \left(1 + \frac{r}{m}\right)^{m \cdot n}$$
+ • Formula:
+
+                       m·t
+              ⎛     r ⎞
+    FV = PV × ⎜1 + ───⎟
+              ⎝     m ⎠
+
 
 Where:
 * $r$ = Annual interest rate (nominal rate)
