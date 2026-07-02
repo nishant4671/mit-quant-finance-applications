@@ -1,1 +1,61 @@
-Phase 1: The "Pre-Flight" (The Overview)Before you start the videos, get the "Big Picture."Step 1: Download the Lecture Slides (PDF) for the week (e.g., Introduction, Financial Terms and Concepts, Bond Math).Step 2: Scan the slides. You are looking for the Core Formulas. If you see an equation, that is your primary target for the week.Phase 2: The "In-Flight" (The Deep Dive)Don't just watch—act.Step 3: Watch the Lecture Videos on the page.Pro-Tip: If the lecturer mentions a formula you scanned earlier, pause the video.Open your notes/theory/Week_X_Notes.md and write it down.Step 4: If you get confused by a term (like "convexity" or "yield curves"), use Gemini to explain it instantly: "Explain [Term] like I'm five, using a simple real-world analogy."Phase 3: The "Landing" (The Lab)This is where you become a Quant, not just a student.Step 5: Navigate to the Assignments tab in the sidebar.Pick one problem from the Problem Set.Open your notes/lab/W1_Bond_Math.ipynb (Jupyter Notebook).Write the code to solve that problem.Why? Coding the math proves you understand the "mechanics" of the finance.Your Weekly "Dashboard" TemplateCopy this table into your 00_Dashboard.md file. This is your "GPS" to track where you are.WeekConceptTheory Notes (MD)Lab Script (.ipynb)StatusWeek 1Bond Math[ ] Done[ ] DoneIn ProgressWeek 2Linear Algebra[ ] Done[ ] DoneNot StartedWeek 3Portfolio Opt.[ ] Done[ ] DoneNot StartedNavigation "Golden Rules"Ignore the R Language: The course uses R for some labs. Ignore this. Use Python. Every single thing they do in R can be done better in Python using the pandas and numpy libraries.Focus on the Problem Sets: If you feel like you are drowning in "too much content," stop reading the PDF/watching the video and jump straight to the Problem Set. Learning by solving is the fastest way to get through this course.The "Bridge" Folder: When you find a cool application of the math you just learned (like finding a way to predict stock prices with AI), drop that link/idea into your notes/bridge/ folder. This is how you collect "project ideas" for your resume.
+# ✈️ Study Flight Plan: AI-Guided Quant Finance
+
+This document is your master blueprint for studying **MIT 18.642 (Topics in Mathematics with Applications in Finance)** using Antigravity (your AI Coding Assistant) as your primary teacher.
+
+---
+
+## 🎯 The Core Philosophy: "Micro-Lessons"
+
+Instead of consuming hours of videos or slides in one go, we break down each lecture into **bite-sized, interactive micro-lessons**. You learn one small concept, run code to prove you understand it, and only then do we move to the next.
+
+---
+
+## 🔄 The 4-Step Learning Loop
+
+For every sub-topic (e.g., *Yield curves*, *Itô's Lemma*, *GARCH models*):
+
+```
+┌──────────────────────────────────────────────┐
+│  1. CONCEPT (AI)                             │
+│  Explain in simple terms (ELIF5) + Analogy   │
+└──────────────────────┬───────────────────────┘
+                       ▼
+┌──────────────────────────────────────────────┐
+│  2. CODE (AI + User)                         │
+│  Write & run clean Python code for the math  │
+└──────────────────────┬───────────────────────┘
+                       ▼
+┌──────────────────────────────────────────────┐
+│  3. CHECKPOINT (User)                        │
+│  Explain the intuition back or tweak the code│
+└──────────────────────┬───────────────────────┘
+                       ▼
+┌──────────────────────────────────────────────┐
+│  4. PROGRESS (Dashboard)                     │
+│  Check off the sub-topic and move forward    │
+└──────────────────────────────────────────────┘
+```
+
+---
+
+## 🛠️ The Tech Rules
+
+1. **Ignore R/RStudio:** The OCW materials use R. We ignore it. Everything is implemented in Python using `numpy`, `pandas`, `scipy`, `matplotlib`, and Jupyter notebooks in `notes/lab/`.
+2. **Focus on Problem Sets:** Use the problem sets from Fall 2013 and Fall 2024 as our benchmarks for whether you've successfully mastered a topic.
+3. **Bridge Folder:** When you learn a math concept and want to note how it connects to real-world trading strategies or resume-building project ideas, log it in `notes/bridge/`.
+
+---
+
+## 📁 Repository Navigation
+
+* [00_Dashboard.md](file:///C:/Users/HP/OneDrive/Desktop/mit-quant-finance-applications/00_Dashboard.md) → Your live progress tracker.
+* [course_map.md](file:///C:/Users/HP/.gemini/antigravity-cli/brain/bb5c9b26-8006-4c62-bb20-1138a12ba829/course_map.md) → Overview of the entire course structure.
+* `notes/theory/` → Clean markdown files containing the math derivations and conceptual explanations.
+* `notes/lab/` → Jupyter notebooks containing Python implementations.
+* `notes/library/` → Reference sheets and tools.
+
+---
+
+## 🤖 Persistent AI Instructions
+
+A dedicated rule file has been created at `.agents/AGENTS.md`. This ensures that every time you start a new session, your AI assistant immediately reads this plan, adopts the primary teacher role, and knows exactly how you want to learn.
