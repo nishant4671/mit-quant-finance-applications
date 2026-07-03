@@ -4,36 +4,94 @@ This document is your master blueprint for studying **MIT 18.642 (Topics in Math
 
 ---
 
-## 🎯 The Core Philosophy: "Micro-Lessons"
+## 🎯 The Core Philosophy: "MIT-Level Self-Study"
 
-Instead of consuming hours of videos or slides in one go, we break down each lecture into **bite-sized, interactive micro-lessons**. You learn one small concept, run code to prove you understand it, and only then do we move to the next.
+We don't just watch and take notes. We replicate the full MIT student experience:
+1. **Learn** the theory (micro-lessons).
+2. **Derive** the math from scratch (proofs & derivations).
+3. **Code** every formula in Python.
+4. **Solve** challenging problem sets.
+5. **Apply** concepts to real market data.
+6. **Connect** theory to industry practice (bridge notes).
+7. **Test** yourself under timed conditions (weekly quizzes).
 
 ---
 
-## 🔄 The 4-Step Learning Loop
-
-For every sub-topic (e.g., *Yield curves*, *Itô's Lemma*, *GARCH models*):
+## 🔄 The 7-Step Learning Loop (Per Lecture)
 
 ```
 ┌──────────────────────────────────────────────┐
-│  1. CONCEPT (AI)                             │
-│  Explain in simple terms (ELIF5) + Analogy   │
+│  1. THEORY NOTES (AI)                        │
+│  Read notes/theory/L##_*.md                  │
+│  Intuition-first explanations + formulas     │
 └──────────────────────┬───────────────────────┘
                        ▼
 ┌──────────────────────────────────────────────┐
-│  2. CODE (AI + User)                         │
-│  Write & run clean Python code for the math  │
+│  2. DERIVATIONS (AI + User)                  │
+│  Read notes/derivations/D##_*.md             │
+│  Step-by-step proofs from first principles   │
 └──────────────────────┬───────────────────────┘
                        ▼
 ┌──────────────────────────────────────────────┐
-│  3. CHECKPOINT (User)                        │
-│  Explain the intuition back or tweak the code│
+│  3. LAB CODE (AI + User)                     │
+│  Run notes/lab/L##_*.ipynb                   │
+│  Clean Python implementations of the math    │
 └──────────────────────┬───────────────────────┘
                        ▼
 ┌──────────────────────────────────────────────┐
-│  4. PROGRESS (Dashboard)                     │
-│  Check off the sub-topic and move forward    │
+│  4. REAL DATA LAB (User)                     │
+│  Run notes/lab/L##_Real_Data.ipynb           │
+│  Apply concepts to actual market data        │
+└──────────────────────┬───────────────────────┘
+                       ▼
+┌──────────────────────────────────────────────┐
+│  5. PROBLEM SET (User)                       │
+│  Solve notes/problem_sets/PS##_*.md          │
+│  Multi-step MIT-level problems (no peeking!) │
+└──────────────────────┬───────────────────────┘
+                       ▼
+┌──────────────────────────────────────────────┐
+│  6. BRIDGE NOTES (Read)                      │
+│  Read notes/bridge/B##_*.md                  │
+│  How this applies in the real world          │
+└──────────────────────┬───────────────────────┘
+                       ▼
+┌──────────────────────────────────────────────┐
+│  7. WEEKLY QUIZ (User, Timed)                │
+│  Complete notes/quizzes/Quiz_##_*.md         │
+│  30-min timed test — score ≥ 21/30 to pass   │
 └──────────────────────────────────────────────┘
+```
+
+---
+
+## 📁 Repository Structure
+
+```
+mit-quant-finance-applications/
+├── 00_Dashboard.md            ← Live progress tracker
+├── flight_plan.md             ← This file (master blueprint)
+├── .agents/
+│   ├── AGENTS.md              ← AI behavioral rules
+│   └── session_state.md       ← AI resume-state tracker
+└── notes/
+    ├── theory/                ← Clean markdown explanations + formulas
+    │   └── L01_Bond_Math.md
+    ├── derivations/           ← Step-by-step mathematical proofs
+    │   └── D01_Bond_Math.md
+    ├── lab/                   ← Jupyter notebooks (Python implementations)
+    │   ├── L01_Bond_Math.ipynb
+    │   └── L01_Real_Data.ipynb
+    ├── problem_sets/          ← MIT-level problem sets + solutions
+    │   ├── PS01_Bond_Math.md
+    │   └── PS01_Solutions.md
+    ├── bridge/                ← Theory-to-industry connections
+    │   └── B01_Bond_Math.md
+    ├── quizzes/               ← Timed self-assessment quizzes
+    │   ├── QUIZ_TEMPLATE.md
+    │   ├── Quiz_01_Bond_Math.md
+    │   └── Quiz_01_Answers.md
+    └── library/               ← Reference sheets and tools
 ```
 
 ---
@@ -41,18 +99,10 @@ For every sub-topic (e.g., *Yield curves*, *Itô's Lemma*, *GARCH models*):
 ## 🛠️ The Tech Rules
 
 1. **Ignore R/RStudio:** The OCW materials use R. We ignore it. Everything is implemented in Python using `numpy`, `pandas`, `scipy`, `matplotlib`, and Jupyter notebooks in `notes/lab/`.
-2. **Focus on Problem Sets:** Use the problem sets from Fall 2013 and Fall 2024 as our benchmarks for whether you've successfully mastered a topic.
-3. **Bridge Folder:** When you learn a math concept and want to note how it connects to real-world trading strategies or resume-building project ideas, log it in `notes/bridge/`.
-
----
-
-## 📁 Repository Navigation
-
-* [00_Dashboard.md](file:///C:/Users/HP/OneDrive/Desktop/mit-quant-finance-applications/00_Dashboard.md) → Your live progress tracker.
-* [course_map.md](file:///C:/Users/HP/.gemini/antigravity-cli/brain/bb5c9b26-8006-4c62-bb20-1138a12ba829/course_map.md) → Overview of the entire course structure.
-* `notes/theory/` → Clean markdown files containing the math derivations and conceptual explanations.
-* `notes/lab/` → Jupyter notebooks containing Python implementations.
-* `notes/library/` → Reference sheets and tools.
+2. **Problem Sets are King:** You have not learned a topic until you can solve its problem set without looking at notes.
+3. **Real Data or Bust:** Every lecture should have at least one notebook using real market data, not just toy examples.
+4. **Bridge Folder:** When you learn a math concept, the bridge note tells you where it's used in industry and suggests resume-building project ideas.
+5. **Weekly Quizzes:** Every weekend, take the quiz for the week's lecture(s). Score ≥ 21/30 to advance.
 
 ---
 
