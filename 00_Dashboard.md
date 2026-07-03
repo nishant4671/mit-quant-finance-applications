@@ -8,7 +8,7 @@
 
 | Lecture | Type | Topic | Status | Confidence (1–5) |
 |---------|------|-------|--------|-------------------|
-| 1 | Intro | Financial Terms, Concepts, Bond Math | In Progress | – |
+| 1 | Intro | Financial Terms, Concepts, Bond Math | Done | – |
 | 2 | Math | Linear Algebra | Not Started | – |
 | 3 | App | Quantitative Equity Investing | Not Started | – |
 | 4 | Math | Linear Algebra (cont.); Probability Theory | Not Started | – |
@@ -40,11 +40,11 @@
 ## 🎯 Active Lecture: Lecture 1 (Bond Math)
 Track micro-lessons for the current active lecture here:
 
-* [ ] **Lesson 1.1: Time Value of Money & Compounding** (PV, FV, Continuous Compounding)
-* [ ] **Lesson 1.2: Bond Pricing Mechanics** (Zero-coupon bonds, Coupon bonds, Yield-to-Maturity)
-* [ ] **Lesson 1.3: Yield Curves & Spot Rates** (What they are, how to read them)
-* [ ] **Lesson 1.4: Risk Sensitivity: Duration** (Macaulay and Modified Duration)
-* [ ] **Lesson 1.5: Risk Sensitivity: Convexity** (Bond acceleration and price adjustment)
+* [x] **Lesson 1.1: Time Value of Money & Compounding** (PV, FV, Continuous Compounding)
+* [x] **Lesson 1.2: Bond Pricing Mechanics** (Zero-coupon bonds, Coupon bonds, Yield-to-Maturity)
+* [x] **Lesson 1.3: Yield Curves & Spot Rates** (What they are, how to read them)
+* [x] **Lesson 1.4: Risk Sensitivity: Duration** (Macaulay and Modified Duration)
+* [x] **Lesson 1.5: Risk Sensitivity: Convexity** (Bond acceleration and price adjustment)
 
 ---
 
