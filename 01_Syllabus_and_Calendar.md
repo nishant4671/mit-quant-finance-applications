@@ -31,7 +31,7 @@ The purpose of the class is to expose undergraduate and graduate students to the
 
 ## Course Calendar
 
-| Lecture | Type | Instructor | Topic | Notes |
+| Lecture | Type | Instructor | Topic | Notes 
 | :--- | :--- | :--- | :--- | :--- |
 | **1** | Intro | Kempthorne, Xia, Strela | Introduction. Financial Terms and Concepts. Bond Math. | |
 | **2** | Math | Peter Kempthorne | Linear Algebra | |
