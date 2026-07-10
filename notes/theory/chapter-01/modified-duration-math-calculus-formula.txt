@@ -1,0 +1,423 @@
+This is actually **the most important formula in the entire Duration chapter** because it connects **calculus** with **finance**.
+
+---
+
+# The Calculus Definition of Modified Duration
+
+The formal definition is
+
+[
+D_{\text{mod}}
+==============
+
+-\frac{1}{P}\frac{dP}{dy}
+]
+
+where:
+
+* (D_{\text{mod}}) = Modified Duration
+* (P) = Current bond price
+* (y) = Yield to Maturity (YTM)
+* (\frac{dP}{dy}) = Derivative of bond price with respect to yield
+
+---
+
+## What does (\frac{dP}{dy}) mean?
+
+The derivative
+
+[
+\frac{dP}{dy}
+]
+
+means
+
+> **How fast does the bond price change when the yield changes by an infinitesimally small amount?**
+
+Think of calculus.
+
+If
+
+[
+y=f(x)
+]
+
+then
+
+[
+\frac{dy}{dx}
+]
+
+means
+
+> "Rate of change of (y) with respect to (x)."
+
+Exactly the same idea here.
+
+Instead of
+
+[
+\frac{dy}{dx}
+]
+
+we have
+
+[
+\frac{dP}{dy}
+]
+
+which means
+
+> "Rate of change of Bond Price with respect to Yield."
+
+---
+
+# Why the Negative Sign?
+
+A bond price decreases when yield increases.
+
+Therefore
+
+[
+\frac{dP}{dy}<0
+]
+
+always for an ordinary bond.
+
+Modified Duration is supposed to be reported as a **positive measure of sensitivity**.
+
+So we multiply by
+
+[
+-1
+]
+
+to make it positive.
+
+---
+
+# Why divide by (P)?
+
+Suppose
+
+Bond A
+
+Price = ₹100
+
+Price falls ₹5
+
+Bond B
+
+Price = ₹1000
+
+Price falls ₹5
+
+Is the impact the same?
+
+No.
+
+Bond A lost
+
+5%
+
+Bond B lost
+
+0.5%
+
+Therefore
+
+we normalize by dividing by price.
+
+This converts
+
+Absolute Change
+
+↓
+
+Percentage Change
+
+That's why
+
+[
+\frac{1}{P}
+]
+
+appears.
+
+---
+
+# Complete Interpretation
+
+[
+D_{\text{mod}}
+==============
+
+-\frac{1}{P}\frac{dP}{dy}
+]
+
+means
+
+> **Modified Duration is the negative percentage rate of change of bond price with respect to yield.**
+
+It measures **percentage price sensitivity**, not absolute price sensitivity.
+
+---
+
+# Where Does This Formula Come From?
+
+Start with the bond pricing equation.
+
+[
+P(y)
+====
+
+\sum_{t=1}^{n}
+\frac{CF_t}{(1+y)^t}
+]
+
+Notice something.
+
+The bond price
+
+depends on
+
+yield.
+
+Therefore,
+
+we can think of it as
+
+[
+P=f(y)
+]
+
+Since
+
+price
+
+is a function of
+
+yield,
+
+calculus tells us
+
+differentiate it.
+
+Take the derivative.
+
+[
+\frac{dP}{dy}
+=============
+
+\frac{d}{dy}
+\left(
+\sum_{t=1}^{n}
+\frac{CF_t}{(1+y)^t}
+\right)
+]
+
+Differentiate term by term.
+
+# [
+
+\sum_{t=1}^{n}
+CF_t
+\cdot
+\frac{d}{dy}
+\left(
+(1+y)^{-t}
+\right)
+]
+
+Using the power rule
+
+[
+\frac{d}{dx}
+x^n
+===
+
+nx^{n-1}
+]
+
+we obtain
+
+[
+\frac{dP}{dy}
+=============
+
+*
+
+\sum_{t=1}^{n}
+\frac{tCF_t}
+{(1+y)^{t+1}}
+]
+
+Notice
+
+every term is
+
+negative.
+
+Therefore
+
+bond price always decreases when yield increases.
+
+---
+
+# Substituting into Modified Duration
+
+Now substitute this derivative into
+
+[
+D_{\text{mod}}
+==============
+
+*
+
+\frac{1}{P}
+\frac{dP}{dy}
+]
+
+The negatives cancel.
+
+We obtain
+
+[
+D_{\text{mod}}
+==============
+
+\frac{1}{P}
+\sum_{t=1}^{n}
+\frac{tCF_t}
+{(1+y)^{t+1}}
+]
+
+This is another mathematical expression for Modified Duration.
+
+---
+
+# Connection with Macaulay Duration
+
+Macaulay Duration is
+
+[
+D_{\text{mac}}
+==============
+
+\frac{1}{P}
+\sum_{t=1}^{n}
+\frac{tCF_t}
+{(1+y)^t}
+]
+
+Notice the only difference.
+
+Modified Duration has
+
+[
+(1+y)^{t+1}
+]
+
+Macaulay has
+
+[
+(1+y)^t
+]
+
+Factor out one
+
+[
+(1+y)
+]
+
+from every denominator.
+
+Then
+
+[
+D_{\text{mod}}
+==============
+
+\frac{D_{\text{mac}}}
+{1+y}
+]
+
+For annual compounding.
+
+More generally,
+
+[
+D_{\text{mod}}
+==============
+
+\frac{D_{\text{mac}}}
+{1+\frac{y}{m}}
+]
+
+where (m) is the number of compounding periods per year.
+
+---
+
+# Financial Interpretation
+
+Suppose
+
+[
+D_{\text{mod}}=7
+]
+
+This means
+
+Every
+
+1%
+
+increase in yield
+
+causes approximately
+
+7%
+
+decrease
+
+in bond price.
+
+Likewise,
+
+Every
+
+1%
+
+decrease in yield
+
+causes approximately
+
+7%
+
+increase
+
+in bond price.
+
+This relationship is expressed by
+
+[
+\frac{\Delta P}{P}
+\approx
+-------
+
+D_{\text{mod}}
+\Delta y
+]
+
+---
+
+# Memory Trick
+
+Think of Modified Duration as the **slope** of the Bond Price–Yield curve.
+
+* **Price** is on the vertical axis.
+* **Yield** is on the horizontal axis.
+
+The derivative (\frac{dP}{dy}) measures the slope of that curve at the current yield. Because the curve slopes downward, the slope is negative. Modified Duration simply takes that slope, normalizes it by the bond price, and changes the sign so the result is a positive measure of interest-rate sensitivity.
+
+This is why, in quantitative finance, Modified Duration is often described as **the first derivative (first-order sensitivity) of bond price with respect to yield**. The next chapter, **Convexity**, introduces the **second derivative**, which measures how the slope itself changes as yields change.
