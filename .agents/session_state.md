@@ -6,9 +6,9 @@
 
 ## 🔍 Current State
 * **Active Lecture:** Lecture 1 (Financial Terms, Concepts, and Bond Math)
-* **Last Completed Lesson:** Lesson 1.3: Yield Curves & Spot Rates (User Study Completed)
-* **Current Lesson:** Lesson 1.4: Risk Sensitivity: Duration
-* **Current Task:** Teaching the intuition of Macaulay and Modified Duration. Waiting for user's confirmation.
+* **Last Completed Lesson:** Lesson 1.4: Risk Sensitivity: Duration (Theory Study Completed)
+* **Current Lesson:** Lesson 1.4: Risk Sensitivity: Duration (Derivations & Lab Code)
+* **Current Task:** User has completed the theory portion of 1.4. Next step is either the mathematical derivations or Python implementation.
 
 ---
 
@@ -28,3 +28,6 @@
   * User studied and completed Theory 1.3 (Yield Curves & Spot Rates) and signed off for the day.
 * **2026-07-04 (Session 4):**
   * Resumed session. Starting micro-lesson for Lesson 1.4: Risk Sensitivity (Duration).
+* **2026-07-11 (Session 5):**
+  * User completed independent theory study for Lesson 1.4 (Duration) using external sources.
+  * Updated `AGENTS.md` to reflect user preference: return only bare topic names for syllabus requests.
