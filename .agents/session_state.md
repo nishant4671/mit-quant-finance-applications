@@ -35,3 +35,5 @@
   * Resumed session. Started micro-lesson for Lesson 1.5: Risk Sensitivity (Convexity). Presenting intuition, formula, and python code, waiting for checkpoint response.
 * **2026-07-13 (Session 7):**
   * Resumed session. User requested lecture video recommendations for Lesson 1.5. Provided recommendations including MIT 18.642 Lecture 1, Part III. User is now watching the lecture.
+  * User reported that the previous OCW lecture note link was broken and asked for textbook recommendations. Clarified the OCW navigation layout (reorganized by Week blocks) and recommended three comprehensive textbooks (Capiński, Ruppert, and Shreve) to act as course references.
+  * User asked if the AI could compile a custom, printable book matching the MIT 18.642 curriculum. Outlined the custom book plan and detailed Table of Contents, and proposed a compiler script to merge notes into a single printable PDF-ready file.
