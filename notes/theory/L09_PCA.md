@@ -4,29 +4,24 @@
 
 ## 🕒 Lesson 9.1: PCA as Dimensionality Reduction
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> PCA identifies orthogonal linear combinations of variables that capture the maximum variance in a high-dimensional dataset.
+<h3>1. Intuition (ELIF5)</h3>
+Imagine looking at a complex multidimensional object. By projecting its shadow onto a flat wall, you can capture most of its details. PCA is the mathematical equivalent of finding the best angle to cast this shadow, reducing the number of variables we need to analyze while retaining as much variance as possible.
 
-### 1. Intuition (ELIF5)
-Imagine you want to describe a model airplane. You could list the 3D coordinates of 1,000 points on its surface. Or, you could describe its length, wingspan, and height. By focusing on the directions of greatest variation, you reduce the description from 1,000 coordinates to just 3 core dimensions. PCA is the mathematical tool that finds these key dimensions for complex data.
-
-### 2. Formulas
+### 2. Mathematical Formulations
 We compute the eigenvalues $\Lambda$ and eigenvectors $V$ of the covariance matrix $\Sigma$:
 $$\Sigma = V \Lambda V^T$$
-The transformed principal components are:
+The principal components are given by:
 $$Y = V^T X$$
 
 ---
 
-## 🕒 Lesson 9.2: Yield Curve Factors (Level, Slope, Curvature)
+## 🕒 Lesson 9.2: Yield Curve Factors
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Applying PCA to bond yields reveals three principal components that explain over 95% of yield curve movements: level shifts, slope twists, and belly curvature.
+<h3>1. Intuition (ELIF5)</h3>
+When we apply PCA to interest rates across different maturities, we find that three main shapes explain almost all movements in the yield curve:
+1. **Level:** The entire curve shifts up or down in parallel.
+2. **Slope:** The curve tilts (short rates rise, long rates fall).
+3. **Curvature:** The middle of the curve bends.
 
-### 1. Intuition (ELIF5)
-Instead of tracking 30 different interest rates (from 1-month to 30-year yields), PCA tells us that yield curves move in three main patterns:
-1. **Level (PC1 ~90%):** The entire curve moves up or down in parallel.
-2. **Slope (PC2 ~5-8%):** The curve tilts (short rates drop, long rates rise, or vice versa).
-3. **Curvature (PC3 ~1-2%):** The middle of the curve bulges or flattens while the ends remain stable.
+### 2. Mathematical Formulations
+The first three principal components typically account for over 95% of the total variance of yield curve changes, allowing us to model the entire curve with just three factors.

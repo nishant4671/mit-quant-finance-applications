@@ -5,265 +5,279 @@ def write_chapters():
     theory_dir = os.path.join(base_dir, "notes", "theory")
     os.makedirs(theory_dir, exist_ok=True)
 
+    # Note: All string values are marked as raw strings (r""") to prevent Python from escaping backslashes like \f, \t, etc.
     chapters = {
-        "L02_Linear_Algebra.md": """# Applied Linear Algebra in Quantitative Finance
+        "L01_Bond_Math.md": r"""# Financial Terms, Concepts, and Bond Math
 
 ---
 
-## 🕒 Lesson 2.1: Matrices as Transformations
-
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Matrices act as geometric operators that rotate, scale, or project vector spaces, allowing us to translate coordinate systems to find the natural axes of data.
+## 🕒 Lesson 1.1: Time Value of Money & Compounding
 
 ### 1. Intuition (ELIF5)
-Imagine you are looking at a 3D statue. If you look at it from the front, it looks like a flat circle. If you look from the side, it looks like a rectangle. By rotating the statue (or moving your camera), you change your perspective.
-In finance, a matrix is a tool that takes a set of stock returns and transforms them (rotates or scales them) into a new perspective. Instead of looking at 500 individual stocks, we can rotate our view to align with the overall movements of the market.
+Imagine you have $100 today. You can deposit this money in a bank account, and the bank will pay you a fee for borrowing your cash over time. This fee is called interest. If you choose to receive $100 five years from now instead of today, you lose the opportunity to earn interest during those five years. Therefore, money today is worth more than the same amount of money in the future. The Present Value (PV) represents the current worth of a future cash flow, while the Future Value (FV) represents what that current sum will grow into over time.
 
-### 2. Formulas
-A matrix $A$ transforms a vector $x$ into a new vector $y$:
+### 2. Mathematical Formulations
+If interest is compounded $m$ times per year at an annual nominal rate $r$, the Future Value after $t$ years is given by:
+$$FV = PV \left(1 + \frac{r}{m}\right)^{m \cdot t}$$
+Conversely, the Present Value is computed by discounting the Future Value back to the present:
+$$PV = \frac{FV}{\left(1 + \frac{r}{m}\right)^{m \cdot t}}$$
+In quantitative finance, we frequently assume interest is compounded continuously (i.e., $m \to \infty$). In this limit, the formulations simplify to:
+$$FV = PV \cdot e^{r \cdot t}$$
+$$PV = FV \cdot e^{-r \cdot t}$$
+
+---
+
+## 🕒 Lesson 1.2: Bond Pricing Mechanics
+
+### 1. Intuition (ELIF5)
+A bond is essentially a loan agreement between an investor and a borrower (such as a corporation or government). When you buy a bond, you lend money to the issuer. In return, the issuer promises to make periodic interest payments, known as coupons, and to return the original loan amount, called the face value or principal, when the bond matures. The fair price of a bond today is simply the sum of all its expected future cash flows, discounted back to the present using an appropriate discount rate.
+
+### 2. Mathematical Formulations
+For a zero-coupon bond (which pays no intermediate coupons and only returns the face value $F$ at maturity $T$), the price under continuous compounding is:
+$$P_{\text{zcb}} = F \cdot e^{-y \cdot T}$$
+For a coupon-bearing bond paying a periodic coupon $C$ $m$ times a year, the price $P$ is the sum of the discounted cash flows:
+$$P = \sum_{k=1}^{n} \frac{C}{\left(1 + \frac{y}{m}\right)^k} + \frac{F}{\left(1 + \frac{y}{m}\right)^n}$$
+where $y$ is the Yield to Maturity (YTM) and $n = m \cdot T$ is the total number of periods. The YTM is the single constant interest rate that equates the present value of the bond's cash flows to its current market price. Since this equation cannot be solved algebraically for $y$, numerical root-finding algorithms (such as the Newton-Raphson method) are required.
+
+---
+
+## 🕒 Lesson 1.3: Yield Curves & Spot Rates
+
+### 1. Intuition (ELIF5)
+If you borrow money for one day, one year, or ten years, the interest rate you pay is usually different. Lenders generally demand higher interest rates for longer loans to compensate for the risk of locking up their capital. A Yield Curve is a graphical plot of the interest rates of bonds with similar credit quality across different maturities. 
+A Spot Rate is the interest rate applicable to a single, isolated cash flow occurring at a specific future date. While the Yield to Maturity represents a weighted average of discount rates over a bond's life, spot rates are the true rates used to discount individual cash flows.
+
+### 2. Mathematical Formulations
+The Discount Factor $d(t)$ represents the present value of $1 received at time $t$. Under continuous compounding, it is defined as:
+$$d(t) = e^{-r(t) \cdot t}$$
+where $r(t)$ is the spot rate for maturity $t$. Given a set of liquid coupon bond prices, we can recursively determine the spot rates using a method called bootstrapping. For the first period, the spot rate is derived directly from the short-term zero-coupon rate. For subsequent periods, the price of the bond is expressed as the sum of discounted coupons using previously calculated spot rates, plus the final payment discounted at the new spot rate, which is then solved algebraically.
+
+---
+
+## 🕒 Lesson 1.4: Risk Sensitivity: Duration
+
+### 1. Intuition (ELIF5)
+Duration measures a bond's sensitivity to changes in interest rates. Imagine balancing a plank on your shoulder with weights distributed along it representing the cash flows. The Macaulay Duration represents the balance point or center of gravity of these cash flows. The Modified Duration measures the actual percentage change in the bond's price for a given change in interest rates. A higher duration means the bond's price will fluctuate more violently when interest rates move.
+
+### 2. Mathematical Formulations
+The Macaulay Duration ($D_{\text{mac}}$) is the weighted average time to receive all cash flows, where the weights are the present values of the cash flows:
+$$D_{\text{mac}} = \frac{\sum_{t} t \cdot CF_t \cdot e^{-y \cdot t}}{P}$$
+The Modified Duration ($D_{\text{mod}}$) measures the price sensitivity and is related to the derivative of price with respect to yield:
+$$D_{\text{mod}} = -\frac{1}{P} \frac{dP}{dy}$$
+Under discrete compounding, the relationship is:
+$$D_{\text{mod}} = \frac{D_{\text{mac}}}{1 + \frac{y}{m}}$$
+For small changes in yield $\Delta y$, the percentage price change is approximated linearly by:
+$$\frac{\Delta P}{P} \approx -D_{\text{mod}} \cdot \Delta y$$
+
+---
+
+## 🕒 Lesson 1.5: Risk Sensitivity: Convexity
+
+### 1. Intuition (ELIF5)
+Because the relationship between a bond's price and interest rates is curved (convex) rather than linear, a straight-line duration estimate becomes inaccurate for larger interest rate shocks. Convexity measures the curvature of this relationship. It describes how the duration of a bond changes as interest rates fluctuate. For plain bonds, convexity is positive, meaning that when interest rates fall, the price rises faster than duration predicts, and when rates rise, the price falls slower. This is the "convexity bonus" enjoyed by bondholders.
+
+### 2. Mathematical Formulations
+Convexity ($C$) is proportional to the second derivative of the bond price with respect to the yield:
+$$C = \frac{1}{P} \frac{d^2 P}{dy^2}$$
+Under discrete compounding, the formula is:
+$$C = \frac{1}{P \cdot (1 + y/m)^2} \sum_{k=1}^{n} \frac{k(k+1) \cdot CF_k}{m^2 \cdot (1 + y/m)^k}$$
+To obtain a highly accurate estimate of the percentage price change for a large yield shock $\Delta y$, we use the second-order Taylor series approximation:
+$$\frac{\Delta P}{P} \approx -D_{\text{mod}} \cdot \Delta y + \frac{1}{2} C \cdot (\Delta y)^2$$
+""",
+
+        "L02_Linear_Algebra.md": r"""# Applied Linear Algebra in Quantitative Finance
+
+---
+
+## 🕒 Lesson 2.1: Matrices as Linear Transformations
+
+### 1. Intuition (ELIF5)
+Imagine you are looking at a 3D object on a screen. When you rotate the camera, the object's shape changes on the screen. The rotation of the camera is a transformation of the coordinates. In quantitative finance, we treat portfolios of assets similarly. A matrix is a mathematical tool that rotates and scales asset returns, transforming them from one coordinate system (individual stocks) into a new coordinate system (underlying risk factors).
+
+### 2. Mathematical Formulations
+A square matrix $A$ of size $n \times n$ maps an input vector $x \in \mathbb{R}^n$ to an output vector $y \in \mathbb{R}^n$:
 $$y = A x$$
+This operation represents a linear combination of the columns of $A$ scaled by the elements of $x$.
 
 ---
 
 ## 🕒 Lesson 2.2: Eigenvalues & Eigenvectors
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Eigenvectors are the directions that remain unchanged in orientation when transformed by a matrix, and eigenvalues measure the scale of stretch along those directions.
-
 ### 1. Intuition (ELIF5)
-Imagine blowing up a balloon. Most points on the balloon's surface move in different directions. However, there are usually a few lines of points (like the vertical axis from the knot to the top) that point in the exact same direction before and after inflation—they just got stretched.
-* The **Eigenvector** is that line which did not change its direction.
-* The **Eigenvalue** is the factor by which that line stretched (e.g., it doubled in length, so eigenvalue = 2).
+Imagine blowing up a balloon. Most points on the balloon's surface move in different directions. However, there are specific axes (like the line pointing straight up from the tie) that stretch but point in the exact same direction as before. In linear algebra, these special axes are eigenvectors, and the factor by which they stretch is the eigenvalue. In finance, if the matrix represents the covariance of stock returns, the eigenvector with the largest eigenvalue points in the direction of the market's primary risk driver.
 
-In finance, if $A$ is the covariance matrix of asset returns, the eigenvector with the largest eigenvalue represents the direction of the market's maximum volatility (the "Market Factor").
-
-### 2. Formulas
-An eigenvector $v$ and its corresponding eigenvalue $\lambda$ for a square matrix $A$ satisfy:
+### 2. Mathematical Formulations
+For a square matrix $A$, a non-zero vector $v$ is an eigenvector if:
 $$A v = \lambda v$$
-To solve for eigenvalues, we find the roots of the characteristic equation:
+where $\lambda$ is the eigenvalue. We solve for $\lambda$ by finding the roots of the characteristic equation:
 $$\det(A - \lambda I) = 0$$
 
 ---
 
 ## 🕒 Lesson 2.3: Covariance Matrices & Quadratic Forms
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Covariance matrices capture the joint variability of assets, and quadratic forms allow us to compute aggregate portfolio variance from asset weights.
-
 ### 1. Intuition (ELIF5)
-If you own two stocks, their combined risk isn't just the sum of their individual risks. You also need to know if they move together (covariance). 
-* Positive covariance: they rise and fall together (like two tech stocks).
-* Negative covariance: one rises when the other falls (like gold and tech).
-A **Covariance Matrix** is a grid of numbers showing the relationship between every pair of stocks. A **quadratic form** is the mathematical operation of weighting these relationships to calculate your portfolio's total risk.
+The risk of a portfolio is not simply the sum of the risks of its individual assets. We must account for how the assets move together. This joint risk is stored in a grid called a Covariance Matrix. A positive covariance means the assets move together, while a negative covariance means they move in opposite directions. We use a quadratic form to calculate the total portfolio variance from the covariance matrix and the portfolio weights.
 
-### 2. Formulas
-For a portfolio with weight vector $w$ and asset covariance matrix $\Sigma$:
-$$\sigma_p^2 = w^T \Sigma w = \sum_{i=1}^n \sum_{j=1}^n w_i w_j \text{Cov}(R_i, R_j)$$
+### 2. Mathematical Formulations
+Let $\Sigma$ be the $n \times n$ covariance matrix of $n$ assets, where the entry $\Sigma_{ij} = \text{Cov}(R_i, R_j)$. The variance of a portfolio with weight vector $w \in \mathbb{R}^n$ is computed via the quadratic form:
+$$\sigma_p^2 = w^T \Sigma w = \sum_{i=1}^n \sum_{j=1}^n w_i w_j \Sigma_{ij}$$
+Because $\Sigma$ is symmetric and positive semi-definite, the portfolio variance is guaranteed to be non-negative for all weight vectors:
+$$w^T \Sigma w \ge 0$$
 """,
 
-        "L03_Quant_Equity.md": """# Quantitative Equity Investing & Portfolio Optimization
+        "L03_Quant_Equity.md": r"""# Quantitative Equity Investing & Portfolio Optimization
 
 ---
 
 ## 🕒 Lesson 3.1: Modern Portfolio Theory (MPT)
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Modern Portfolio Theory defines the optimal combination of risky assets that maximizes expected return for a given level of risk (variance).
-
 ### 1. Intuition (ELIF5)
-Imagine you are packing a lunchbox. You want it to be as tasty as possible (high return) but with the lowest risk of causing an allergic reaction (low risk). Some ingredients taste great but are risky; others are safe but bland. MPT is a recipe that mixes these ingredients to give you the most delicious lunch possible for whatever level of risk you are willing to tolerate.
+Suppose you are putting together a portfolio. If you put all your money into one stock, you risk losing everything if that company fails. By spreading your money across different companies that operate in different sectors, you reduce your overall risk. MPT provides the mathematical framework for this diversification, showing that you can maximize expected returns for a given level of risk by combining assets that are not perfectly correlated.
 
-### 2. Formulas
-* **Portfolio Return:**
-  $$E[R_p] = w^T E[R]$$
-* **Portfolio Variance:**
-  $$\sigma_p^2 = w^T \Sigma w$$
-* **Sharpe Ratio:**
-  $$\text{Sharpe} = \frac{E[R_p] - R_f}{\sigma_p}$$
+### 2. Mathematical Formulations
+Let $R_f$ be the risk-free rate, and $E[R]$ be the vector of expected asset returns. For a portfolio weight vector $w$, the expected return is:
+$$E[R_p] = w^T E[R]$$
+The portfolio volatility is $\sigma_p = \sqrt{w^T \Sigma w}$. The Sharpe Ratio, which measures the excess return per unit of risk, is:
+$$\text{Sharpe} = \frac{E[R_p] - R_f}{\sigma_p}$$
 
 ---
 
 ## 🕒 Lesson 3.2: Mean-Variance Optimization & The Efficient Frontier
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> The Efficient Frontier is the set of optimal portfolios that offer the highest expected return for defined risk levels, solved using quadratic programming.
-
 ### 1. Intuition (ELIF5)
-If you plot all possible asset combinations on a chart with "Risk" on the bottom and "Return" on the side, you get a curved region. The top edge of this curve is the **Efficient Frontier**. Any portfolio on this line is optimal: you cannot get more return without taking more risk, and you cannot lower risk without giving up return.
+The Efficient Frontier is a curve representing the set of optimal portfolios that offer the highest expected return for each level of risk. An investor wants to construct a portfolio that lies on this frontier. Portfolios below the frontier are sub-optimal because you could achieve a higher return for the same risk, or lower risk for the same return.
 
-### 2. Formulas
-To find the weights $w$ of the optimal portfolio for risk aversion parameter $\lambda > 0$:
+### 2. Mathematical Formulations
+To find the weights $w$ of the optimal portfolio on the efficient frontier, we solve the quadratic optimization problem:
 $$\max_{w} \left( w^T E[R] - \frac{\lambda}{2} w^T \Sigma w \right)$$
 subject to:
-$$w^T \mathbf{1} = 1 \quad \text{(Fully invested constraint)}$$
+$$w^T \mathbf{1} = 1$$
+where $\lambda$ is the investor's risk aversion parameter.
 """,
 
-        "L04_Probability_Theory.md": """# Probability Theory & Random Variables
+        "L04_Probability_Theory.md": r"""# Probability Theory & Random Variables
 
 ---
 
-## 🕒 Lesson 4.1: Random Variables & Distributions
-
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Random variables model uncertain numerical outcomes, and probability density functions (PDFs) map the relative likelihood of these outcomes.
+## 🕒 Lesson 4.1: Random Variables & Probability Distributions
 
 ### 1. Intuition (ELIF5)
-Imagine rolling a die. Before you roll, you don't know the number, but you know it must be 1, 2, 3, 4, 5, or 6, and each has a 1-in-6 chance. A **random variable** is the mathematical placeholder for this rolling die. The **probability distribution** is the rulebook that tells you how likely each outcome is.
+A random variable is a mathematical variable that takes on different values based on the outcome of a random event. For example, the return of a stock tomorrow is a random variable. A probability distribution describes how likely the variable is to take on different values.
 
-### 2. Formulas
-* **Expected Value (Mean $\mu$):**
-  $$E[X] = \int_{-\infty}^{\infty} x f(x) dx$$
-* **Variance ($\sigma^2$):**
-  $$\text{Var}(X) = E[(X - E[X])^2] = E[X^2] - (E[X])^2$$
+### 2. Mathematical Formulations
+For a continuous random variable $X$ with probability density function (PDF) $f(x)$, the expected value (mean $\mu$) is:
+$$E[X] = \int_{-\infty}^{\infty} x f(x) dx$$
+The variance ($\sigma^2$) measures the dispersion of the random variable around its mean:
+$$\text{Var}(X) = E[(X - E[X])^2] = \int_{-\infty}^{\infty} (x - \mu)^2 f(x) dx$$
 
 ---
 
-## 🕒 Lesson 4.2: Normal vs. Log-Normal Distributions in Finance
-
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Financial models assume asset returns are normally distributed (can be positive or negative) and asset prices are log-normally distributed (bounded below by zero).
+## 🕒 Lesson 4.2: Normal vs. Log-Normal Distributions
 
 ### 1. Intuition (ELIF5)
-A normal distribution (bell curve) goes off to infinity in both directions. However, a stock price cannot drop below zero (companies have limited liability; you can't owe money just for holding stock).
-Therefore, we assume:
-* **Asset Returns** follow a Normal distribution (you can lose -10% or gain +10%).
-* **Asset Prices** follow a Log-Normal distribution (always positive, ranging from 0 to infinity).
+A normal distribution is symmetric and bell-shaped, allowing values to be negative. However, stock prices cannot drop below zero. To resolve this, we model stock returns (which can be positive or negative) as normally distributed, which implies that the stock prices themselves follow a log-normal distribution (always positive).
 
-### 2. Formulas
-If $\ln(S_t) \sim N(\mu, \sigma^2)$, then $S_t$ is log-normally distributed with PDF:
+### 2. Mathematical Formulations
+If the log-returns $x_t = \ln(S_t/S_0)$ follow a normal distribution $N(\mu, \sigma^2)$, then the stock price $S_t$ follows a log-normal distribution with PDF:
 $$f(s) = \frac{1}{s \sigma \sqrt{2\pi}} e^{-\frac{(\ln s - \mu)^2}{2\sigma^2}} \quad (s > 0)$$
 """,
 
-        "L05_Stochastic_Processes_I.md": """# Stochastic Processes I & Asset Return Modeling
+        "L05_Stochastic_Processes_I.md": r"""# Stochastic Processes I & Asset Return Modeling
 
 ---
 
 ## 🕒 Lesson 5.1: Random Walks & The Markov Property
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> A stochastic process is a sequence of random variables index by time, and the Markov property states that the future is conditionally independent of the past, given the present.
-
 ### 1. Intuition (ELIF5)
-Imagine a frog jumping on lily pads. The frog's next jump depends only on the lily pad it is standing on *right now*. It doesn't matter if it traveled north, south, or did a flip to get there. The frog's path has no memory of the past. This memoryless rule is the **Markov Property**.
+A stochastic process is a sequence of random variables indexed by time, representing how a random system evolves. A random walk is a simple process where each step is random. The Markov Property states that the future path of the process depends only on its current state today, not on the path it took to get there. It is a "memoryless" process.
 
-### 2. Formulas
-For a sequence of states $X_0, X_1, X_2, \dots$:
+### 2. Mathematical Formulations
+A discrete-time stochastic process $\{X_t\}$ satisfies the Markov property if:
 $$P(X_{t+1} = x_{t+1} \mid X_t = x_t, X_{t-1} = x_{t-1}, \dots, X_0 = x_0) = P(X_{t+1} = x_{t+1} \mid X_t = x_t)$$
 
 ---
 
 ## 🕒 Lesson 5.2: Martingales (Fair Games)
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> A martingale is a stochastic model of a fair game where the expected future value, given all historical information, is equal to the current value.
-
 ### 1. Intuition (ELIF5)
-Imagine playing a fair game of coin flipping with a friend. If you have $100 right now, and you bet $1 on each flip, on average you expect to have exactly $100 after the next flip because your chance of winning is 50/50. A **martingale** is any process where your best guess for the future is simply what you have right now.
+A martingale is a mathematical model of a fair game. If you are betting on a series of fair coin flips, your expected wealth after the next flip, given everything you know about the past flips, is exactly equal to your wealth right now. On average, you neither win nor lose money.
 
-### 2. Formulas
-A process $X_t$ is a martingale with respect to information filtration $\mathcal{F}_t$ if:
+### 2. Mathematical Formulations
+A stochastic process $\{X_t\}$ is a martingale with respect to the filtration (historical information) $\mathcal{F}_t$ if:
 $$E[|X_t|] < \infty$$
 $$E[X_{t+1} \mid \mathcal{F}_t] = X_t$$
 """,
 
-        "L06_Regression_Analysis.md": """# Regression Analysis & Regularization
+        "L06_Regression_Analysis.md": r"""# Regression Analysis & Regularization
 
 ---
 
 ## 🕒 Lesson 6.1: Ordinary Least Squares (OLS)
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Ordinary Least Squares fits a linear relationship by minimizing the sum of squared differences between observed values and predictions.
-
 ### 1. Intuition (ELIF5)
-Imagine you want to predict a student's test score based on how many hours they studied. You plot the data points on a graph and use a ruler to draw a straight line through the middle of them. To make it the "best" line, you measure the vertical distance from each point to your line, square those distances (so positive and negative errors don't cancel out), and adjust the line until that total sum is as small as possible.
+Regression analysis helps us find the relationship between variables. OLS is a method that fits a straight line through a scatter plot of data points. To find the "best" line, we measure the vertical distance from each point to the line, square these distances, and adjust the line's slope and intercept to minimize the total sum of these squared distances.
 
-### 2. Formulas
-We fit $y = X\beta + \epsilon$ by solving:
+### 2. Mathematical Formulations
+For the linear model $y = X\beta + \epsilon$, the OLS estimator minimizes the sum of squared residuals:
 $$\min_{\beta} \|y - X\beta\|^2$$
-The closed-form OLS solution is:
+The analytical solution is:
 $$\hat{\beta} = (X^T X)^{-1} X^T y$$
 
 ---
 
 ## 🕒 Lesson 6.2: Regularization: Ridge & Lasso
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Regularization prevents overfitting by adding a penalty term to the OLS loss function based on the magnitude of the model coefficients.
+<h3>1. Intuition (ELIF5)</h3>
+If you have too many variables in a model, it can overfit, meaning it memorizes the noise in the data and performs poorly on new data. Regularization adds a penalty to the OLS optimization to keep the coefficients small:
+* **Ridge** shrinks all coefficients slightly.
+* **Lasso** shrinks coefficients and forces the least important ones to exactly zero, acting as a variable filter.
 
-### 1. Intuition (ELIF5)
-If you give a model too many variables (like predicting stock price using height of the CEO, weather in London, and interest rates), it will try to find patterns in the noise. Regularization is like a speed limit or a leash:
-* **Ridge ($L_2$):** Shinks all coefficients toward zero, preventing any single variable from dominating.
-* **Lasso ($L_1$):** Completely zeros out less important variables, acting as a built-in feature filter.
-
-### 2. Formulas
-* **Ridge (L2 Penalty):**
-  $$\min_{\beta} \|y - X\beta\|^2 + \lambda \|\beta\|_2^2 = \min_{\beta} \sum_{i=1}^n (y_i - x_i^T \beta)^2 + \lambda \sum_{j=1}^p \beta_j^2$$
-* **Lasso (L1 Penalty):**
-  $$\min_{\beta} \|y - X\beta\|^2 + \lambda \|\beta\|_1 = \min_{\beta} \sum_{i=1}^n (y_i - x_i^T \beta)^2 + \lambda \sum_{j=1}^p |\beta_j|$$
+### 2. Mathematical Formulations
+* **Ridge Regression ($L_2$ Regularization):**
+  $$\min_{\beta} \|y - X\beta\|^2 + \lambda \sum_{j=1}^p \beta_j^2$$
+* **Lasso Regression ($L_1$ Regularization):**
+  $$\min_{\beta} \|y - X\beta\|^2 + \lambda \sum_{j=1}^p |\beta_j|$$
 """,
 
-        "L07_Linear_Rates.md": """# Linear Rates, Swaps, and Short-Rate Models
+        "L07_Linear_Rates.md": r"""# Linear Rates, Swaps, and Short-Rate Models
 
 ---
 
-## 🕒 Lesson 7.1: Libor, SOFR, and Forward Rates
+## 🕒 Lesson 7.1: Benchmark Rates & Forward Rates
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Interest rate benchmarks represent the cost of borrowing cash, and forward rates are the implied future interest rates locked in today.
+<h3>1. Intuition (ELIF5)</h3>
+Interest rates are the cost of borrowing money. A Forward Rate is an interest rate that you agree on today for a loan that will start at a specific date in the future.
 
-### 1. Intuition (ELIF5)
-Imagine ordering a custom car today to be delivered in 1 year, and agreeing today on the price you will pay. A **Forward Rate** is the same thing for borrowing money: you lock in the interest rate today for a loan that starts in the future.
-
-### 2. Formulas
-The continuously compounded forward rate between $T_1$ and $T_2$ is:
+### 2. Mathematical Formulations
+The continuously compounded forward rate $f(0, T_1, T_2)$ locked in at time 0 for a period between $T_1$ and $T_2$ is:
 $$f(0, T_1, T_2) = \frac{r(0, T_2) T_2 - r(0, T_1) T_1}{T_2 - T_1}$$
 
 ---
 
 ## 🕒 Lesson 7.2: Interest Rate Swaps (IRS)
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> An Interest Rate Swap is an agreement to exchange fixed-rate interest payments for floating-rate interest payments over a specified horizon.
-
 ### 1. Intuition (ELIF5)
-Imagine you borrow money to buy a house with a mortgage that changes price every month based on market rates (floating rate). You get nervous about rates rising, so you make a deal with a bank: you pay them a fixed amount every month, and in return, they pay your changing mortgage bill. You have swapped a floating-rate risk for a stable fixed-rate.
+Imagine you have a loan with a floating interest rate that changes every month. You want stability, so you agree to swap payments with a bank: you pay them a fixed rate, and they pay your floating rate. This contract is an Interest Rate Swap.
 
-### 2. Formulas
-The swap rate $S_n$ that makes the initial value of the swap zero is:
+### 2. Mathematical Formulations
+The swap rate $S_n$ that sets the initial market value of the swap to zero is:
 $$S_n = \frac{1 - P(0, T_n)}{\sum_{i=1}^n \alpha_i P(0, T_i)}$$
-Where $P(0, T_i)$ is the discount factor to time $T_i$, and $\alpha_i$ is the day-count fraction.
+where $P(0, T_i)$ is the discount factor and $\alpha_i$ is the day-count fraction.
 """,
 
-        "L08_Time_Series.md": """# Time Series Analysis & Volatility Forecasting
+        "L08_Time_Series.md": r"""# Time Series Analysis & Volatility Forecasting
 
 ---
 
 ## 🕒 Lesson 8.1: Stationarity & ARMA Models
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Time series models analyze sequential data dependencies, requiring stationarity (constant mean and variance over time) to make stable forecasts.
-
 ### 1. Intuition (ELIF5)
-Imagine you want to predict a child's height over time. If they are growing, the average height is constantly shifting upward (non-stationary). To model this, we look at the *change* in height from year to year, which is stable (stationary). 
-* **Autoregressive (AR):** Uses past values to predict the future (e.g., if it rained yesterday, it might rain today).
-* **Moving Average (MA):** Uses past random surprises (shocks) to adjust predictions.
+A time series is a sequence of data points recorded at regular time intervals. For our statistical models to work, the data must be stationary, meaning its mean and variance do not change over time. 
+* **AR (Autoregressive):** Predicts the next value based on previous values.
+* **MA (Moving Average):** Predicts the next value based on past random surprises.
 
-### 2. Formulas
+### 2. Mathematical Formulations
 * **AR(1) Model:**
   $$X_t = c + \phi X_{t-1} + \epsilon_t$$
 * **MA(1) Model:**
@@ -273,359 +287,217 @@ Imagine you want to predict a child's height over time. If they are growing, the
 
 ## 🕒 Lesson 8.2: GARCH Volatility Modeling
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> GARCH models volatility clustering in financial returns, where high-volatility periods tend to feed into future high-volatility states.
-
 ### 1. Intuition (ELIF5)
-Stock markets don't fluctuate at a constant speed. Instead, they have periods of relative calm and periods of extreme panic (volatility clustering). If the market was highly volatile yesterday, it is likely to remain volatile today. GARCH is the mathematical formula that models this "memory of volatility."
+In financial markets, high-volatility days tend to cluster together (volatility clustering). GARCH is a model that forecasts tomorrow's volatility based on yesterday's volatility and yesterday's return shock.
 
-### 2. Formulas
-For GARCH(1,1), the conditional variance $\sigma_t^2$ is modeled as:
+### 2. Mathematical Formulations
+For a GARCH(1,1) model, the conditional variance $\sigma_t^2$ is:
 $$\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2$$
-Where:
-* $\omega$ = Baseline constant variance
-* $\alpha$ = Sensitivity to yesterday's return shock ($\epsilon_{t-1}^2$)
-* $\beta$ = Persistence of yesterday's volatility forecast ($\sigma_{t-1}^2$)
+where $\epsilon_{t-1}^2$ is the squared residual from the mean equation, and $\sigma_{t-1}^2$ is the previous variance forecast.
 """,
 
-        "L09_PCA.md": """# Principal Component Analysis (PCA) in Finance
+        "L09_PCA.md": r"""# Principal Component Analysis (PCA) in Finance
 
 ---
 
 ## 🕒 Lesson 9.1: PCA as Dimensionality Reduction
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> PCA identifies orthogonal linear combinations of variables that capture the maximum variance in a high-dimensional dataset.
+<h3>1. Intuition (ELIF5)</h3>
+Imagine looking at a complex multidimensional object. By projecting its shadow onto a flat wall, you can capture most of its details. PCA is the mathematical equivalent of finding the best angle to cast this shadow, reducing the number of variables we need to analyze while retaining as much variance as possible.
 
-### 1. Intuition (ELIF5)
-Imagine you want to describe a model airplane. You could list the 3D coordinates of 1,000 points on its surface. Or, you could describe its length, wingspan, and height. By focusing on the directions of greatest variation, you reduce the description from 1,000 coordinates to just 3 core dimensions. PCA is the mathematical tool that finds these key dimensions for complex data.
-
-### 2. Formulas
+### 2. Mathematical Formulations
 We compute the eigenvalues $\Lambda$ and eigenvectors $V$ of the covariance matrix $\Sigma$:
 $$\Sigma = V \Lambda V^T$$
-The transformed principal components are:
+The principal components are given by:
 $$Y = V^T X$$
 
 ---
 
-## 🕒 Lesson 9.2: Yield Curve Factors (Level, Slope, Curvature)
+## 🕒 Lesson 9.2: Yield Curve Factors
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Applying PCA to bond yields reveals three principal components that explain over 95% of yield curve movements: level shifts, slope twists, and belly curvature.
+<h3>1. Intuition (ELIF5)</h3>
+When we apply PCA to interest rates across different maturities, we find that three main shapes explain almost all movements in the yield curve:
+1. **Level:** The entire curve shifts up or down in parallel.
+2. **Slope:** The curve tilts (short rates rise, long rates fall).
+3. **Curvature:** The middle of the curve bends.
 
-### 1. Intuition (ELIF5)
-Instead of tracking 30 different interest rates (from 1-month to 30-year yields), PCA tells us that yield curves move in three main patterns:
-1. **Level (PC1 ~90%):** The entire curve moves up or down in parallel.
-2. **Slope (PC2 ~5-8%):** The curve tilts (short rates drop, long rates rise, or vice versa).
-3. **Curvature (PC3 ~1-2%):** The middle of the curve bulges or flattens while the ends remain stable.
+### 2. Mathematical Formulations
+The first three principal components typically account for over 95% of the total variance of yield curve changes, allowing us to model the entire curve with just three factors.
 """,
 
-        "L10_Counterparty_Risk.md": """# Counterparty Credit Risk & Event Trading
+        "L10_Counterparty_Risk.md": r"""# Counterparty Credit Risk & Event Trading
 
 ---
 
-## 🕒 Lesson 10.1: Counterparty Exposure & Default
-
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Counterparty Credit Risk is the risk that a counterparty defaults prior to the final settlement of a contract's cash flows.
+## 🕒 Lesson 10.1: Counterparty Exposure
 
 ### 1. Intuition (ELIF5)
-Imagine you pay a store $1,000 today to deliver a TV next month. The risk is not that the TV breaks, but that the store goes out of business and closes down before they ship your TV. In financial markets, when you trade derivatives, you face this exact risk with your trading partners.
+Counterparty risk is the risk that the party on the other side of a financial contract defaults before settling their obligations. The exposure is the amount of money you would lose if they defaulted today.
 
-### 2. Formulas
-* **Exposure at default (positive replacement value):**
-  $$E(t) = \max(V(t), 0)$$
-  Where $V(t)$ is the current market value of the contract.
+### 2. Mathematical Formulations
+The exposure $E(t)$ of a derivative contract at time $t$ is:
+$$E(t) = \max(V(t), 0)$$
+where $V(t)$ is the market value of the contract.
 
 ---
 
 ## 🕒 Lesson 10.2: Credit Valuation Adjustment (CVA)
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> CVA is the market price of counterparty credit risk, calculated as the expected loss discounted to the present day.
-
 ### 1. Intuition (ELIF5)
-If you buy an investment from a risky bank, you shouldn't pay full price. You should demand a discount to cover the risk that they might default. **CVA** is the mathematical calculation of that discount. It takes into account:
-1. How much they owe you over time (Exposure).
-2. How likely they are to default (Probability of Default).
-3. What percentage of your money you can recover in bankruptcy court (Recovery Rate).
+When trading with a counterparty that has default risk, you should discount the price of the contract to reflect this risk. CVA is the market value of this credit risk.
 
-### 2. Formulas
+### 2. Mathematical Formulations
+The CVA is computed as:
 $$\text{CVA} = (1 - R) \int_0^T D(0, t) \cdot \text{EE}(t) \cdot d\text{PD}(t)$$
-Where:
-* $R$ = Recovery rate
-* $D(0, t)$ = Risk-free discount factor
-* $\text{EE}(t)$ = Expected Exposure at time $t$
-* $\text{PD}(t)$ = Probability of default function
+where $R$ is the recovery rate, $D(0,t)$ is the discount factor, $\text{EE}(t)$ is the expected exposure, and $\text{PD}(t)$ is the probability of default.
 """,
 
-        "L11_Portfolio_Management.md": """# Portfolio Management & Multi-Factor Models
+        "L11_Portfolio_Management.md": r"""# Portfolio Management & Multi-Factor Models
 
 ---
 
 ## 🕒 Lesson 11.1: The Capital Asset Pricing Model (CAPM)
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> CAPM states that an asset's expected return is determined solely by its sensitivity to systematic market risk (Beta).
-
 ### 1. Intuition (ELIF5)
-Imagine opening a business. You face two types of risk:
-1. **Specific Risk:** The risk that your chef quits. You can fix this by hiring backup chefs (diversification). The market doesn't pay you extra for this risk because it's easy to avoid.
-2. **Systemic Risk:** The risk of a major recession where no one goes out to eat. You cannot avoid this. The market rewards you with higher expected returns for taking this unavoidable risk.
-**Beta ($\beta$)** measures how sensitive your business is to the general economy.
+CAPM divides risk into systematic risk (which affects the entire market and cannot be avoided) and idiosyncratic risk (which affects only one company and can be diversified away). The model states that investors are only rewarded for taking systematic risk, which is measured by Beta ($\beta$).
 
-### 2. Formulas
-* **Expected Return of Asset $i$:**
-  $$E[R_i] = R_f + \beta_i (E[R_m] - R_f)$$
-* **Beta Calculation:**
-  $$\beta_i = \frac{\text{Cov}(R_i, R_m)}{\text{Var}(R_m)}$$
-
----
-
-## 🕒 Lesson 11.2: Multi-Factor Risk Models
-
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Multi-factor models decompose asset returns into exposures to multiple systematic risk factors plus an idiosyncratic residual.
-
-### 1. Intuition (ELIF5)
-Instead of saying a stock moves only because of the general market, we can use multiple factors to explain its return. For example, a stock might be sensitive to:
-* The general stock market.
-* Interest rate shifts.
-* Oil prices.
-* Inflation.
-By identifying these "factors," we can build portfolios that are immune to specific risks (e.g., building a portfolio that doesn't care about oil price changes).
-
-### 2. Formulas
-$$R_i = \alpha_i + \beta_{i,1} F_1 + \beta_{i,2} F_2 + \dots + \beta_{i,k} F_k + \epsilon_i$$
-Where $F_j$ are factor returns, $\beta_{i,j}$ are factor exposures (loadings), and $\epsilon_i$ is idiosyncratic noise.
+### 2. Mathematical Formulations
+The expected return of asset $i$ under CAPM is:
+$$E[R_i] = R_f + \beta_i (E[R_m] - R_f)$$
+where the systematic risk coefficient $\beta_i$ is defined as:
+$$\beta_i = \frac{\text{Cov}(R_i, R_m)}{\text{Var}(R_m)}$$
 """,
 
-        "L14_Stochastic_Processes_II.md": """# Stochastic Processes II: Continuous Time
+        "L14_Stochastic_Processes_II.md": r"""# Stochastic Processes II: Continuous Time
 
 ---
 
 ## 🕒 Lesson 14.1: Wiener Process (Brownian Motion)
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> A Wiener process is a continuous-time stochastic process characterized by stationary, independent, normally distributed increments.
-
 ### 1. Intuition (ELIF5)
-Imagine a dust particle floating in a glass of water. It is hit constantly by tiny water molecules from random directions. The path of the dust particle is a **Wiener Process** (Brownian Motion). 
-It is continuous (no teleporting), but it is so jagged that if you zoom in, it looks like a zigzag at every scale—it is nowhere differentiable (has no smooth slope).
+Imagine a dust particle suspended in water. It wiggles randomly as it is hit by water molecules. This random path is a Wiener process. It is continuous, but extremely jagged and has no smooth slope anywhere.
 
-### 2. Formulas
-A process $W_t$ is a standard Wiener process if:
+### 2. Mathematical Formulations
+A standard Wiener process $\{W_t\}$ satisfies:
 1. $W_0 = 0$
-2. For any $t > s$, the increment $W_t - W_s \sim N(0, t-s)$
-3. Increments are independent over non-overlapping intervals.
-4. The path $t \mapsto W_t$ is continuous.
+2. The increments $W_t - W_s$ are normally distributed: $W_t - W_s \sim N(0, t-s)$
+3. The increments are independent over non-overlapping intervals.
 
 ---
 
 ## 🕒 Lesson 14.2: Geometric Brownian Motion (GBM)
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Geometric Brownian Motion models stock prices by assuming log-returns grow with a constant drift rate and random normal shocks.
-
 ### 1. Intuition (ELIF5)
-We cannot use standard Brownian motion to model stock prices directly because:
-1. A stock price cannot be negative.
-2. A $1 change in a $100 stock is minor, but a $1 change in a $1 stock is huge.
-**Geometric Brownian Motion** solves this: it models the *percentage* change in the stock price. It assumes the stock grows at a steady average rate (drift) plus a random wiggle that scales with the price of the stock.
+Standard Brownian motion can take negative values, which makes it unsuitable for stock prices. GBM resolves this by modeling the *percentage* change in the stock price as standard Brownian motion, ensuring the price remains positive.
 
-### 2. Formulas
+### 2. Mathematical Formulations
+The SDE for Geometric Brownian Motion is:
 $$dS_t = \mu S_t dt + \sigma S_t dW_t$$
-Where:
-* $S_t$ = Stock price
-* $\mu$ = Drift (expected annual growth rate)
-* $\sigma$ = Volatility
-* $dW_t$ = Standard Brownian motion increment
+where $\mu$ is the drift and $\sigma$ is the volatility.
 """,
 
-        "L19_Volatility_Modeling.md": """# Volatility Modeling & The Term Structure of Volatility
+        "L19_Volatility_Modeling.md": r"""# Volatility Modeling & Volatility Term Structure
 
 ---
 
 ## 🕒 Lesson 19.1: Realized vs. Implied Volatility
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Realized volatility measures past price dispersion from historical data, whereas implied volatility reflects forward-looking market expectations backed out of option prices.
-
 ### 1. Intuition (ELIF5)
-* **Realized Volatility:** Look at the weather records for the last 30 days and calculate how much the temperature fluctuated. This is historical fact.
-* **Implied Volatility:** Look at the price of umbrellas being sold today. If umbrellas are expensive, people expect a storm soon. Implied volatility is what option prices tell us about the market's expectation of future volatility.
+* **Realized Volatility:** Measures how much stock prices actually fluctuated in the past (historical fact).
+* **Implied Volatility:** backed out from option prices, reflecting the market's expectation of future volatility.
 
-### 2. Formulas
-* **Realized Volatility (Annualized):**
-  $$\sigma_{\text{historical}} = \sqrt{\frac{252}{N-1} \sum_{i=1}^N (R_i - \bar{R})^2}$$
-* **Implied Volatility ($\sigma_{\text{impl}}$):**
-  Solved by finding the root:
-  $$C_{\text{market}} - \text{BlackScholesCall}(S, K, T, r, \sigma_{\text{impl}}) = 0$$
+### 2. Mathematical Formulations
+The annualized realized volatility over $N$ periods is:
+$$\sigma_{\text{historical}} = \sqrt{\frac{252}{N-1} \sum_{i=1}^N (R_i - \bar{R})^2}$$
+The implied volatility $\sigma_{\text{impl}}$ solves:
+$$C_{\text{market}} - \text{BlackScholesCall}(S, K, T, r, \sigma_{\text{impl}}) = 0$$
 """,
 
-        "L21_Black_Scholes.md": """# The Black-Scholes Model & Option Pricing
+        "L21_Black_Scholes.md": r"""# The Black-Scholes Model & Option Pricing
 
 ---
 
-## 🕒 Lesson 21.1: Replicating Portfolios & Delta Hedging
-
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Option pricing relies on the principle of dynamic replication, where a derivative's payoff is matched by continuously adjusting a portfolio of stock and risk-free cash.
+## 🕒 Lesson 21.1: Replicating Portfolios
 
 ### 1. Intuition (ELIF5)
-How do you price an option? Black and Scholes realized that you don't need to guess if the stock will go up or down. Instead, you can build a synthetic version of the option by buying a specific amount of the stock (called **Delta**) and borrowing cash. 
-If the stock price rises, you buy a bit more stock; if it falls, you sell some. The price of the option is simply the initial cost of setting up this replicating portfolio.
+Black and Scholes showed that you can replicate the payoff of an option by dynamically trading a specific combination of the underlying stock and risk-free bonds. The cost of this replicating portfolio is the fair price of the option.
 
-### 2. Formulas
-* **Replicating Portfolio Value:**
-  $$V_{\text{portfolio}} = \Delta_t S_t + \psi_t B_t$$
-  Where $\Delta_t = \frac{\partial V}{\partial S}$ is the option delta, and $B_t$ is the risk-free bond.
+### 2. Mathematical Formulations
+The replicating portfolio value is:
+$$V_{\text{portfolio}} = \Delta_t S_t + \psi_t B_t$$
+where the stock weight $\Delta_t = \frac{\partial V}{\partial S}$ is the option's delta.
 
 ---
 
 ## 🕒 Lesson 21.2: The Black-Scholes Formula
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> The Black-Scholes formula provides the analytical price of European options under constant interest rates and log-normal asset volatility.
-
 ### 1. Intuition (ELIF5)
-The Black-Scholes formula is a recipe to calculate the fair price of an option. It takes 5 inputs: stock price ($S$), strike price ($K$), time to maturity ($T$), interest rate ($r$), and volatility ($\sigma$). It outputs the exact price of the option by weighting the probability that the option will end up in-the-money.
+The Black-Scholes formula provides the exact price of European options by modeling stock prices as Geometric Brownian Motion.
 
-### 2. Formulas
-The European call price $C(S, t)$ is:
+### 2. Mathematical Formulations
+The European call price is:
 $$C(S, t) = S_t N(d_1) - K e^{-r(T-t)} N(d_2)$$
-Where:
-* $d_1 = \frac{\ln(S_t/K) + \left(r + \sigma^2/2\right)(T-t)}{\sigma\sqrt{T-t}}$
-* $d_2 = d_1 - \sigma\sqrt{T-t}$
-* $N(x)$ = Cumulative normal distribution function
+where:
+$$d_1 = \frac{\ln(S_t/K) + \left(r + \sigma^2/2\right)(T-t)}{\sigma\sqrt{T-t}} \quad \text{and} \quad d_2 = d_1 - \sigma\sqrt{T-t}$$
 """,
 
-        "L22_Systematic_Trading.md": """# Systematic Trading Strategies
+        "L22_Systematic_Trading.md": r"""# Systematic Trading Strategies
 
 ---
 
 ## 🕒 Lesson 22.1: Trend Following & Mean Reversion
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Systematic trading applies rule-based algorithms to capture market inefficiencies, categorized into trend-following (momentum) and mean-reversion strategies.
-
 ### 1. Intuition (ELIF5)
-Systematic trading means taking the human emotion out of investing by writing a strict rulebook for a computer:
-* **Trend Following:** "If a stock has been rising for a month, buy it because it has momentum." (Like hopping onto a moving train).
-* **Mean Reversion:** "If a stock's price drops way lower than its historic average, buy it because it will likely snap back to normal." (Like stretching a rubber band).
+Systematic trading rules execute trades automatically based on statistical signals:
+* **Trend Following:** Buy assets that are rising, expecting them to keep rising.
+* **Mean Reversion:** Buy assets that have fallen significantly below their historic average, expecting them to return to normal.
 
-### 2. Formulas
-* **Simple Moving Average (SMA):**
-  $$\text{SMA}_n(t) = \frac{1}{n} \sum_{i=0}^{n-1} S_{t-i}$$
-* **Trading Signal (Crossover):**
+### 2. Mathematical Formulations
+* **Moving Average Crossover Signal:**
   $$\text{Signal}_t = \text{sign}(\text{SMA}_{\text{fast}}(t) - \text{SMA}_{\text{slow}}(t))$$
-
----
-
-## 🕒 Lesson 22.2: Strategy Evaluation Metrics
-
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Quantitative strategies are evaluated on risk-adjusted metrics like the Sharpe ratio, Maximum Drawdown, and Information Ratio.
-
-### 1. Intuition (ELIF5)
-You shouldn't just look at how much money a trading bot made. If it made 50% but almost went bankrupt three times during the year, it is highly dangerous. We use metrics to judge if the returns were worth the stress:
-* **Max Drawdown:** The biggest peak-to-trough drop in account value.
-* **Sharpe Ratio:** Reward per unit of risk.
-
-### 2. Formulas
-* **Annualized Sharpe Ratio:**
-  $$\text{Sharpe} = \frac{\text{Mean Annualized Return} - R_f}{\text{Standard Deviation of Annualized Returns}}$$
-* **Maximum Drawdown (MDD):**
-  $$\text{MDD}_T = \max_{t \in [0, T]} \left( \frac{\max_{s \in [0, t]} P_s - P_t}{\max_{s \in [0, t]} P_s} \right)$$
+* **Information Ratio (IR):**
+  $$\text{IR} = \frac{\alpha}{\sigma_{\text{residual}}}$$
 """,
 
-        "L23_Machine_Learning.md": """# Machine Learning in Finance
+        "L23_Machine_Learning.md": r"""# Machine Learning in Finance
 
 ---
 
-## 🕒 Lesson 23.1: Supervised Learning & Overfitting in Finance
+## 🕒 Lesson 23.1: Supervised Learning & Overfitting
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Machine learning identifies complex, non-linear relationships in financial data, but requires strict validation to prevent memorizing historical noise.
+<h3>1. Intuition (ELIF5)</h3>
+Machine learning models find complex non-linear patterns in data. However, because financial markets are noisy, models can easily overfit by memorizing historical noise, which leads to poor performance on new data.
 
-### 1. Intuition (ELIF5)
-Financial data is incredibly noisy. If you give a highly flexible machine learning model free rein to predict tomorrow's stock price, it will memorize historical patterns that were pure coincidence (like "the stock always rises on rainy Tuesdays when the CEO wears blue"). This is **overfitting**. When you run the model on new data, it fails.
-
-### 2. Formulas
-We minimize training loss plus a complexity penalty (regularization):
-$$\mathcal{L}(\theta) = \sum_{i=1}^n L(y_i, f(x_i; \theta)) + \Omega(\theta)$$
-
----
-
-## 🕒 Lesson 23.2: Ensemble Models & Decision Trees
-
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Ensemble methods, such as Random Forests, aggregate predictions from multiple weak models (decision trees) to reduce variance and improve robustness.
-
-### 1. Intuition (ELIF5)
-A single decision tree makes predictions by asking yes/no questions (e.g., "Is interest rate > 5%?"). If you rely on one tree, it is easily tricked.
-Instead, we use a **Random Forest**: we train 100 different trees on slightly different subsets of data. Each tree votes, and we take the average. It is much harder to trick a crowd of trees than a single tree.
-
-### 2. Formulas
-For a random forest of $B$ bootstrap-aggregated trees $T_b$:
-$$\hat{f}_{\text{rf}}(x) = \frac{1}{B} \sum_{b=1}^B T_b(x)$$
+### 2. Mathematical Formulations
+To prevent overfitting, we minimize loss while penalizing model complexity:
+$$\min_{\theta} \sum_{i=1}^n L(y_i, f(x_i; \theta)) + \lambda \|\theta\|_2^2$$
+where $\lambda$ is the regularization strength.
 """,
 
-        "L24_Stochastic_Calculus.md": """# Stochastic Calculus & Stochastic Differential Equations (SDEs)
+        "L24_Stochastic_Calculus.md": r"""# Stochastic Calculus & Stochastic Differential Equations (SDEs)
 
 ---
 
-## 🕒 Lesson 24.1: Itô's Lemma (The Core of Quant Math)
-
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Itô's Lemma is the stochastic equivalent of the chain rule in calculus, introducing a second-order term to account for the quadratic variation of Brownian motion.
+## 🕒 Lesson 24.1: Itô's Lemma
 
 ### 1. Intuition (ELIF5)
-In normal calculus, if you have a function $f(x)$ and $x$ moves by a tiny step $dx$, the change in $f$ is just the slope times the step: $df = f'(x) dx$.
-But if $x$ is a random, jittery path (like a stock price driven by Brownian motion), the jitters are so violent that their squared wiggles $(dx)^2$ actually add up over time. If your function is curved, these wiggles create an extra drift. **Itô's Lemma** is the formula that captures this extra drift (the curvature effect).
+In standard calculus, the change in a function is the slope times the step size. But when the input wiggles randomly (like Brownian motion), the wiggles are so violent that their squared wiggles $(dW_t)^2$ accumulate over time. If the function is curved, this wiggling creates an extra drift term. Itô's Lemma is the mathematical formula that accounts for this extra drift.
 
-### 2. Formulas
-If $dX_t = \mu_t dt + \sigma_t dW_t$, and $f(t, X_t)$ is twice-differentiable, then:
+### 2. Mathematical Formulations
+For $dX_t = \mu_t dt + \sigma_t dW_t$, and a function $f(t, X_t)$:
 $$df(t, X_t) = \left( \frac{\partial f}{\partial t} + \mu_t \frac{\partial f}{\partial X} + \frac{1}{2} \sigma_t^2 \frac{\partial^2 f}{\partial X^2} \right) dt + \sigma_t \frac{\partial f}{\partial X} dW_t$$
-Note that the extra term $\frac{1}{2} \sigma_t^2 \frac{\partial^2 f}{\partial X^2} dt$ arises because $(dW_t)^2 = dt$.
 
 ---
 
 ## 🕒 Lesson 24.2: Stochastic Differential Equations (SDEs)
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> SDEs model paths that evolve under a deterministic drift and a random diffusion term, solved using stochastic integration.
-
 ### 1. Intuition (ELIF5)
-An SDE is like a recipe for a random path. It tells you:
-1. **Drift:** Which direction the path wants to go on average (e.g., drift up by 5% per year).
-2. **Diffusion:** How much random jitter to add at each step.
-We use SDEs to model interest rates, asset prices, and volatility.
+An SDE describes a random path in terms of its average direction (drift) and its random wiggle (diffusion) at each point in time.
 
-### 2. Formulas
-A general SDE has the form:
-$$dX_t = b(t, X_t) dt + \sigma(t, X_t) dW_t$$
-Example: The **Ornstein-Uhlenbeck Process** (used to model mean-reverting interest rates or volatility):
+### 2. Mathematical Formulations
+The Ornstein-Uhlenbeck (mean-reverting) SDE is:
 $$dX_t = \theta(\mu - X_t) dt + \sigma dW_t$$
-Where $\theta$ is the speed of mean reversion, and $\mu$ is the long-term mean.
+where $\theta$ is the speed of mean reversion, and $\mu$ is the long-term mean.
 """
     }
 

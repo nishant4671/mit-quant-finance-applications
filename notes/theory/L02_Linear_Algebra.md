@@ -2,55 +2,38 @@
 
 ---
 
-## 🕒 Lesson 2.1: Matrices as Transformations
-
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Matrices act as geometric operators that rotate, scale, or project vector spaces, allowing us to translate coordinate systems to find the natural axes of data.
+## 🕒 Lesson 2.1: Matrices as Linear Transformations
 
 ### 1. Intuition (ELIF5)
-Imagine you are looking at a 3D statue. If you look at it from the front, it looks like a flat circle. If you look from the side, it looks like a rectangle. By rotating the statue (or moving your camera), you change your perspective.
-In finance, a matrix is a tool that takes a set of stock returns and transforms them (rotates or scales them) into a new perspective. Instead of looking at 500 individual stocks, we can rotate our view to align with the overall movements of the market.
+Imagine you are looking at a 3D object on a screen. When you rotate the camera, the object's shape changes on the screen. The rotation of the camera is a transformation of the coordinates. In quantitative finance, we treat portfolios of assets similarly. A matrix is a mathematical tool that rotates and scales asset returns, transforming them from one coordinate system (individual stocks) into a new coordinate system (underlying risk factors).
 
-### 2. Formulas
-A matrix $A$ transforms a vector $x$ into a new vector $y$:
+### 2. Mathematical Formulations
+A square matrix $A$ of size $n \times n$ maps an input vector $x \in \mathbb{R}^n$ to an output vector $y \in \mathbb{R}^n$:
 $$y = A x$$
+This operation represents a linear combination of the columns of $A$ scaled by the elements of $x$.
 
 ---
 
 ## 🕒 Lesson 2.2: Eigenvalues & Eigenvectors
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Eigenvectors are the directions that remain unchanged in orientation when transformed by a matrix, and eigenvalues measure the scale of stretch along those directions.
-
 ### 1. Intuition (ELIF5)
-Imagine blowing up a balloon. Most points on the balloon's surface move in different directions. However, there are usually a few lines of points (like the vertical axis from the knot to the top) that point in the exact same direction before and after inflation—they just got stretched.
-* The **Eigenvector** is that line which did not change its direction.
-* The **Eigenvalue** is the factor by which that line stretched (e.g., it doubled in length, so eigenvalue = 2).
+Imagine blowing up a balloon. Most points on the balloon's surface move in different directions. However, there are specific axes (like the line pointing straight up from the tie) that stretch but point in the exact same direction as before. In linear algebra, these special axes are eigenvectors, and the factor by which they stretch is the eigenvalue. In finance, if the matrix represents the covariance of stock returns, the eigenvector with the largest eigenvalue points in the direction of the market's primary risk driver.
 
-In finance, if $A$ is the covariance matrix of asset returns, the eigenvector with the largest eigenvalue represents the direction of the market's maximum volatility (the "Market Factor").
-
-### 2. Formulas
-An eigenvector $v$ and its corresponding eigenvalue $\lambda$ for a square matrix $A$ satisfy:
+### 2. Mathematical Formulations
+For a square matrix $A$, a non-zero vector $v$ is an eigenvector if:
 $$A v = \lambda v$$
-To solve for eigenvalues, we find the roots of the characteristic equation:
+where $\lambda$ is the eigenvalue. We solve for $\lambda$ by finding the roots of the characteristic equation:
 $$\det(A - \lambda I) = 0$$
 
 ---
 
 ## 🕒 Lesson 2.3: Covariance Matrices & Quadratic Forms
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Covariance matrices capture the joint variability of assets, and quadratic forms allow us to compute aggregate portfolio variance from asset weights.
-
 ### 1. Intuition (ELIF5)
-If you own two stocks, their combined risk isn't just the sum of their individual risks. You also need to know if they move together (covariance). 
-* Positive covariance: they rise and fall together (like two tech stocks).
-* Negative covariance: one rises when the other falls (like gold and tech).
-A **Covariance Matrix** is a grid of numbers showing the relationship between every pair of stocks. A **quadratic form** is the mathematical operation of weighting these relationships to calculate your portfolio's total risk.
+The risk of a portfolio is not simply the sum of the risks of its individual assets. We must account for how the assets move together. This joint risk is stored in a grid called a Covariance Matrix. A positive covariance means the assets move together, while a negative covariance means they move in opposite directions. We use a quadratic form to calculate the total portfolio variance from the covariance matrix and the portfolio weights.
 
-### 2. Formulas
-For a portfolio with weight vector $w$ and asset covariance matrix $\Sigma$:
-$$\sigma_p^2 = w^T \Sigma w = \sum_{i=1}^n \sum_{j=1}^n w_i w_j 	ext{Cov}(R_i, R_j)$$
+### 2. Mathematical Formulations
+Let $\Sigma$ be the $n \times n$ covariance matrix of $n$ assets, where the entry $\Sigma_{ij} = \text{Cov}(R_i, R_j)$. The variance of a portfolio with weight vector $w \in \mathbb{R}^n$ is computed via the quadratic form:
+$$\sigma_p^2 = w^T \Sigma w = \sum_{i=1}^n \sum_{j=1}^n w_i w_j \Sigma_{ij}$$
+Because $\Sigma$ is symmetric and positive semi-definite, the portfolio variance is guaranteed to be non-negative for all weight vectors:
+$$w^T \Sigma w \ge 0$$

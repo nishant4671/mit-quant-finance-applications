@@ -37,56 +37,57 @@ def markdown_to_latex(md_content):
     md_content = re.sub(r"\*\*(.*?)\*\*", r"\\textbf{\1}", md_content)
     md_content = re.sub(r"\*(.*?)\*", r"\\textit{\1}", md_content)
 
-    # 7. Process line by line for headers, lists, and quotes
+    # 7. State-machine parsing line by line
     lines = md_content.split("\n")
     in_list = False
     in_quote = False
+    in_tcolorbox = False
     new_lines = []
     
     for line in lines:
         stripped = line.strip()
         
-        # List items
+        # Check if we should close quote or tcolorbox if the current line does not start with '>'
+        if not stripped.startswith(">"):
+            if in_quote:
+                new_lines.append("\\end{quote}")
+                in_quote = False
+            if in_tcolorbox:
+                new_lines.append("\\end{tcolorbox}")
+                in_tcolorbox = False
+                
+        # Check if we should close list if the current line does not start with list indicators
+        if not (stripped.startswith("* ") or stripped.startswith("- ")):
+            if in_list:
+                new_lines.append("\\end{itemize}")
+                in_list = False
+                
+        # Now process the line type
         if stripped.startswith("* ") or stripped.startswith("- "):
             if not in_list:
                 new_lines.append("\\begin{itemize}")
                 in_list = True
             item_text = stripped[2:]
-            # Escape LaTeX special characters in the text part
             item_text = item_text.replace("&", "\\&").replace("%", "\\%").replace("_", "\\_").replace("#", "\\#")
             new_lines.append(f"  \\item {item_text}")
-            continue
-        else:
-            if in_list:
-                new_lines.append("\\end{itemize}")
-                in_list = False
-        
-        # Quote/Note boxes
-        if stripped.startswith(">"):
-            if "[!NOTE]" in stripped or "Summary" in stripped:
-                if not in_quote:
+            
+        elif stripped.startswith(">"):
+            # It's a quote or note box
+            if "[!NOTE]" in stripped or "Summary" in stripped or "Summary in 1 Sentence:" in stripped:
+                if not in_tcolorbox:
                     new_lines.append("\\begin{tcolorbox}")
-                    in_quote = True
-                continue
+                    in_tcolorbox = True
             else:
-                if not in_quote:
+                # If we are not in tcolorbox, it's a regular quote
+                if not in_tcolorbox and not in_quote:
                     new_lines.append("\\begin{quote}")
                     in_quote = True
                 quote_text = stripped[1:].strip()
                 quote_text = quote_text.replace("&", "\\&").replace("%", "\\%").replace("_", "\\_").replace("#", "\\#")
-                new_lines.append(quote_text)
-                continue
-        else:
-            if in_quote:
-                tcolorbox_count = sum(1 for l in new_lines if "\\begin{tcolorbox}" in l) - sum(1 for l in new_lines if "\\end{tcolorbox}" in l)
-                if tcolorbox_count > 0:
-                    new_lines.append("\\end{tcolorbox}")
-                else:
-                    new_lines.append("\\end{quote}")
-                in_quote = False
-        
-        # Headers
-        if stripped.startswith("#### "):
+                if quote_text:
+                    new_lines.append(quote_text)
+                    
+        elif stripped.startswith("#### "):
             header_text = stripped[5:].strip().replace("&", "\\&").replace("%", "\\%").replace("_", "\\_").replace("#", "\\#")
             new_lines.append(f"\\subsubsection{{{header_text}}}")
         elif stripped.startswith("### "):
@@ -101,15 +102,14 @@ def markdown_to_latex(md_content):
             # Escape ordinary text characters
             escaped_line = line.replace("&", "\\&").replace("%", "\\%").replace("_", "\\_").replace("#", "\\#")
             new_lines.append(escaped_line)
-
+            
+    # Close any remaining open environments at the end of the file
     if in_list:
         new_lines.append("\\end{itemize}")
     if in_quote:
-        tcolorbox_count = sum(1 for l in new_lines if "\\begin{tcolorbox}" in l) - sum(1 for l in new_lines if "\\end{tcolorbox}" in l)
-        if tcolorbox_count > 0:
-            new_lines.append("\\end{tcolorbox}")
-        else:
-            new_lines.append("\\end{quote}")
+        new_lines.append("\\end{quote}")
+    if in_tcolorbox:
+        new_lines.append("\\end{tcolorbox}")
 
     content = "\n".join(new_lines)
 
@@ -152,10 +152,10 @@ def compile_latex_book():
 
     latex_doc = []
     
-    # 1. LaTeX Preamble
+    # 1. LaTeX Preamble (Clean Academic Black & White Style)
     latex_doc.append(r"""\documentclass[11pt,oneside]{book}
 \usepackage[utf8]{inputenc}
-\usepackage[margin=1in]{geometry}
+\usepackage[margin=1.2in]{geometry}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{tcolorbox}
 \usepackage{hyperref}
@@ -165,14 +165,23 @@ def compile_latex_book():
 
 \hypersetup{
     colorlinks=true,
-    linkcolor=blue,
-    filecolor=magenta,      
-    urlcolor=cyan,
+    linkcolor=black,
+    filecolor=black,      
+    urlcolor=black,
 }
 
-\tcbset{colback=blue!5!white,colframe=blue!75!black,title=Key Summary}
+% Clean Black & White tcolorbox styling (Matches academic standards)
+\tcbset{
+    colback=gray!5,
+    colframe=black,
+    coltitle=black,
+    fonttitle=\bfseries,
+    boxrule=0.8pt,
+    arc=0mm,
+    title=Summary
+}
 
-\title{\textbf{MIT 18.642: Topics in Mathematics with Applications in Finance} \\ \Large Student Companion \& Lecture Notes}
+\title{\textbf{MIT 18.642: Topics in Mathematics with Applications in Finance} \\ \Large Lecture Notes and Reference Manual}
 \author{Compiled for Self-Study}
 \date{\today}
 

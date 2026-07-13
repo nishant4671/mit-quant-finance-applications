@@ -4,34 +4,26 @@
 
 ## 🕒 Lesson 6.1: Ordinary Least Squares (OLS)
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Ordinary Least Squares fits a linear relationship by minimizing the sum of squared differences between observed values and predictions.
-
 ### 1. Intuition (ELIF5)
-Imagine you want to predict a student's test score based on how many hours they studied. You plot the data points on a graph and use a ruler to draw a straight line through the middle of them. To make it the "best" line, you measure the vertical distance from each point to your line, square those distances (so positive and negative errors don't cancel out), and adjust the line until that total sum is as small as possible.
+Regression analysis helps us find the relationship between variables. OLS is a method that fits a straight line through a scatter plot of data points. To find the "best" line, we measure the vertical distance from each point to the line, square these distances, and adjust the line's slope and intercept to minimize the total sum of these squared distances.
 
-### 2. Formulas
-We fit $y = Xeta + \epsilon$ by solving:
-$$\min_{eta} \|y - Xeta\|^2$$
-The closed-form OLS solution is:
-$$\hat{eta} = (X^T X)^{-1} X^T y$$
+### 2. Mathematical Formulations
+For the linear model $y = X\beta + \epsilon$, the OLS estimator minimizes the sum of squared residuals:
+$$\min_{\beta} \|y - X\beta\|^2$$
+The analytical solution is:
+$$\hat{\beta} = (X^T X)^{-1} X^T y$$
 
 ---
 
 ## 🕒 Lesson 6.2: Regularization: Ridge & Lasso
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Regularization prevents overfitting by adding a penalty term to the OLS loss function based on the magnitude of the model coefficients.
+<h3>1. Intuition (ELIF5)</h3>
+If you have too many variables in a model, it can overfit, meaning it memorizes the noise in the data and performs poorly on new data. Regularization adds a penalty to the OLS optimization to keep the coefficients small:
+* **Ridge** shrinks all coefficients slightly.
+* **Lasso** shrinks coefficients and forces the least important ones to exactly zero, acting as a variable filter.
 
-### 1. Intuition (ELIF5)
-If you give a model too many variables (like predicting stock price using height of the CEO, weather in London, and interest rates), it will try to find patterns in the noise. Regularization is like a speed limit or a leash:
-* **Ridge ($L_2$):** Shinks all coefficients toward zero, preventing any single variable from dominating.
-* **Lasso ($L_1$):** Completely zeros out less important variables, acting as a built-in feature filter.
-
-### 2. Formulas
-* **Ridge (L2 Penalty):**
-  $$\min_{eta} \|y - Xeta\|^2 + \lambda \|eta\|_2^2 = \min_{eta} \sum_{i=1}^n (y_i - x_i^T eta)^2 + \lambda \sum_{j=1}^p eta_j^2$$
-* **Lasso (L1 Penalty):**
-  $$\min_{eta} \|y - Xeta\|^2 + \lambda \|eta\|_1 = \min_{eta} \sum_{i=1}^n (y_i - x_i^T eta)^2 + \lambda \sum_{j=1}^p |eta_j|$$
+### 2. Mathematical Formulations
+* **Ridge Regression ($L_2$ Regularization):**
+  $$\min_{\beta} \|y - X\beta\|^2 + \lambda \sum_{j=1}^p \beta_j^2$$
+* **Lasso Regression ($L_1$ Regularization):**
+  $$\min_{\beta} \|y - X\beta\|^2 + \lambda \sum_{j=1}^p |\beta_j|$$

@@ -4,36 +4,25 @@
 
 ## 🕒 Lesson 8.1: Stationarity & ARMA Models
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Time series models analyze sequential data dependencies, requiring stationarity (constant mean and variance over time) to make stable forecasts.
-
 ### 1. Intuition (ELIF5)
-Imagine you want to predict a child's height over time. If they are growing, the average height is constantly shifting upward (non-stationary). To model this, we look at the *change* in height from year to year, which is stable (stationary). 
-* **Autoregressive (AR):** Uses past values to predict the future (e.g., if it rained yesterday, it might rain today).
-* **Moving Average (MA):** Uses past random surprises (shocks) to adjust predictions.
+A time series is a sequence of data points recorded at regular time intervals. For our statistical models to work, the data must be stationary, meaning its mean and variance do not change over time. 
+* **AR (Autoregressive):** Predicts the next value based on previous values.
+* **MA (Moving Average):** Predicts the next value based on past random surprises.
 
-### 2. Formulas
+### 2. Mathematical Formulations
 * **AR(1) Model:**
   $$X_t = c + \phi X_{t-1} + \epsilon_t$$
 * **MA(1) Model:**
-  $$X_t = \mu + \epsilon_t + 	heta \epsilon_{t-1}$$
+  $$X_t = \mu + \epsilon_t + \theta \epsilon_{t-1}$$
 
 ---
 
 ## 🕒 Lesson 8.2: GARCH Volatility Modeling
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> GARCH models volatility clustering in financial returns, where high-volatility periods tend to feed into future high-volatility states.
-
 ### 1. Intuition (ELIF5)
-Stock markets don't fluctuate at a constant speed. Instead, they have periods of relative calm and periods of extreme panic (volatility clustering). If the market was highly volatile yesterday, it is likely to remain volatile today. GARCH is the mathematical formula that models this "memory of volatility."
+In financial markets, high-volatility days tend to cluster together (volatility clustering). GARCH is a model that forecasts tomorrow's volatility based on yesterday's volatility and yesterday's return shock.
 
-### 2. Formulas
-For GARCH(1,1), the conditional variance $\sigma_t^2$ is modeled as:
-$$\sigma_t^2 = \omega + lpha \epsilon_{t-1}^2 + eta \sigma_{t-1}^2$$
-Where:
-* $\omega$ = Baseline constant variance
-* $lpha$ = Sensitivity to yesterday's return shock ($\epsilon_{t-1}^2$)
-* $eta$ = Persistence of yesterday's volatility forecast ($\sigma_{t-1}^2$)
+### 2. Mathematical Formulations
+For a GARCH(1,1) model, the conditional variance $\sigma_t^2$ is:
+$$\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2$$
+where $\epsilon_{t-1}^2$ is the squared residual from the mean equation, and $\sigma_{t-1}^2$ is the previous variance forecast.

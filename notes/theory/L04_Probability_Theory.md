@@ -2,35 +2,24 @@
 
 ---
 
-## 🕒 Lesson 4.1: Random Variables & Distributions
-
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Random variables model uncertain numerical outcomes, and probability density functions (PDFs) map the relative likelihood of these outcomes.
+## 🕒 Lesson 4.1: Random Variables & Probability Distributions
 
 ### 1. Intuition (ELIF5)
-Imagine rolling a die. Before you roll, you don't know the number, but you know it must be 1, 2, 3, 4, 5, or 6, and each has a 1-in-6 chance. A **random variable** is the mathematical placeholder for this rolling die. The **probability distribution** is the rulebook that tells you how likely each outcome is.
+A random variable is a mathematical variable that takes on different values based on the outcome of a random event. For example, the return of a stock tomorrow is a random variable. A probability distribution describes how likely the variable is to take on different values.
 
-### 2. Formulas
-* **Expected Value (Mean $\mu$):**
-  $$E[X] = \int_{-\infty}^{\infty} x f(x) dx$$
-* **Variance ($\sigma^2$):**
-  $$	ext{Var}(X) = E[(X - E[X])^2] = E[X^2] - (E[X])^2$$
+### 2. Mathematical Formulations
+For a continuous random variable $X$ with probability density function (PDF) $f(x)$, the expected value (mean $\mu$) is:
+$$E[X] = \int_{-\infty}^{\infty} x f(x) dx$$
+The variance ($\sigma^2$) measures the dispersion of the random variable around its mean:
+$$\text{Var}(X) = E[(X - E[X])^2] = \int_{-\infty}^{\infty} (x - \mu)^2 f(x) dx$$
 
 ---
 
-## 🕒 Lesson 4.2: Normal vs. Log-Normal Distributions in Finance
-
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Financial models assume asset returns are normally distributed (can be positive or negative) and asset prices are log-normally distributed (bounded below by zero).
+## 🕒 Lesson 4.2: Normal vs. Log-Normal Distributions
 
 ### 1. Intuition (ELIF5)
-A normal distribution (bell curve) goes off to infinity in both directions. However, a stock price cannot drop below zero (companies have limited liability; you can't owe money just for holding stock).
-Therefore, we assume:
-* **Asset Returns** follow a Normal distribution (you can lose -10% or gain +10%).
-* **Asset Prices** follow a Log-Normal distribution (always positive, ranging from 0 to infinity).
+A normal distribution is symmetric and bell-shaped, allowing values to be negative. However, stock prices cannot drop below zero. To resolve this, we model stock returns (which can be positive or negative) as normally distributed, which implies that the stock prices themselves follow a log-normal distribution (always positive).
 
-### 2. Formulas
-If $\ln(S_t) \sim N(\mu, \sigma^2)$, then $S_t$ is log-normally distributed with PDF:
-$$f(s) = rac{1}{s \sigma \sqrt{2\pi}} e^{-rac{(\ln s - \mu)^2}{2\sigma^2}} \quad (s > 0)$$
+### 2. Mathematical Formulations
+If the log-returns $x_t = \ln(S_t/S_0)$ follow a normal distribution $N(\mu, \sigma^2)$, then the stock price $S_t$ follows a log-normal distribution with PDF:
+$$f(s) = \frac{1}{s \sigma \sqrt{2\pi}} e^{-\frac{(\ln s - \mu)^2}{2\sigma^2}} \quad (s > 0)$$

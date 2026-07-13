@@ -4,39 +4,23 @@
 
 ## 🕒 Lesson 14.1: Wiener Process (Brownian Motion)
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> A Wiener process is a continuous-time stochastic process characterized by stationary, independent, normally distributed increments.
-
 ### 1. Intuition (ELIF5)
-Imagine a dust particle floating in a glass of water. It is hit constantly by tiny water molecules from random directions. The path of the dust particle is a **Wiener Process** (Brownian Motion). 
-It is continuous (no teleporting), but it is so jagged that if you zoom in, it looks like a zigzag at every scale—it is nowhere differentiable (has no smooth slope).
+Imagine a dust particle suspended in water. It wiggles randomly as it is hit by water molecules. This random path is a Wiener process. It is continuous, but extremely jagged and has no smooth slope anywhere.
 
-### 2. Formulas
-A process $W_t$ is a standard Wiener process if:
+### 2. Mathematical Formulations
+A standard Wiener process $\{W_t\}$ satisfies:
 1. $W_0 = 0$
-2. For any $t > s$, the increment $W_t - W_s \sim N(0, t-s)$
-3. Increments are independent over non-overlapping intervals.
-4. The path $t \mapsto W_t$ is continuous.
+2. The increments $W_t - W_s$ are normally distributed: $W_t - W_s \sim N(0, t-s)$
+3. The increments are independent over non-overlapping intervals.
 
 ---
 
 ## 🕒 Lesson 14.2: Geometric Brownian Motion (GBM)
 
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Geometric Brownian Motion models stock prices by assuming log-returns grow with a constant drift rate and random normal shocks.
-
 ### 1. Intuition (ELIF5)
-We cannot use standard Brownian motion to model stock prices directly because:
-1. A stock price cannot be negative.
-2. A $1 change in a $100 stock is minor, but a $1 change in a $1 stock is huge.
-**Geometric Brownian Motion** solves this: it models the *percentage* change in the stock price. It assumes the stock grows at a steady average rate (drift) plus a random wiggle that scales with the price of the stock.
+Standard Brownian motion can take negative values, which makes it unsuitable for stock prices. GBM resolves this by modeling the *percentage* change in the stock price as standard Brownian motion, ensuring the price remains positive.
 
-### 2. Formulas
+### 2. Mathematical Formulations
+The SDE for Geometric Brownian Motion is:
 $$dS_t = \mu S_t dt + \sigma S_t dW_t$$
-Where:
-* $S_t$ = Stock price
-* $\mu$ = Drift (expected annual growth rate)
-* $\sigma$ = Volatility
-* $dW_t$ = Standard Brownian motion increment
+where $\mu$ is the drift and $\sigma$ is the volatility.
