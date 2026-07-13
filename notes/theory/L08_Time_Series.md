@@ -25,4 +25,17 @@ In financial markets, high-volatility days tend to cluster together (volatility 
 ### 2. Mathematical Formulations
 For a GARCH(1,1) model, the conditional variance $\sigma_t^2$ is:
 $$\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2$$
-where $\epsilon_{t-1}^2$ is the squared residual from the mean equation, and $\sigma_{t-1}^2$ is the previous variance forecast.
+where $\epsilon_{t-1}^2$ is the residual from the mean equation, and $\sigma_{t-1}^2$ is the previous variance forecast.
+
+```text
+Algorithm: GARCH(1,1) Volatility Forecast
+Input: Returns R_1 to R_T, parameters omega, alpha, beta, initial variance sigma_0^2
+Output: Forecasted variance sigma_next^2
+
+sigma^2[0] = sigma_0^2
+for t = 1 to T:
+    epsilon[t] = R[t] - mean(R)
+    sigma^2[t] = omega + alpha * epsilon[t-1]^2 + beta * sigma^2[t-1]
+sigma_next^2 = omega + alpha * epsilon[T]^2 + beta * sigma^2[T]
+return sigma_next^2
+```

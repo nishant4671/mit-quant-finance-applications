@@ -5,18 +5,26 @@ def markdown_to_latex(md_content):
     # 1. Normalize escaped dollar signs to raw dollar signs
     md_content = md_content.replace("\\$", "$")
     
-    # 2. Convert currency dollar signs to LaTeX escaped format: \$
+    # 2. Mask fenced code blocks to prevent any character escaping inside code
+    code_blocks = []
+    def mask_code_block(match):
+        code_content = match.group(1).strip()
+        code_blocks.append(code_content)
+        return f"CODEBLOCKMASK{len(code_blocks)-1}CODE"
+    md_content = re.sub(r"```[a-zA-Z]*\n(.*?)\n```", mask_code_block, md_content, flags=re.DOTALL)
+    
+    # 3. Convert currency dollar signs to LaTeX escaped format: \$
     # Match a dollar sign followed by a digit (e.g. $100, $10,000, $1.5)
     md_content = re.sub(r"\$(\d)", r"\\$\1", md_content)
     
-    # 3. Mask block math $$ ... $$
+    # 4. Mask block math $$ ... $$
     block_math_blocks = []
     def mask_block_math(match):
         block_math_blocks.append(match.group(0))
         return f"BLOCKMATHMASK{len(block_math_blocks)-1}BLOCK"
     md_content = re.sub(r"\$\$(.*?)\$\$", mask_block_math, md_content, flags=re.DOTALL)
     
-    # 4. Mask inline math $ ... $
+    # 5. Mask inline math $ ... $
     # Since we already converted currency $ to \$, any remaining $ signs are math mode delimiters!
     inline_math_blocks = []
     def mask_inline_math(match):
@@ -24,7 +32,7 @@ def markdown_to_latex(md_content):
         return f"INLINEMATHMASK{len(inline_math_blocks)-1}INLINE"
     md_content = re.sub(r"\$(.*?)\$", mask_inline_math, md_content)
 
-    # 5. Mask URLs in links to prevent escaping characters in URLs
+    # 6. Mask URLs in links to prevent escaping characters in URLs
     url_blocks = []
     def mask_url(match):
         text = match.group(1)
@@ -33,11 +41,11 @@ def markdown_to_latex(md_content):
         return f"\\href{{URLMASK{len(url_blocks)-1}URL}}{{{text}}}"
     md_content = re.sub(r"\[(.*?)\]\((.*?)\)", mask_url, md_content)
 
-    # 6. Convert other markdown formatting (bold, italics)
+    # 7. Convert other markdown formatting (bold, italics)
     md_content = re.sub(r"\*\*(.*?)\*\*", r"\\textbf{\1}", md_content)
     md_content = re.sub(r"\*(.*?)\*", r"\\textit{\1}", md_content)
 
-    # 7. State-machine parsing line by line
+    # 8. State-machine parsing line by line
     lines = md_content.split("\n")
     in_list = False
     in_quote = False
@@ -113,15 +121,28 @@ def markdown_to_latex(md_content):
 
     content = "\n".join(new_lines)
 
-    # 8. Unmask math blocks
+    # 9. Unmask math blocks
     for i, math in enumerate(block_math_blocks):
         content = content.replace(f"BLOCKMATHMASK{i}BLOCK", math)
     for i, math in enumerate(inline_math_blocks):
         content = content.replace(f"INLINEMATHMASK{i}INLINE", math)
         
-    # 9. Unmask URLs
+    # 10. Unmask URLs
     for i, url in enumerate(url_blocks):
         content = content.replace(f"URLMASK{i}URL", url)
+        
+    # 11. Unmask and format code blocks as tcolorbox + verbatim
+    for i, code in enumerate(code_blocks):
+        lines = code.split("\n")
+        title = "Algorithm Specification"
+        code_lines = lines
+        if lines[0].startswith("Algorithm:"):
+            title = lines[0].replace("Algorithm:", "").strip()
+            code_lines = lines[1:]
+        clean_code = "\n".join(code_lines)
+        
+        replacement = f"\\begin{{tcolorbox}}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title={title}]\n\\begin{{verbatim}}\n{clean_code}\n\\end{{verbatim}}\n\\end{{tcolorbox}}"
+        content = content.replace(f"CODEBLOCKMASK{i}CODE", replacement)
         
     return content
 

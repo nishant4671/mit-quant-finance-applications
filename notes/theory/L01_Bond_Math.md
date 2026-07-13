@@ -30,6 +30,21 @@ For a coupon-bearing bond paying a periodic coupon $C$ $m$ times a year, the pri
 $$P = \sum_{k=1}^{n} \frac{C}{\left(1 + \frac{y}{m}\right)^k} + \frac{F}{\left(1 + \frac{y}{m}\right)^n}$$
 where $y$ is the Yield to Maturity (YTM) and $n = m \cdot T$ is the total number of periods. The YTM is the single constant interest rate that equates the present value of the bond's cash flows to its current market price. Since this equation cannot be solved algebraically for $y$, numerical root-finding algorithms (such as the Newton-Raphson method) are required.
 
+```text
+Algorithm: Newton-Raphson YTM Solver
+Input: Market Price P, Face Value F, Coupon C, Periods n, Annual Frequency m, Initial Guess y_0, Tolerance tol
+Output: Yield to Maturity (YTM) y
+
+y = y_0
+repeat:
+    P_est = sum( (C / m) / (1 + y/m)^t for t = 1 to n ) + F / (1 + y/m)^n
+    dPes_dy = sum( -t * (C / m) / (1 + y/m)^(t+1) for t = 1 to n ) - n * F / (1 + y/m)^(n+1)
+    y_new = y - (P_est - P) / dPes_dy
+    if |y_new - y| < tol:
+        return y_new
+    y = y_new
+```
+
 ---
 
 ## 🕒 Lesson 1.3: Yield Curves & Spot Rates
@@ -42,6 +57,21 @@ A Spot Rate is the interest rate applicable to a single, isolated cash flow occu
 The Discount Factor $d(t)$ represents the present value of $1 received at time $t$. Under continuous compounding, it is defined as:
 $$d(t) = e^{-r(t) \cdot t}$$
 where $r(t)$ is the spot rate for maturity $t$. Given a set of liquid coupon bond prices, we can recursively determine the spot rates using a method called bootstrapping. For the first period, the spot rate is derived directly from the short-term zero-coupon rate. For subsequent periods, the price of the bond is expressed as the sum of discounted coupons using previously calculated spot rates, plus the final payment discounted at the new spot rate, which is then solved algebraically.
+
+```text
+Algorithm: Spot Rate Bootstrapping
+Input: Prices of bonds P_i, maturities T_i, coupon payments C_i
+Output: Spot rates r(T_i) for each maturity i
+
+r = empty list of size N
+for i = 1 to N:
+    if T_i is first period:
+        r[1] = ln( (F + C_1) / P_1 ) / T_1
+    else:
+        sum_prev_cf = sum( C_i * exp(-r[k] * T_k) for k = 1 to i-1 )
+        r[i] = -ln( (P_i - sum_prev_cf) / (F + C_i) ) / T_i
+return r
+```
 
 ---
 

@@ -25,3 +25,24 @@ For an exchange to work, there must be buyers and sellers. If you want to buy a 
 The exchange matches buy orders (bids) and sell orders (asks) using a central limit order book. The market maker's spread is:
 $$\text{Spread} = P_{\text{ask}} - P_{\text{bid}}$$
 The exchange ensures risk constraints are met by requiring traders to fully collateralize their positions (since the maximum loss of a binary contract is capped).
+
+```text
+Algorithm: Order Matching Engine
+Input: New buy limit order (Price P_buy, Quantity Q_buy), Order Book Ask side
+Output: Executed trades and updated Order Book Ask side
+
+while Q_buy > 0 and Ask side is not empty:
+    Best_Ask = Ask side.cheapest()
+    if P_buy >= Best_Ask.price:
+        Execution_Price = Best_Ask.price
+        Execution_Qty = min(Q_buy, Best_Ask.qty)
+        execute_trade(Price=Execution_Price, Qty=Execution_Qty)
+        Q_buy = Q_buy - Execution_Qty
+        Best_Ask.qty = Best_Ask.qty - Execution_Qty
+        if Best_Ask.qty == 0:
+            Ask side.remove(Best_Ask)
+    else:
+        break
+if Q_buy > 0:
+    Bid side.add(Price=P_buy, Qty=Q_buy)
+```

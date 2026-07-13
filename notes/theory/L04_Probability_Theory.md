@@ -23,3 +23,17 @@ A normal distribution is symmetric and bell-shaped, allowing values to be negati
 ### 2. Mathematical Formulations
 If the log-returns $x_t = \ln(S_t/S_0)$ follow a normal distribution $N(\mu, \sigma^2)$, then the stock price $S_t$ follows a log-normal distribution with PDF:
 $$f(s) = \frac{1}{s \sigma \sqrt{2\pi}} e^{-\frac{(\ln s - \mu)^2}{2\sigma^2}} \quad (s > 0)$$
+
+```text
+Algorithm: Log-Normal Price Paths
+Input: Initial Price S_0, Drift mu, Volatility sigma, Time horizon T, Time steps N, Number of paths M
+Output: Simulated stock price matrix S of size M x (N+1)
+
+dt = T / N
+for path i = 1 to M:
+    S[i, 0] = S_0
+    for t = 1 to N:
+        Z = sample standard normal N(0, 1)
+        S[i, t] = S[i, t-1] * exp( (mu - 0.5 * sigma^2)*dt + sigma * sqrt(dt) * Z )
+return S
+```

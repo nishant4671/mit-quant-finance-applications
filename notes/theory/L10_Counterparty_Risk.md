@@ -12,6 +12,21 @@ The exposure $E(t)$ of a derivative contract at time $t$ is:
 $$E(t) = \max(V(t), 0)$$
 where $V(t)$ is the market value of the contract.
 
+```text
+Algorithm: Expected Exposure Monte Carlo
+Input: Pricing function V(t, S), Simulated stock paths S_t,i, Time steps N, Paths M
+Output: Expected Exposure curve EE of size N+1
+
+for t = 0 to N:
+    sum_exposure = 0
+    for path i = 1 to M:
+        V_val = V(t, S_t,i)
+        exposure = max(V_val, 0)
+        sum_exposure = sum_exposure + exposure
+    EE[t] = sum_exposure / M
+return EE
+```
+
 ---
 
 ## 🕒 Lesson 10.2: Credit Valuation Adjustment (CVA)

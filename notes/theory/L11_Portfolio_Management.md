@@ -12,3 +12,14 @@ The expected return of asset $i$ under CAPM is:
 $$E[R_i] = R_f + \beta_i (E[R_m] - R_f)$$
 where the systematic risk coefficient $\beta_i$ is defined as:
 $$\beta_i = \frac{\text{Cov}(R_i, R_m)}{\text{Var}(R_m)}$$
+
+```text
+Algorithm: Fama-French Regression
+Input: Stock returns R_i, Risk-free rate R_f, Market factor MKT, Size factor SMB, Value factor HML
+Output: Factor loadings (beta_MKT, beta_SMB, beta_HML)
+
+1. Compute excess return: Y = R_i - R_f
+2. Form design matrix X = [1, MKT, SMB, HML]
+3. Solve OLS regression: beta = (X^T * X)^(-1) * X^T * Y
+return beta[1], beta[2], beta[3]
+```

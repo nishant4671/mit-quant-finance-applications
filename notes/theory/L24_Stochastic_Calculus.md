@@ -11,6 +11,19 @@ In standard calculus, the change in a function is the slope times the step size.
 For $dX_t = \mu_t dt + \sigma_t dW_t$, and a function $f(t, X_t)$:
 $$df(t, X_t) = \left( \frac{\partial f}{\partial t} + \mu_t \frac{\partial f}{\partial X} + \frac{1}{2} \sigma_t^2 \frac{\partial^2 f}{\partial X^2} \right) dt + \sigma_t \frac{\partial f}{\partial X} dW_t$$
 
+```text
+Algorithm: Euler-Maruyama GBM Simulation
+Input: Initial Price S_0, Drift mu, Volatility sigma, Time horizon T, Steps N
+Output: Simulated price path vector S of size N+1
+
+dt = T / N
+S[0] = S_0
+for t = 1 to N:
+    dW = sample normal N(0, dt)
+    S[t] = S[t-1] + mu * S[t-1] * dt + sigma * S[t-1] * dW
+return S
+```
+
 ---
 
 ## 🕒 Lesson 24.2: Stochastic Differential Equations (SDEs)

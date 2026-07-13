@@ -70,6 +70,22 @@ For a coupon-bearing bond paying a periodic coupon $C$ $m$ times a year, the pri
 $$P = \sum_{k=1}^{n} \frac{C}{\left(1 + \frac{y}{m}\right)^k} + \frac{F}{\left(1 + \frac{y}{m}\right)^n}$$
 where $y$ is the Yield to Maturity (YTM) and $n = m \cdot T$ is the total number of periods. The YTM is the single constant interest rate that equates the present value of the bond's cash flows to its current market price. Since this equation cannot be solved algebraically for $y$, numerical root-finding algorithms (such as the Newton-Raphson method) are required.
 
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=Newton-Raphson YTM Solver]
+\begin{verbatim}
+Input: Market Price P, Face Value F, Coupon C, Periods n, Annual Frequency m, Initial Guess y_0, Tolerance tol
+Output: Yield to Maturity (YTM) y
+
+y = y_0
+repeat:
+    P_est = sum( (C / m) / (1 + y/m)^t for t = 1 to n ) + F / (1 + y/m)^n
+    dPes_dy = sum( -t * (C / m) / (1 + y/m)^(t+1) for t = 1 to n ) - n * F / (1 + y/m)^(n+1)
+    y_new = y - (P_est - P) / dPes_dy
+    if |y_new - y| < tol:
+        return y_new
+    y = y_new
+\end{verbatim}
+\end{tcolorbox}
+
 ---
 
 \section{🕒 Lesson 1.3: Yield Curves \& Spot Rates}
@@ -82,6 +98,22 @@ A Spot Rate is the interest rate applicable to a single, isolated cash flow occu
 The Discount Factor $d(t)$ represents the present value of \$1 received at time $t$. Under continuous compounding, it is defined as:
 $$d(t) = e^{-r(t) \cdot t}$$
 where $r(t)$ is the spot rate for maturity $t$. Given a set of liquid coupon bond prices, we can recursively determine the spot rates using a method called bootstrapping. For the first period, the spot rate is derived directly from the short-term zero-coupon rate. For subsequent periods, the price of the bond is expressed as the sum of discounted coupons using previously calculated spot rates, plus the final payment discounted at the new spot rate, which is then solved algebraically.
+
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=Spot Rate Bootstrapping]
+\begin{verbatim}
+Input: Prices of bonds P_i, maturities T_i, coupon payments C_i
+Output: Spot rates r(T_i) for each maturity i
+
+r = empty list of size N
+for i = 1 to N:
+    if T_i is first period:
+        r[1] = ln( (F + C_1) / P_1 ) / T_1
+    else:
+        sum_prev_cf = sum( C_i * exp(-r[k] * T_k) for k = 1 to i-1 )
+        r[i] = -ln( (P_i - sum_prev_cf) / (F + C_i) ) / T_i
+return r
+\end{verbatim}
+\end{tcolorbox}
 
 ---
 
@@ -145,6 +177,23 @@ $$A v = \lambda v$$
 where $\lambda$ is the eigenvalue. We solve for $\lambda$ by finding the roots of the characteristic equation:
 $$\det(A - \lambda I) = 0$$
 
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=Power Iteration for Principal Eigenvector]
+\begin{verbatim}
+Input: Symmetric Matrix A, Initial Guess Vector v_0, Max Iterations max_iter, Tolerance tol
+Output: Eigenvector v, Eigenvalue lambda
+
+v = v_0 / ||v_0||
+for k = 1 to max_iter:
+    w = A * v
+    lambda = v^T * w
+    v_new = w / ||w||
+    if ||v_new - v|| < tol:
+        return v_new, lambda
+    v = v_new
+return v, lambda
+\end{verbatim}
+\end{tcolorbox}
+
 ---
 
 \section{🕒 Lesson 2.3: Covariance Matrices \& Quadratic Forms}
@@ -190,6 +239,25 @@ subject to:
 $$w^T \mathbf{1} = 1$$
 where $\lambda$ is the investor's risk aversion parameter.
 
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=Mean-Variance Portfolio Frontier]
+\begin{verbatim}
+Input: Expected Returns E_R, Covariance Matrix Sigma, Target Return R_target
+Output: Optimal Weights w
+
+Formulate quadratic programming problem:
+    minimize w^T * Sigma * w
+    subject to:
+        w^T * E_R = R_target
+        w^T * 1 = 1
+Solve using Lagrange multipliers:
+    Solve linear system:
+    [ 2*Sigma  -E_R   -1  ] [ w ]   [ 0 ]
+    [  E_R^T     0     0  ] [L_1] = [R_target]
+    [   1^T      0     0  ] [L_2]   [ 1 ]
+return w
+\end{verbatim}
+\end{tcolorbox}
+
 
 \newpage
 
@@ -219,6 +287,21 @@ A normal distribution is symmetric and bell-shaped, allowing values to be negati
 If the log-returns $x_t = \ln(S_t/S_0)$ follow a normal distribution $N(\mu, \sigma^2)$, then the stock price $S_t$ follows a log-normal distribution with PDF:
 $$f(s) = \frac{1}{s \sigma \sqrt{2\pi}} e^{-\frac{(\ln s - \mu)^2}{2\sigma^2}} \quad (s > 0)$$
 
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=Log-Normal Price Paths]
+\begin{verbatim}
+Input: Initial Price S_0, Drift mu, Volatility sigma, Time horizon T, Time steps N, Number of paths M
+Output: Simulated stock price matrix S of size M x (N+1)
+
+dt = T / N
+for path i = 1 to M:
+    S[i, 0] = S_0
+    for t = 1 to N:
+        Z = sample standard normal N(0, 1)
+        S[i, t] = S[i, t-1] * exp( (mu - 0.5 * sigma^2)*dt + sigma * sqrt(dt) * Z )
+return S
+\end{verbatim}
+\end{tcolorbox}
+
 
 \newpage
 
@@ -234,6 +317,22 @@ A stochastic process is a sequence of random variables indexed by time, represen
 \subsection{2. Mathematical Formulations}
 A discrete-time stochastic process $\{X_t\}$ satisfies the Markov property if:
 $$P(X_{t+1} = x_{t+1} \mid X_t = x_t, X_{t-1} = x_{t-1}, \dots, X_0 = x_0) = P(X_{t+1} = x_{t+1} \mid X_t = x_t)$$
+
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=Simulating a Random Walk]
+\begin{verbatim}
+Input: Initial Value X_0, Steps N, Up probability p, Up step size u, Down step size d
+Output: Path vector X of size N+1
+
+X[0] = X_0
+for t = 1 to N:
+    U = sample uniform U(0, 1)
+    if U < p:
+        X[t] = X[t-1] + u
+    else:
+        X[t] = X[t-1] - d
+return X
+\end{verbatim}
+\end{tcolorbox}
 
 ---
 
@@ -269,7 +368,7 @@ $$\hat{\beta} = (X^T X)^{-1} X^T y$$
 
 \section{🕒 Lesson 6.2: Regularization: Ridge \& Lasso}
 
-<h3>1. Intuition (ELIF5)</h3>
+\subsection{1. Intuition (ELIF5)}
 If you have too many variables in a model, it can overfit, meaning it memorizes the noise in the data and performs poorly on new data. Regularization adds a penalty to the OLS optimization to keep the coefficients small:
 \begin{itemize}
   \item \textbf{Ridge} shrinks all coefficients slightly.
@@ -286,6 +385,29 @@ If you have too many variables in a model, it can overfit, meaning it memorizes 
 \end{itemize}
   $$\min_{\beta} \|y - X\beta\|^2 + \lambda \sum_{j=1}^p |\beta_j|$$
 
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=Lasso Coordinate Descent]
+\begin{verbatim}
+Input: Design Matrix X, Response Vector y, Penalty parameter lambda, Max Iterations max_iter, Tolerance tol
+Output: Coefficient vector beta
+
+Initialize beta = OLS estimator or 0
+for k = 1 to max_iter:
+    beta_old = beta
+    for j = 1 to p:
+        r_j = y - sum( X_i * beta_i for i != j )
+        rho_j = X_j^T * r_j
+        if rho_j < -lambda/2:
+            beta[j] = (rho_j + lambda/2) / ||X_j||^2
+        elif rho_j > lambda/2:
+            beta[j] = (rho_j - lambda/2) / ||X_j||^2
+        else:
+            beta[j] = 0
+    if ||beta - beta_old|| < tol:
+        return beta
+return beta
+\end{verbatim}
+\end{tcolorbox}
+
 
 \newpage
 
@@ -295,7 +417,7 @@ If you have too many variables in a model, it can overfit, meaning it memorizes 
 
 \section{🕒 Lesson 7.1: Benchmark Rates \& Forward Rates}
 
-<h3>1. Intuition (ELIF5)</h3>
+\subsection{1. Intuition (ELIF5)}
 Interest rates are the cost of borrowing money. A Forward Rate is an interest rate that you agree on today for a loan that will start at a specific date in the future.
 
 \subsection{2. Mathematical Formulations}
@@ -313,6 +435,21 @@ Imagine you have a loan with a floating interest rate that changes every month. 
 The swap rate $S_n$ that sets the initial market value of the swap to zero is:
 $$S_n = \frac{1 - P(0, T_n)}{\sum_{i=1}^n \alpha_i P(0, T_i)}$$
 where $P(0, T_i)$ is the discount factor and $\alpha_i$ is the day-count fraction.
+
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=Swap Rate Valuation]
+\begin{verbatim}
+Input: Spot Curve r(t), Payment dates T_1 to T_n, Day-count fractions alpha_1 to alpha_n
+Output: Swap Rate S_n
+
+sum_pv = 0
+for i = 1 to n:
+    P_i = exp( -r(T_i) * T_i )
+    sum_pv = sum_pv + alpha_i * P_i
+P_n = exp( -r(T_n) * T_n )
+S_n = (1 - P_n) / sum_pv
+return S_n
+\end{verbatim}
+\end{tcolorbox}
 
 
 \newpage
@@ -350,7 +487,21 @@ In financial markets, high-volatility days tend to cluster together (volatility 
 \subsection{2. Mathematical Formulations}
 For a GARCH(1,1) model, the conditional variance $\sigma_t^2$ is:
 $$\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2$$
-where $\epsilon_{t-1}^2$ is the squared residual from the mean equation, and $\sigma_{t-1}^2$ is the previous variance forecast.
+where $\epsilon_{t-1}^2$ is the residual from the mean equation, and $\sigma_{t-1}^2$ is the previous variance forecast.
+
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=GARCH(1,1) Volatility Forecast]
+\begin{verbatim}
+Input: Returns R_1 to R_T, parameters omega, alpha, beta, initial variance sigma_0^2
+Output: Forecasted variance sigma_next^2
+
+sigma^2[0] = sigma_0^2
+for t = 1 to T:
+    epsilon[t] = R[t] - mean(R)
+    sigma^2[t] = omega + alpha * epsilon[t-1]^2 + beta * sigma^2[t-1]
+sigma_next^2 = omega + alpha * epsilon[T]^2 + beta * sigma^2[T]
+return sigma_next^2
+\end{verbatim}
+\end{tcolorbox}
 
 
 \newpage
@@ -361,8 +512,8 @@ where $\epsilon_{t-1}^2$ is the squared residual from the mean equation, and $\s
 
 \section{🕒 Lesson 9.1: PCA as Dimensionality Reduction}
 
-<h3>1. Intuition (ELIF5)</h3>
-Imagine looking at a complex multidimensional object. By projecting its shadow onto a flat wall, you can capture most of its details. PCA is the mathematical equivalent of finding the best angle to cast this shadow, reducing the number of variables we need to analyze while retaining as much variance as possible.
+\subsection{1. Intuition (ELIF5)}
+Imagine looking at a complex multidimensional object. By projecting its shadow onto a wall, you can capture most of its details. PCA is the mathematical equivalent of finding the best angle to cast this shadow, reducing the number of variables we need to analyze while retaining as much variance as possible.
 
 \subsection{2. Mathematical Formulations}
 We compute the eigenvalues $\Lambda$ and eigenvectors $V$ of the covariance matrix $\Sigma$:
@@ -370,11 +521,26 @@ $$\Sigma = V \Lambda V^T$$
 The principal components are given by:
 $$Y = V^T X$$
 
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=Yield Curve Factor PCA]
+\begin{verbatim}
+Input: Yield data matrix X of size T x N (T days, N maturities)
+Output: Factors (Level, Slope, Curvature)
+
+1. Center the data: X_centered = X - mean(X)
+2. Compute Covariance Matrix: Sigma = (1/T) * X_centered^T * X_centered
+3. Compute Eigenvectors V and Eigenvalues L of Sigma
+4. Sort V by corresponding eigenvalues in descending order
+5. Select top 3 factors: V_3 = V[:, 1:3]
+6. Compute factor loadings: Y_3 = X_centered * V_3
+return V_3, Y_3
+\end{verbatim}
+\end{tcolorbox}
+
 ---
 
 \section{🕒 Lesson 9.2: Yield Curve Factors}
 
-<h3>1. Intuition (ELIF5)</h3>
+\subsection{1. Intuition (ELIF5)}
 When we apply PCA to interest rates across different maturities, we find that three main shapes explain almost all movements in the yield curve:
 1. \textbf{Level:} The entire curve shifts up or down in parallel.
 2. \textbf{Slope:} The curve tilts (short rates rise, long rates fall).
@@ -399,6 +565,22 @@ Counterparty risk is the risk that the party on the other side of a financial co
 The exposure $E(t)$ of a derivative contract at time $t$ is:
 $$E(t) = \max(V(t), 0)$$
 where $V(t)$ is the market value of the contract.
+
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=Expected Exposure Monte Carlo]
+\begin{verbatim}
+Input: Pricing function V(t, S), Simulated stock paths S_t,i, Time steps N, Paths M
+Output: Expected Exposure curve EE of size N+1
+
+for t = 0 to N:
+    sum_exposure = 0
+    for path i = 1 to M:
+        V_val = V(t, S_t,i)
+        exposure = max(V_val, 0)
+        sum_exposure = sum_exposure + exposure
+    EE[t] = sum_exposure / M
+return EE
+\end{verbatim}
+\end{tcolorbox}
 
 ---
 
@@ -430,6 +612,18 @@ $$E[R_i] = R_f + \beta_i (E[R_m] - R_f)$$
 where the systematic risk coefficient $\beta_i$ is defined as:
 $$\beta_i = \frac{\text{Cov}(R_i, R_m)}{\text{Var}(R_m)}$$
 
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=Fama-French Regression]
+\begin{verbatim}
+Input: Stock returns R_i, Risk-free rate R_f, Market factor MKT, Size factor SMB, Value factor HML
+Output: Factor loadings (beta_MKT, beta_SMB, beta_HML)
+
+1. Compute excess return: Y = R_i - R_f
+2. Form design matrix X = [1, MKT, SMB, HML]
+3. Solve OLS regression: beta = (X^T * X)^(-1) * X^T * Y
+return beta[1], beta[2], beta[3]
+\end{verbatim}
+\end{tcolorbox}
+
 
 \newpage
 
@@ -460,6 +654,20 @@ The SDE for Geometric Brownian Motion is:
 $$dS_t = \mu S_t dt + \sigma S_t dW_t$$
 where $\mu$ is the drift and $\sigma$ is the volatility.
 
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=Euler-Maruyama OU Process]
+\begin{verbatim}
+Input: Initial Value X_0, Speed theta, Mean mu, Volatility sigma, Time horizon T, Steps N
+Output: Simulated path vector X of size N+1
+
+dt = T / N
+X[0] = X_0
+for t = 1 to N:
+    dW = sample normal N(0, dt)
+    X[t] = X[t-1] + theta * (mu - X[t-1]) * dt + sigma * dW
+return X
+\end{verbatim}
+\end{tcolorbox}
+
 
 \newpage
 
@@ -480,6 +688,20 @@ To fund the megafund, we apply financial securitization. The cash flows from suc
 1. \textbf{Senior Debt:} Has the first claim on cash flows, offering low yield and very high safety.
 2. \textbf{Mezzanine Debt:} Has the next claim, offering moderate yield and risk.
 3. \textbf{Equity:} Receives the remaining cash flows, offering high potential returns but absorbing the first losses.
+
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=Megafund Cash Flow Allocation]
+\begin{verbatim}
+Input: Drug trial successes K, Drug value V_drug, Senior Debt D_senior, Mezzanine Debt D_mezz
+Output: Payout to Senior, Mezzanine, and Equity tranches
+
+Total_Cash = K * V_drug
+Payout_Senior = min(Total_Cash, D_senior)
+Remaining_Cash = Total_Cash - Payout_Senior
+Payout_Mezz = min(Remaining_Cash, D_mezz)
+Payout_Equity = Remaining_Cash - Payout_Mezz
+return Payout_Senior, Payout_Mezz, Payout_Equity
+\end{verbatim}
+\end{tcolorbox}
 
 ---
 
@@ -514,6 +736,24 @@ $$\sigma_{\text{historical}} = \sqrt{\frac{252}{N-1} \sum_{i=1}^N (R_i - \bar{R}
 The implied volatility $\sigma_{\text{impl}}$ solves:
 $$C_{\text{market}} - \text{BlackScholesCall}(S, K, T, r, \sigma_{\text{impl}}) = 0$$
 
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=Implied Volatility Solver]
+\begin{verbatim}
+Input: Option market price C_market, Spot S, Strike K, Expiry T, rate r, Initial Guess sigma_0, Tolerance tol
+Output: Implied Volatility sigma
+
+sigma = sigma_0
+repeat:
+    d1 = (ln(S/K) + (r + 0.5 * sigma^2)*T) / (sigma * sqrt(T))
+    d2 = d1 - sigma * sqrt(T)
+    C_est = S * N(d1) - K * exp(-r * T) * N(d2)
+    vega = S * sqrt(T) * pdf(d1)
+    sigma_new = sigma - (C_est - C_market) / vega
+    if |sigma_new - sigma| < tol:
+        return sigma_new
+    sigma = sigma_new
+\end{verbatim}
+\end{tcolorbox}
+
 
 \newpage
 
@@ -545,6 +785,28 @@ The exchange matches buy orders (bids) and sell orders (asks) using a central li
 $$\text{Spread} = P_{\text{ask}} - P_{\text{bid}}$$
 The exchange ensures risk constraints are met by requiring traders to fully collateralize their positions (since the maximum loss of a binary contract is capped).
 
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=Order Matching Engine]
+\begin{verbatim}
+Input: New buy limit order (Price P_buy, Quantity Q_buy), Order Book Ask side
+Output: Executed trades and updated Order Book Ask side
+
+while Q_buy > 0 and Ask side is not empty:
+    Best_Ask = Ask side.cheapest()
+    if P_buy >= Best_Ask.price:
+        Execution_Price = Best_Ask.price
+        Execution_Qty = min(Q_buy, Best_Ask.qty)
+        execute_trade(Price=Execution_Price, Qty=Execution_Qty)
+        Q_buy = Q_buy - Execution_Qty
+        Best_Ask.qty = Best_Ask.qty - Execution_Qty
+        if Best_Ask.qty == 0:
+            Ask side.remove(Best_Ask)
+    else:
+        break
+if Q_buy > 0:
+    Bid side.add(Price=P_buy, Qty=Q_buy)
+\end{verbatim}
+\end{tcolorbox}
+
 
 \newpage
 
@@ -561,6 +823,29 @@ Black and Scholes showed that you can replicate the payoff of an option by dynam
 The replicating portfolio value is:
 $$V_{\text{portfolio}} = \Delta_t S_t + \psi_t B_t$$
 where the stock weight $\Delta_t = \frac{\partial V}{\partial S}$ is the option's delta.
+
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=Delta Hedging Strategy]
+\begin{verbatim}
+Input: Stock price paths S_t, Option type, Strike K, Expiry T, Rate r, Volatility sigma, Steps N
+Output: Hedging error (portfolio tracking error)
+
+dt = T / N
+delta = BS_Delta(S_0, K, T, r, sigma)
+portfolio_value = BS_Price(S_0, K, T, r, sigma)
+cash = portfolio_value - delta * S_0
+
+for t = 1 to N:
+    stock_value = delta * S_t
+    portfolio_value = stock_value + cash * exp(r * dt)
+    delta_new = BS_Delta(S_t, K, T - t*dt, r, sigma)
+    cash = portfolio_value - delta_new * S_t
+    delta = delta_new
+    
+option_payoff = max(S_N - K, 0)
+tracking_error = portfolio_value - option_payoff
+return tracking_error
+\end{verbatim}
+\end{tcolorbox}
 
 ---
 
@@ -601,6 +886,23 @@ Systematic trading rules execute trades automatically based on statistical signa
 \end{itemize}
   $$\text{IR} = \frac{\alpha}{\sigma_{\text{residual}}}$$
 
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=SMA Crossover Strategy]
+\begin{verbatim}
+Input: Historical price vector P, Fast window F, Slow window S
+Output: Signal vector signal
+
+signal = vector of zeros of size length(P)
+for t = S to length(P):
+    SMA_fast = mean(P[t-F+1 to t])
+    SMA_slow = mean(P[t-S+1 to t])
+    if SMA_fast > SMA_slow:
+        signal[t] = 1
+    else:
+        signal[t] = -1
+return signal
+\end{verbatim}
+\end{tcolorbox}
+
 
 \newpage
 
@@ -610,13 +912,28 @@ Systematic trading rules execute trades automatically based on statistical signa
 
 \section{🕒 Lesson 23.1: Supervised Learning \& Overfitting}
 
-<h3>1. Intuition (ELIF5)</h3>
+\subsection{1. Intuition (ELIF5)}
 Machine learning models find complex non-linear patterns in data. However, because financial markets are noisy, models can easily overfit by memorizing historical noise, which leads to poor performance on new data.
 
 \subsection{2. Mathematical Formulations}
 To prevent overfitting, we minimize loss while penalizing model complexity:
 $$\min_{\theta} \sum_{i=1}^n L(y_i, f(x_i; \theta)) + \lambda \|\theta\|_2^2$$
 where $\lambda$ is the regularization strength.
+
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=Mini-batch SGD for Financial Models]
+\begin{verbatim}
+Input: Training data X, Labels y, Model parameters theta, Learning rate alpha, Batch size B, Max Iterations epochs
+Output: Optimized parameters theta
+
+for epoch = 1 to epochs:
+    X_shuffled, y_shuffled = shuffle(X, y)
+    for batch = 1 to num_batches:
+        X_b, y_b = get_batch(X_shuffled, y_shuffled, batch, B)
+        gradient = compute_gradient(loss_function(X_b, y_b; theta))
+        theta = theta - alpha * gradient
+return theta
+\end{verbatim}
+\end{tcolorbox}
 
 
 \newpage
@@ -633,6 +950,20 @@ In standard calculus, the change in a function is the slope times the step size.
 \subsection{2. Mathematical Formulations}
 For $dX_t = \mu_t dt + \sigma_t dW_t$, and a function $f(t, X_t)$:
 $$df(t, X_t) = \left( \frac{\partial f}{\partial t} + \mu_t \frac{\partial f}{\partial X} + \frac{1}{2} \sigma_t^2 \frac{\partial^2 f}{\partial X^2} \right) dt + \sigma_t \frac{\partial f}{\partial X} dW_t$$
+
+\begin{tcolorbox}[colback=white,colframe=black,boxrule=0.6pt,arc=0mm,title=Euler-Maruyama GBM Simulation]
+\begin{verbatim}
+Input: Initial Price S_0, Drift mu, Volatility sigma, Time horizon T, Steps N
+Output: Simulated price path vector S of size N+1
+
+dt = T / N
+S[0] = S_0
+for t = 1 to N:
+    dW = sample normal N(0, dt)
+    S[t] = S[t-1] + mu * S[t-1] * dt + sigma * S[t-1] * dW
+return S
+\end{verbatim}
+\end{tcolorbox}
 
 ---
 

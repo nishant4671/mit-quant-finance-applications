@@ -5,7 +5,6 @@ def write_chapters():
     theory_dir = os.path.join(base_dir, "notes", "theory")
     os.makedirs(theory_dir, exist_ok=True)
 
-    # Note: All string values are marked as raw strings (r""") to prevent Python from escaping backslashes like \f, \t, etc.
     chapters = {
         "L01_Bond_Math.md": r"""# Financial Terms, Concepts, and Bond Math
 
@@ -39,6 +38,21 @@ For a coupon-bearing bond paying a periodic coupon $C$ $m$ times a year, the pri
 $$P = \sum_{k=1}^{n} \frac{C}{\left(1 + \frac{y}{m}\right)^k} + \frac{F}{\left(1 + \frac{y}{m}\right)^n}$$
 where $y$ is the Yield to Maturity (YTM) and $n = m \cdot T$ is the total number of periods. The YTM is the single constant interest rate that equates the present value of the bond's cash flows to its current market price. Since this equation cannot be solved algebraically for $y$, numerical root-finding algorithms (such as the Newton-Raphson method) are required.
 
+```text
+Algorithm: Newton-Raphson YTM Solver
+Input: Market Price P, Face Value F, Coupon C, Periods n, Annual Frequency m, Initial Guess y_0, Tolerance tol
+Output: Yield to Maturity (YTM) y
+
+y = y_0
+repeat:
+    P_est = sum( (C / m) / (1 + y/m)^t for t = 1 to n ) + F / (1 + y/m)^n
+    dPes_dy = sum( -t * (C / m) / (1 + y/m)^(t+1) for t = 1 to n ) - n * F / (1 + y/m)^(n+1)
+    y_new = y - (P_est - P) / dPes_dy
+    if |y_new - y| < tol:
+        return y_new
+    y = y_new
+```
+
 ---
 
 ## 🕒 Lesson 1.3: Yield Curves & Spot Rates
@@ -51,6 +65,21 @@ A Spot Rate is the interest rate applicable to a single, isolated cash flow occu
 The Discount Factor $d(t)$ represents the present value of $1 received at time $t$. Under continuous compounding, it is defined as:
 $$d(t) = e^{-r(t) \cdot t}$$
 where $r(t)$ is the spot rate for maturity $t$. Given a set of liquid coupon bond prices, we can recursively determine the spot rates using a method called bootstrapping. For the first period, the spot rate is derived directly from the short-term zero-coupon rate. For subsequent periods, the price of the bond is expressed as the sum of discounted coupons using previously calculated spot rates, plus the final payment discounted at the new spot rate, which is then solved algebraically.
+
+```text
+Algorithm: Spot Rate Bootstrapping
+Input: Prices of bonds P_i, maturities T_i, coupon payments C_i
+Output: Spot rates r(T_i) for each maturity i
+
+r = empty list of size N
+for i = 1 to N:
+    if T_i is first period:
+        r[1] = ln( (F + C_1) / P_1 ) / T_1
+    else:
+        sum_prev_cf = sum( C_i * exp(-r[k] * T_k) for k = 1 to i-1 )
+        r[i] = -ln( (P_i - sum_prev_cf) / (F + C_i) ) / T_i
+return r
+```
 
 ---
 
@@ -112,6 +141,22 @@ $$A v = \lambda v$$
 where $\lambda$ is the eigenvalue. We solve for $\lambda$ by finding the roots of the characteristic equation:
 $$\det(A - \lambda I) = 0$$
 
+```text
+Algorithm: Power Iteration for Principal Eigenvector
+Input: Symmetric Matrix A, Initial Guess Vector v_0, Max Iterations max_iter, Tolerance tol
+Output: Eigenvector v, Eigenvalue lambda
+
+v = v_0 / ||v_0||
+for k = 1 to max_iter:
+    w = A * v
+    lambda = v^T * w
+    v_new = w / ||w||
+    if ||v_new - v|| < tol:
+        return v_new, lambda
+    v = v_new
+return v, lambda
+```
+
 ---
 
 ## 🕒 Lesson 2.3: Covariance Matrices & Quadratic Forms
@@ -154,6 +199,24 @@ $$\max_{w} \left( w^T E[R] - \frac{\lambda}{2} w^T \Sigma w \right)$$
 subject to:
 $$w^T \mathbf{1} = 1$$
 where $\lambda$ is the investor's risk aversion parameter.
+
+```text
+Algorithm: Mean-Variance Portfolio Frontier
+Input: Expected Returns E_R, Covariance Matrix Sigma, Target Return R_target
+Output: Optimal Weights w
+
+Formulate quadratic programming problem:
+    minimize w^T * Sigma * w
+    subject to:
+        w^T * E_R = R_target
+        w^T * 1 = 1
+Solve using Lagrange multipliers:
+    Solve linear system:
+    [ 2*Sigma  -E_R   -1  ] [ w ]   [ 0 ]
+    [  E_R^T     0     0  ] [L_1] = [R_target]
+    [   1^T      0     0  ] [L_2]   [ 1 ]
+return w
+```
 """,
 
         "L04_Probability_Theory.md": r"""# Probability Theory & Random Variables
@@ -181,6 +244,20 @@ A normal distribution is symmetric and bell-shaped, allowing values to be negati
 ### 2. Mathematical Formulations
 If the log-returns $x_t = \ln(S_t/S_0)$ follow a normal distribution $N(\mu, \sigma^2)$, then the stock price $S_t$ follows a log-normal distribution with PDF:
 $$f(s) = \frac{1}{s \sigma \sqrt{2\pi}} e^{-\frac{(\ln s - \mu)^2}{2\sigma^2}} \quad (s > 0)$$
+
+```text
+Algorithm: Log-Normal Price Paths
+Input: Initial Price S_0, Drift mu, Volatility sigma, Time horizon T, Time steps N, Number of paths M
+Output: Simulated stock price matrix S of size M x (N+1)
+
+dt = T / N
+for path i = 1 to M:
+    S[i, 0] = S_0
+    for t = 1 to N:
+        Z = sample standard normal N(0, 1)
+        S[i, t] = S[i, t-1] * exp( (mu - 0.5 * sigma^2)*dt + sigma * sqrt(dt) * Z )
+return S
+```
 """,
 
         "L05_Stochastic_Processes_I.md": r"""# Stochastic Processes I & Asset Return Modeling
@@ -195,6 +272,21 @@ A stochastic process is a sequence of random variables indexed by time, represen
 ### 2. Mathematical Formulations
 A discrete-time stochastic process $\{X_t\}$ satisfies the Markov property if:
 $$P(X_{t+1} = x_{t+1} \mid X_t = x_t, X_{t-1} = x_{t-1}, \dots, X_0 = x_0) = P(X_{t+1} = x_{t+1} \mid X_t = x_t)$$
+
+```text
+Algorithm: Simulating a Random Walk
+Input: Initial Value X_0, Steps N, Up probability p, Up step size u, Down step size d
+Output: Path vector X of size N+1
+
+X[0] = X_0
+for t = 1 to N:
+    U = sample uniform U(0, 1)
+    if U < p:
+        X[t] = X[t-1] + u
+    else:
+        X[t] = X[t-1] - d
+return X
+```
 
 ---
 
@@ -228,7 +320,7 @@ $$\hat{\beta} = (X^T X)^{-1} X^T y$$
 
 ## 🕒 Lesson 6.2: Regularization: Ridge & Lasso
 
-<h3>1. Intuition (ELIF5)</h3>
+### 1. Intuition (ELIF5)
 If you have too many variables in a model, it can overfit, meaning it memorizes the noise in the data and performs poorly on new data. Regularization adds a penalty to the OLS optimization to keep the coefficients small:
 * **Ridge** shrinks all coefficients slightly.
 * **Lasso** shrinks coefficients and forces the least important ones to exactly zero, acting as a variable filter.
@@ -238,6 +330,28 @@ If you have too many variables in a model, it can overfit, meaning it memorizes 
   $$\min_{\beta} \|y - X\beta\|^2 + \lambda \sum_{j=1}^p \beta_j^2$$
 * **Lasso Regression ($L_1$ Regularization):**
   $$\min_{\beta} \|y - X\beta\|^2 + \lambda \sum_{j=1}^p |\beta_j|$$
+
+```text
+Algorithm: Lasso Coordinate Descent
+Input: Design Matrix X, Response Vector y, Penalty parameter lambda, Max Iterations max_iter, Tolerance tol
+Output: Coefficient vector beta
+
+Initialize beta = OLS estimator or 0
+for k = 1 to max_iter:
+    beta_old = beta
+    for j = 1 to p:
+        r_j = y - sum( X_i * beta_i for i != j )
+        rho_j = X_j^T * r_j
+        if rho_j < -lambda/2:
+            beta[j] = (rho_j + lambda/2) / ||X_j||^2
+        elif rho_j > lambda/2:
+            beta[j] = (rho_j - lambda/2) / ||X_j||^2
+        else:
+            beta[j] = 0
+    if ||beta - beta_old|| < tol:
+        return beta
+return beta
+```
 """,
 
         "L07_Linear_Rates.md": r"""# Linear Rates, Swaps, and Short-Rate Models
@@ -246,7 +360,7 @@ If you have too many variables in a model, it can overfit, meaning it memorizes 
 
 ## 🕒 Lesson 7.1: Benchmark Rates & Forward Rates
 
-<h3>1. Intuition (ELIF5)</h3>
+### 1. Intuition (ELIF5)
 Interest rates are the cost of borrowing money. A Forward Rate is an interest rate that you agree on today for a loan that will start at a specific date in the future.
 
 ### 2. Mathematical Formulations
@@ -264,6 +378,20 @@ Imagine you have a loan with a floating interest rate that changes every month. 
 The swap rate $S_n$ that sets the initial market value of the swap to zero is:
 $$S_n = \frac{1 - P(0, T_n)}{\sum_{i=1}^n \alpha_i P(0, T_i)}$$
 where $P(0, T_i)$ is the discount factor and $\alpha_i$ is the day-count fraction.
+
+```text
+Algorithm: Swap Rate Valuation
+Input: Spot Curve r(t), Payment dates T_1 to T_n, Day-count fractions alpha_1 to alpha_n
+Output: Swap Rate S_n
+
+sum_pv = 0
+for i = 1 to n:
+    P_i = exp( -r(T_i) * T_i )
+    sum_pv = sum_pv + alpha_i * P_i
+P_n = exp( -r(T_n) * T_n )
+S_n = (1 - P_n) / sum_pv
+return S_n
+```
 """,
 
         "L08_Time_Series.md": r"""# Time Series Analysis & Volatility Forecasting
@@ -293,7 +421,20 @@ In financial markets, high-volatility days tend to cluster together (volatility 
 ### 2. Mathematical Formulations
 For a GARCH(1,1) model, the conditional variance $\sigma_t^2$ is:
 $$\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2$$
-where $\epsilon_{t-1}^2$ is the squared residual from the mean equation, and $\sigma_{t-1}^2$ is the previous variance forecast.
+where $\epsilon_{t-1}^2$ is the residual from the mean equation, and $\sigma_{t-1}^2$ is the previous variance forecast.
+
+```text
+Algorithm: GARCH(1,1) Volatility Forecast
+Input: Returns R_1 to R_T, parameters omega, alpha, beta, initial variance sigma_0^2
+Output: Forecasted variance sigma_next^2
+
+sigma^2[0] = sigma_0^2
+for t = 1 to T:
+    epsilon[t] = R[t] - mean(R)
+    sigma^2[t] = omega + alpha * epsilon[t-1]^2 + beta * sigma^2[t-1]
+sigma_next^2 = omega + alpha * epsilon[T]^2 + beta * sigma^2[T]
+return sigma_next^2
+```
 """,
 
         "L09_PCA.md": r"""# Principal Component Analysis (PCA) in Finance
@@ -302,8 +443,8 @@ where $\epsilon_{t-1}^2$ is the squared residual from the mean equation, and $\s
 
 ## 🕒 Lesson 9.1: PCA as Dimensionality Reduction
 
-<h3>1. Intuition (ELIF5)</h3>
-Imagine looking at a complex multidimensional object. By projecting its shadow onto a flat wall, you can capture most of its details. PCA is the mathematical equivalent of finding the best angle to cast this shadow, reducing the number of variables we need to analyze while retaining as much variance as possible.
+### 1. Intuition (ELIF5)
+Imagine looking at a complex multidimensional object. By projecting its shadow onto a wall, you can capture most of its details. PCA is the mathematical equivalent of finding the best angle to cast this shadow, reducing the number of variables we need to analyze while retaining as much variance as possible.
 
 ### 2. Mathematical Formulations
 We compute the eigenvalues $\Lambda$ and eigenvectors $V$ of the covariance matrix $\Sigma$:
@@ -311,11 +452,25 @@ $$\Sigma = V \Lambda V^T$$
 The principal components are given by:
 $$Y = V^T X$$
 
+```text
+Algorithm: Yield Curve Factor PCA
+Input: Yield data matrix X of size T x N (T days, N maturities)
+Output: Factors (Level, Slope, Curvature)
+
+1. Center the data: X_centered = X - mean(X)
+2. Compute Covariance Matrix: Sigma = (1/T) * X_centered^T * X_centered
+3. Compute Eigenvectors V and Eigenvalues L of Sigma
+4. Sort V by corresponding eigenvalues in descending order
+5. Select top 3 factors: V_3 = V[:, 1:3]
+6. Compute factor loadings: Y_3 = X_centered * V_3
+return V_3, Y_3
+```
+
 ---
 
 ## 🕒 Lesson 9.2: Yield Curve Factors
 
-<h3>1. Intuition (ELIF5)</h3>
+### 1. Intuition (ELIF5)
 When we apply PCA to interest rates across different maturities, we find that three main shapes explain almost all movements in the yield curve:
 1. **Level:** The entire curve shifts up or down in parallel.
 2. **Slope:** The curve tilts (short rates rise, long rates fall).
@@ -338,6 +493,21 @@ Counterparty risk is the risk that the party on the other side of a financial co
 The exposure $E(t)$ of a derivative contract at time $t$ is:
 $$E(t) = \max(V(t), 0)$$
 where $V(t)$ is the market value of the contract.
+
+```text
+Algorithm: Expected Exposure Monte Carlo
+Input: Pricing function V(t, S), Simulated stock paths S_t,i, Time steps N, Paths M
+Output: Expected Exposure curve EE of size N+1
+
+for t = 0 to N:
+    sum_exposure = 0
+    for path i = 1 to M:
+        V_val = V(t, S_t,i)
+        exposure = max(V_val, 0)
+        sum_exposure = sum_exposure + exposure
+    EE[t] = sum_exposure / M
+return EE
+```
 
 ---
 
@@ -366,6 +536,17 @@ The expected return of asset $i$ under CAPM is:
 $$E[R_i] = R_f + \beta_i (E[R_m] - R_f)$$
 where the systematic risk coefficient $\beta_i$ is defined as:
 $$\beta_i = \frac{\text{Cov}(R_i, R_m)}{\text{Var}(R_m)}$$
+
+```text
+Algorithm: Fama-French Regression
+Input: Stock returns R_i, Risk-free rate R_f, Market factor MKT, Size factor SMB, Value factor HML
+Output: Factor loadings (beta_MKT, beta_SMB, beta_HML)
+
+1. Compute excess return: Y = R_i - R_f
+2. Form design matrix X = [1, MKT, SMB, HML]
+3. Solve OLS regression: beta = (X^T * X)^(-1) * X^T * Y
+return beta[1], beta[2], beta[3]
+```
 """,
 
         "L14_Stochastic_Processes_II.md": r"""# Stochastic Processes II: Continuous Time
@@ -394,6 +575,63 @@ Standard Brownian motion can take negative values, which makes it unsuitable for
 The SDE for Geometric Brownian Motion is:
 $$dS_t = \mu S_t dt + \sigma S_t dW_t$$
 where $\mu$ is the drift and $\sigma$ is the volatility.
+
+```text
+Algorithm: Euler-Maruyama OU Process
+Input: Initial Value X_0, Speed theta, Mean mu, Volatility sigma, Time horizon T, Steps N
+Output: Simulated path vector X of size N+1
+
+dt = T / N
+X[0] = X_0
+for t = 1 to N:
+    dW = sample normal N(0, dt)
+    X[t] = X[t-1] + theta * (mu - X[t-1]) * dt + sigma * dW
+return X
+```
+""",
+
+        "L18_Biomedical_Portfolios.md": r"""# Applying Data Science and AI to Managing Biomedical Portfolios
+
+---
+
+## 🕒 Lesson 18.1: Drug Development Risk & Securitization
+
+### 1. Intuition (ELIF5)
+Developing a new medicine is extremely risky and expensive. Imagine going on a quest to find a rare flower in a vast forest where only 1 in 20 paths leads to the flower. If a single researcher takes one path, they will likely fail (95% chance). If we fund 100 researchers to explore 100 different paths at the same time, the chance that at least one of them finds the flower becomes nearly 100%. 
+A **Biomedical Megafund** works on this exact principle. By pooling together dozens of independent drug development projects under one giant fund, we lower the overall risk. This allows us to issue bonds (debt) to fund scientific research, attracting large-scale conservative investors (like pension funds) who would never normally invest in early-stage biotechnology.
+
+### 2. Mathematical Formulations
+Let $p$ be the independent probability of success for a single clinical drug trial, and let $N$ be the number of independent trials in the portfolio. The probability that at least one drug is successfully approved is given by:
+$$P(\text{at least one success}) = 1 - (1 - p)^N$$
+To fund the megafund, we apply financial securitization. The cash flows from successful drug approvals are distributed to investors through tranches:
+1. **Senior Debt:** Has the first claim on cash flows, offering low yield and very high safety.
+2. **Mezzanine Debt:** Has the next claim, offering moderate yield and risk.
+3. **Equity:** Receives the remaining cash flows, offering high potential returns but absorbing the first losses.
+
+```text
+Algorithm: Megafund Cash Flow Allocation
+Input: Drug trial successes K, Drug value V_drug, Senior Debt D_senior, Mezzanine Debt D_mezz
+Output: Payout to Senior, Mezzanine, and Equity tranches
+
+Total_Cash = K * V_drug
+Payout_Senior = min(Total_Cash, D_senior)
+Remaining_Cash = Total_Cash - Payout_Senior
+Payout_Mezz = min(Remaining_Cash, D_mezz)
+Payout_Equity = Remaining_Cash - Payout_Mezz
+return Payout_Senior, Payout_Mezz, Payout_Equity
+```
+
+---
+
+## 🕒 Lesson 18.2: AI in Clinical Trial Forecasting
+
+### 1. Intuition (ELIF5)
+How do we know which drug projects are worth funding? We can use historical data from thousands of past clinical trials. AI models analyze patient sizes, chemical compound types, and the target diseases to predict whether a new drug will pass its trials, helping us select the best projects for our megafund.
+
+### 2. Mathematical Formulations
+We model the probability of trial success $p_k$ for drug $k$ using machine learning classification models (such as random forests or neural networks) trained on trial features $x_k$:
+$$p_k = f(x_k; \theta) \in [0, 1]$$
+We then optimize the portfolio weights $w_k$ to maximize expected portfolio value subject to value-at-risk limits.
 """,
 
         "L19_Volatility_Modeling.md": r"""# Volatility Modeling & Volatility Term Structure
@@ -411,6 +649,73 @@ The annualized realized volatility over $N$ periods is:
 $$\sigma_{\text{historical}} = \sqrt{\frac{252}{N-1} \sum_{i=1}^N (R_i - \bar{R})^2}$$
 The implied volatility $\sigma_{\text{impl}}$ solves:
 $$C_{\text{market}} - \text{BlackScholesCall}(S, K, T, r, \sigma_{\text{impl}}) = 0$$
+
+```text
+Algorithm: Implied Volatility Solver
+Input: Option market price C_market, Spot S, Strike K, Expiry T, rate r, Initial Guess sigma_0, Tolerance tol
+Output: Implied Volatility sigma
+
+sigma = sigma_0
+repeat:
+    d1 = (ln(S/K) + (r + 0.5 * sigma^2)*T) / (sigma * sqrt(T))
+    d2 = d1 - sigma * sqrt(T)
+    C_est = S * N(d1) - K * exp(-r * T) * N(d2)
+    vega = S * sqrt(T) * pdf(d1)
+    sigma_new = sigma - (C_est - C_market) / vega
+    if |sigma_new - sigma| < tol:
+        return sigma_new
+    sigma = sigma_new
+```
+""",
+
+        "L20_Event_Trading.md": r"""# Building a Regulated Exchange for Trading on Events
+
+---
+
+## 🕒 Lesson 20.1: Event Contracts & Prediction Markets
+
+### 1. Intuition (ELIF5)
+Imagine betting on whether a specific bill will pass in Congress next week. You can buy a ticket that pays out exactly $1 if the bill passes, and $0 if it does not. If the current price of this ticket in the market is $0.65, it implies that the collective wisdom of the market believes there is a 65% chance the bill passes. These are **Event Contracts** (also called binary options). Event exchanges (like Kalshi) let people trade these contracts to hedge against real-world risks (for example, a business hedging against interest rate hikes or new regulations).
+
+### 2. Mathematical Formulations
+The payoff of a binary contract $I_E$ on event $E$ at expiration $T$ is:
+$$I_E(T) = \begin{cases} 1 & \text{if } E \text{ occurs} \\ 0 & \text{if } E \text{ does not occur} \end{cases}$$
+The risk-neutral price $P_E(t)$ of the contract at time $t < T$ is:
+$$P_E(t) = e^{-r(T-t)} E^{\mathbb{Q}}[I_E(T)] = e^{-r(T-t)} \mathbb{Q}(E)$$
+where $\mathbb{Q}(E)$ is the market-implied probability of the event occurring, and $r$ is the risk-free rate.
+
+---
+
+## 🕒 Lesson 20.2: Exchange Mechanics & Market Making
+
+### 1. Intuition (ELIF5)
+For an exchange to work, there must be buyers and sellers. If you want to buy a ticket for a congress bill passing, but no one is selling, you can't trade. A market maker solves this by constantly posting both buy and sell prices. They make money on the tiny difference between the buy and sell prices (the spread).
+
+### 2. Mathematical Formulations
+The exchange matches buy orders (bids) and sell orders (asks) using a central limit order book. The market maker's spread is:
+$$\text{Spread} = P_{\text{ask}} - P_{\text{bid}}$$
+The exchange ensures risk constraints are met by requiring traders to fully collateralize their positions (since the maximum loss of a binary contract is capped).
+
+```text
+Algorithm: Order Matching Engine
+Input: New buy limit order (Price P_buy, Quantity Q_buy), Order Book Ask side
+Output: Executed trades and updated Order Book Ask side
+
+while Q_buy > 0 and Ask side is not empty:
+    Best_Ask = Ask side.cheapest()
+    if P_buy >= Best_Ask.price:
+        Execution_Price = Best_Ask.price
+        Execution_Qty = min(Q_buy, Best_Ask.qty)
+        execute_trade(Price=Execution_Price, Qty=Execution_Qty)
+        Q_buy = Q_buy - Execution_Qty
+        Best_Ask.qty = Best_Ask.qty - Execution_Qty
+        if Best_Ask.qty == 0:
+            Ask side.remove(Best_Ask)
+    else:
+        break
+if Q_buy > 0:
+    Bid side.add(Price=P_buy, Qty=Q_buy)
+```
 """,
 
         "L21_Black_Scholes.md": r"""# The Black-Scholes Model & Option Pricing
@@ -426,6 +731,28 @@ Black and Scholes showed that you can replicate the payoff of an option by dynam
 The replicating portfolio value is:
 $$V_{\text{portfolio}} = \Delta_t S_t + \psi_t B_t$$
 where the stock weight $\Delta_t = \frac{\partial V}{\partial S}$ is the option's delta.
+
+```text
+Algorithm: Delta Hedging Strategy
+Input: Stock price paths S_t, Option type, Strike K, Expiry T, Rate r, Volatility sigma, Steps N
+Output: Hedging error (portfolio tracking error)
+
+dt = T / N
+delta = BS_Delta(S_0, K, T, r, sigma)
+portfolio_value = BS_Price(S_0, K, T, r, sigma)
+cash = portfolio_value - delta * S_0
+
+for t = 1 to N:
+    stock_value = delta * S_t
+    portfolio_value = stock_value + cash * exp(r * dt)
+    delta_new = BS_Delta(S_t, K, T - t*dt, r, sigma)
+    cash = portfolio_value - delta_new * S_t
+    delta = delta_new
+    
+option_payoff = max(S_N - K, 0)
+tracking_error = portfolio_value - option_payoff
+return tracking_error
+```
 
 ---
 
@@ -457,6 +784,22 @@ Systematic trading rules execute trades automatically based on statistical signa
   $$\text{Signal}_t = \text{sign}(\text{SMA}_{\text{fast}}(t) - \text{SMA}_{\text{slow}}(t))$$
 * **Information Ratio (IR):**
   $$\text{IR} = \frac{\alpha}{\sigma_{\text{residual}}}$$
+
+```text
+Algorithm: SMA Crossover Strategy
+Input: Historical price vector P, Fast window F, Slow window S
+Output: Signal vector signal
+
+signal = vector of zeros of size length(P)
+for t = S to length(P):
+    SMA_fast = mean(P[t-F+1 to t])
+    SMA_slow = mean(P[t-S+1 to t])
+    if SMA_fast > SMA_slow:
+        signal[t] = 1
+    else:
+        signal[t] = -1
+return signal
+```
 """,
 
         "L23_Machine_Learning.md": r"""# Machine Learning in Finance
@@ -465,13 +808,27 @@ Systematic trading rules execute trades automatically based on statistical signa
 
 ## 🕒 Lesson 23.1: Supervised Learning & Overfitting
 
-<h3>1. Intuition (ELIF5)</h3>
+### 1. Intuition (ELIF5)
 Machine learning models find complex non-linear patterns in data. However, because financial markets are noisy, models can easily overfit by memorizing historical noise, which leads to poor performance on new data.
 
 ### 2. Mathematical Formulations
 To prevent overfitting, we minimize loss while penalizing model complexity:
 $$\min_{\theta} \sum_{i=1}^n L(y_i, f(x_i; \theta)) + \lambda \|\theta\|_2^2$$
 where $\lambda$ is the regularization strength.
+
+```text
+Algorithm: Mini-batch SGD for Financial Models
+Input: Training data X, Labels y, Model parameters theta, Learning rate alpha, Batch size B, Max Iterations epochs
+Output: Optimized parameters theta
+
+for epoch = 1 to epochs:
+    X_shuffled, y_shuffled = shuffle(X, y)
+    for batch = 1 to num_batches:
+        X_b, y_b = get_batch(X_shuffled, y_shuffled, batch, B)
+        gradient = compute_gradient(loss_function(X_b, y_b; theta))
+        theta = theta - alpha * gradient
+return theta
+```
 """,
 
         "L24_Stochastic_Calculus.md": r"""# Stochastic Calculus & Stochastic Differential Equations (SDEs)
@@ -486,6 +843,19 @@ In standard calculus, the change in a function is the slope times the step size.
 ### 2. Mathematical Formulations
 For $dX_t = \mu_t dt + \sigma_t dW_t$, and a function $f(t, X_t)$:
 $$df(t, X_t) = \left( \frac{\partial f}{\partial t} + \mu_t \frac{\partial f}{\partial X} + \frac{1}{2} \sigma_t^2 \frac{\partial^2 f}{\partial X^2} \right) dt + \sigma_t \frac{\partial f}{\partial X} dW_t$$
+
+```text
+Algorithm: Euler-Maruyama GBM Simulation
+Input: Initial Price S_0, Drift mu, Volatility sigma, Time horizon T, Steps N
+Output: Simulated price path vector S of size N+1
+
+dt = T / N
+S[0] = S_0
+for t = 1 to N:
+    dW = sample normal N(0, dt)
+    S[t] = S[t-1] + mu * S[t-1] * dt + sigma * S[t-1] * dW
+return S
+```
 
 ---
 

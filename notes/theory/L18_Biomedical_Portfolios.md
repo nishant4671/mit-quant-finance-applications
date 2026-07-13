@@ -16,6 +16,19 @@ To fund the megafund, we apply financial securitization. The cash flows from suc
 2. **Mezzanine Debt:** Has the next claim, offering moderate yield and risk.
 3. **Equity:** Receives the remaining cash flows, offering high potential returns but absorbing the first losses.
 
+```text
+Algorithm: Megafund Cash Flow Allocation
+Input: Drug trial successes K, Drug value V_drug, Senior Debt D_senior, Mezzanine Debt D_mezz
+Output: Payout to Senior, Mezzanine, and Equity tranches
+
+Total_Cash = K * V_drug
+Payout_Senior = min(Total_Cash, D_senior)
+Remaining_Cash = Total_Cash - Payout_Senior
+Payout_Mezz = min(Remaining_Cash, D_mezz)
+Payout_Equity = Remaining_Cash - Payout_Mezz
+return Payout_Senior, Payout_Mezz, Payout_Equity
+```
+
 ---
 
 ## 🕒 Lesson 18.2: AI in Clinical Trial Forecasting

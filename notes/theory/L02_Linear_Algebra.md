@@ -25,6 +25,22 @@ $$A v = \lambda v$$
 where $\lambda$ is the eigenvalue. We solve for $\lambda$ by finding the roots of the characteristic equation:
 $$\det(A - \lambda I) = 0$$
 
+```text
+Algorithm: Power Iteration for Principal Eigenvector
+Input: Symmetric Matrix A, Initial Guess Vector v_0, Max Iterations max_iter, Tolerance tol
+Output: Eigenvector v, Eigenvalue lambda
+
+v = v_0 / ||v_0||
+for k = 1 to max_iter:
+    w = A * v
+    lambda = v^T * w
+    v_new = w / ||w||
+    if ||v_new - v|| < tol:
+        return v_new, lambda
+    v = v_new
+return v, lambda
+```
+
 ---
 
 ## 🕒 Lesson 2.3: Covariance Matrices & Quadratic Forms

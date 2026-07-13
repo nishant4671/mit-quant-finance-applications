@@ -11,6 +11,21 @@ A stochastic process is a sequence of random variables indexed by time, represen
 A discrete-time stochastic process $\{X_t\}$ satisfies the Markov property if:
 $$P(X_{t+1} = x_{t+1} \mid X_t = x_t, X_{t-1} = x_{t-1}, \dots, X_0 = x_0) = P(X_{t+1} = x_{t+1} \mid X_t = x_t)$$
 
+```text
+Algorithm: Simulating a Random Walk
+Input: Initial Value X_0, Steps N, Up probability p, Up step size u, Down step size d
+Output: Path vector X of size N+1
+
+X[0] = X_0
+for t = 1 to N:
+    U = sample uniform U(0, 1)
+    if U < p:
+        X[t] = X[t-1] + u
+    else:
+        X[t] = X[t-1] - d
+return X
+```
+
 ---
 
 ## 🕒 Lesson 5.2: Martingales (Fair Games)

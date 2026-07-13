@@ -24,3 +24,16 @@ Standard Brownian motion can take negative values, which makes it unsuitable for
 The SDE for Geometric Brownian Motion is:
 $$dS_t = \mu S_t dt + \sigma S_t dW_t$$
 where $\mu$ is the drift and $\sigma$ is the volatility.
+
+```text
+Algorithm: Euler-Maruyama OU Process
+Input: Initial Value X_0, Speed theta, Mean mu, Volatility sigma, Time horizon T, Steps N
+Output: Simulated path vector X of size N+1
+
+dt = T / N
+X[0] = X_0
+for t = 1 to N:
+    dW = sample normal N(0, dt)
+    X[t] = X[t-1] + theta * (mu - X[t-1]) * dt + sigma * dW
+return X
+```

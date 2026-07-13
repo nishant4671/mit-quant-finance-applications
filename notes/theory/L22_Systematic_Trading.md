@@ -14,3 +14,19 @@ Systematic trading rules execute trades automatically based on statistical signa
   $$\text{Signal}_t = \text{sign}(\text{SMA}_{\text{fast}}(t) - \text{SMA}_{\text{slow}}(t))$$
 * **Information Ratio (IR):**
   $$\text{IR} = \frac{\alpha}{\sigma_{\text{residual}}}$$
+
+```text
+Algorithm: SMA Crossover Strategy
+Input: Historical price vector P, Fast window F, Slow window S
+Output: Signal vector signal
+
+signal = vector of zeros of size length(P)
+for t = S to length(P):
+    SMA_fast = mean(P[t-F+1 to t])
+    SMA_slow = mean(P[t-S+1 to t])
+    if SMA_fast > SMA_slow:
+        signal[t] = 1
+    else:
+        signal[t] = -1
+return signal
+```

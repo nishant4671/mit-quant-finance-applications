@@ -26,3 +26,21 @@ $$\max_{w} \left( w^T E[R] - \frac{\lambda}{2} w^T \Sigma w \right)$$
 subject to:
 $$w^T \mathbf{1} = 1$$
 where $\lambda$ is the investor's risk aversion parameter.
+
+```text
+Algorithm: Mean-Variance Portfolio Frontier
+Input: Expected Returns E_R, Covariance Matrix Sigma, Target Return R_target
+Output: Optimal Weights w
+
+Formulate quadratic programming problem:
+    minimize w^T * Sigma * w
+    subject to:
+        w^T * E_R = R_target
+        w^T * 1 = 1
+Solve using Lagrange multipliers:
+    Solve linear system:
+    [ 2*Sigma  -E_R   -1  ] [ w ]   [ 0 ]
+    [  E_R^T     0     0  ] [L_1] = [R_target]
+    [   1^T      0     0  ] [L_2]   [ 1 ]
+return w
+```

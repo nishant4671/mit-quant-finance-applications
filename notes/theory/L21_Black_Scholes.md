@@ -12,6 +12,28 @@ The replicating portfolio value is:
 $$V_{\text{portfolio}} = \Delta_t S_t + \psi_t B_t$$
 where the stock weight $\Delta_t = \frac{\partial V}{\partial S}$ is the option's delta.
 
+```text
+Algorithm: Delta Hedging Strategy
+Input: Stock price paths S_t, Option type, Strike K, Expiry T, Rate r, Volatility sigma, Steps N
+Output: Hedging error (portfolio tracking error)
+
+dt = T / N
+delta = BS_Delta(S_0, K, T, r, sigma)
+portfolio_value = BS_Price(S_0, K, T, r, sigma)
+cash = portfolio_value - delta * S_0
+
+for t = 1 to N:
+    stock_value = delta * S_t
+    portfolio_value = stock_value + cash * exp(r * dt)
+    delta_new = BS_Delta(S_t, K, T - t*dt, r, sigma)
+    cash = portfolio_value - delta_new * S_t
+    delta = delta_new
+    
+option_payoff = max(S_N - K, 0)
+tracking_error = portfolio_value - option_payoff
+return tracking_error
+```
+
 ---
 
 ## 🕒 Lesson 21.2: The Black-Scholes Formula
