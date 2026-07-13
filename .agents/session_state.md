@@ -6,9 +6,9 @@
 
 ## 🔍 Current State
 * **Active Lecture:** Lecture 1 (Financial Terms, Concepts, and Bond Math)
-* **Last Completed Lesson:** Lesson 1.4: Risk Sensitivity: Duration (Theory Study Completed)
-* **Current Lesson:** Lesson 1.4: Risk Sensitivity: Duration (Derivations & Lab Code)
-* **Current Task:** User has completed the theory portion of 1.4. Next step is either the mathematical derivations or Python implementation.
+* **Last Completed Lesson:** Lesson 1.4: Risk Sensitivity: Duration (Completed)
+* **Current Lesson:** Lesson 1.5: Risk Sensitivity: Convexity
+* **Current Task:** User is watching "Lecture 1, Part III: Bond 'Mathematics'" video.
 
 ---
 
@@ -31,3 +31,7 @@
 * **2026-07-11 (Session 5):**
   * User completed independent theory study for Lesson 1.4 (Duration) using external sources.
   * Updated `AGENTS.md` to reflect user preference: return only bare topic names for syllabus requests.
+* **2026-07-12 (Session 6):**
+  * Resumed session. Started micro-lesson for Lesson 1.5: Risk Sensitivity (Convexity). Presenting intuition, formula, and python code, waiting for checkpoint response.
+* **2026-07-13 (Session 7):**
+  * Resumed session. User requested lecture video recommendations for Lesson 1.5. Provided recommendations including MIT 18.642 Lecture 1, Part III. User is now watching the lecture.
