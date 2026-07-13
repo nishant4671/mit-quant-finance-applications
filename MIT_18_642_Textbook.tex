@@ -1,0 +1,933 @@
+\documentclass[11pt,oneside]{book}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{tcolorbox}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+\tcbset{colback=blue!5!white,colframe=blue!75!black,title=Key Summary}
+
+\title{\textbf{MIT 18.642: Topics in Mathematics with Applications in Finance} \\ \Large Student Companion \& Lecture Notes}
+\author{Compiled for Self-Study}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\newpage
+
+\chapter{Financial Terms, Concepts, and Bond Math}
+
+This chapter covers the foundations of bond math and fixed-income analytics, which form the bedrock of quantitative finance.
+
+---
+
+\section{🕒 Lesson 1.1: Time Value of Money \& Compounding}
+
+\begin{tcolorbox}
+Money has a time value because you can earn interest on it; therefore, a dollar today is worth more than a dollar tomorrow.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+If you have \textbf{$100 today}, you can put it in a bank. The bank pays you "rent" to borrow your money. This rent is called \textbf{interest}. 
+
+If you choose to receive that $100 five years from now instead, you lose out on 5 years of interest. 
+
+\begin{itemize}
+  \item \textbf{Future Value (FV):} What your money grows into over time.
+  \item \textbf{Present Value (PV):} What a future payment is worth to you right now (discounted to today).
+\end{itemize}
+
+\subsection{2. Formulas}
+
+\subsubsection{Discrete Compounding}
+Interest calculated at regular intervals \_\_INLINEMATH\_18\_\_ times a year (e.g., quarterly \_\_INLINEMATH\_19\_\_, semi-annually \_\_INLINEMATH\_20\_\_, monthly \_\_INLINEMATH\_21\_\_).
+\_\_BLOCKMATH\_0\_\_
+\_\_BLOCKMATH\_1\_\_
+
+\subsubsection{Continuous Compounding}
+Interest calculated every infinitesimally small instant. Quants prefer continuous compounding because it makes calculus and derivative pricing much cleaner.
+\_\_BLOCKMATH\_2\_\_
+\_\_BLOCKMATH\_3\_\_
+
+---
+
+\section{🎟️ Lesson 1.2: Bond Pricing Mechanics}
+
+\begin{tcolorbox}
+The fair price of a bond is simply the sum of all its future cash flows (coupons and principal repayment) discounted back to today using a chosen discount rate.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+A bond is a loan certificate. If you buy a bond from a company or government, you are lending them money. In return, they promise to do two things:
+1. Pay you regular "thank you" payments (called \textbf{coupons}).
+2. Give you back your original loan amount (called the \textbf{face value} or \textbf{principal}) when the bond expires (\textbf{maturity}).
+
+To figure out how much you should pay for this bond \textit{today}, you just need to estimate what all those future cash flows are worth to you right now, and add them up.
+
+\subsection{2. Types of Bonds}
+
+\begin{itemize}
+  \item \textbf{Zero-Coupon Bonds (ZCBs):} These do not pay any coupons. They are sold at a discount (less than face value) and pay the full face value at maturity.
+\end{itemize}
+  \_\_BLOCKMATH\_4\_\_
+  \_\_BLOCKMATH\_5\_\_
+
+\begin{itemize}
+  \item \textbf{Coupon-Bearing Bonds:} These make periodic coupon payments \_\_INLINEMATH\_22\_\_ and pay the face value \_\_INLINEMATH\_23\_\_ at maturity.
+\end{itemize}
+  \_\_BLOCKMATH\_6\_\_
+  Where:
+\begin{itemize}
+  \item \_\_INLINEMATH\_24\_\_ = Bond Price
+  \item \_\_INLINEMATH\_25\_\_ = Periodic coupon payment (\_\_INLINEMATH\_26\_\_)
+  \item \_\_INLINEMATH\_27\_\_ = Face Value (usually \\_\_INLINEMATH\_28\_\_100)
+  \item \_\_INLINEMATH\_29\_\_ = Yield to Maturity (YTM)
+  \item \_\_INLINEMATH\_30\_\_ = Number of coupon payments per year
+  \item \_\_INLINEMATH\_31\_\_ = Total number of remaining coupon payments (\_\_INLINEMATH\_32\_\_)
+\end{itemize}
+
+\subsection{3. Yield to Maturity (YTM)}
+The \textbf{YTM} is the single interest rate \_\_INLINEMATH\_33\_\_ that makes the present value of the bond's cash flows exactly equal to its current market price. 
+\begin{itemize}
+  \item There is no algebraic way to solve for \_\_INLINEMATH\_34\_\_ in a coupon bond formula. Instead, we use numerical methods (like Newton-Raphson or Brent's method in Python) to find it.
+\end{itemize}
+
+---
+
+\section{📈 Lesson 1.3: Yield Curves \& Spot Rates}
+
+\begin{tcolorbox}
+A yield curve shows how interest rates change across different horizons (maturities), and spot rates are the true interest rates for single cash flows at specific future dates.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Imagine buying tickets for a train. A 1-mile ticket, a 5-mile ticket, and a 10-mile ticket don't cost the same per mile. Similarly, the interest rate you get for lending money for 1 month, 1 year, or 10 years is usually different. 
+
+\begin{itemize}
+  \item \textbf{Yield Curve:} A line graph showing the yields of bonds of similar credit quality across different maturities. Usually, it slopes upward because lenders want higher interest for locking their money away longer.
+  \item \textbf{Spot Rate (\_\_INLINEMATH\_35\_\_):} The rate of interest for a single, isolated cash flow occurring at time \_\_INLINEMATH\_36\_\_.
+  \item \textbf{Why YTM is NOT a Spot Rate:} YTM is a weighted average of spot rates across all coupon dates of a bond. For precise pricing, we must discount each individual coupon using the spot rate corresponding to its exact payment date.
+\end{itemize}
+
+\subsection{2. Discount Factors and Bootstrapping}
+A \textbf{Discount Factor} \_\_INLINEMATH\_37\_\_ is the present value of \\_\_INLINEMATH\_38\_\_t$.
+\_\_BLOCKMATH\_7\_\_
+\_\_BLOCKMATH\_8\_\_
+
+If we know the market prices of liquid coupon bonds, we can use a process called \textbf{bootstrapping} to solve for the spot rates (or discount factors) step-by-step:
+1. Start with the shortest maturity bond (which acts like a zero-coupon bond). Solve for its spot rate.
+2. Move to the next shortest bond. Use the spot rate found in Step 1 to discount its first coupon, and solve for the new spot rate for its final payment.
+3. Repeat recursively.
+
+---
+
+\section{⚖️ Lesson 1.4: Risk Sensitivity: Duration}
+
+\begin{tcolorbox}
+Duration measures how long it takes to get your money back from a bond, and serves as a gauge for how sensitive the bond's price is to interest rate changes.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Imagine you are balancing a long plank of wood on your shoulder. On the plank, there are buckets of water (cash flows) at different distances (years). 
+\begin{itemize}
+  \item \textbf{Macaulay Duration} is the exact balance point (the center of gravity) of those buckets. If you get coupons early, the balance point is closer to you.
+\end{itemize}
+\textit{ \textbf{Modified Duration} is the sensitivity of the balance point to a wobble. It tells you: }"If interest rates go up by 1\%, by what percentage will my bond price fall?"*
+\begin{itemize}
+  \item \textbf{Higher Duration = Higher Risk (Wobbliness).}
+\end{itemize}
+
+\subsection{2. Mathematical Formulations}
+
+\subsubsection{Macaulay Duration (\_\_INLINEMATH\_39\_\_)}
+The weighted average time until cash flows are received, where the weights are the present values of the cash flows.
+\_\_BLOCKMATH\_9\_\_
+
+\subsubsection{Modified Duration (\_\_INLINEMATH\_40\_\_)}
+Measures the percentage change in price for a unit change in yield.
+\_\_BLOCKMATH\_10\_\_
+
+\begin{itemize}
+  \item \textbf{Discrete Compounding Relationship:}
+\end{itemize}
+  \_\_BLOCKMATH\_11\_\_
+\begin{itemize}
+  \item \textbf{Continuous Compounding Relationship:}
+\end{itemize}
+  \_\_BLOCKMATH\_12\_\_
+
+For small changes in yield \_\_INLINEMATH\_41\_\_:
+\_\_BLOCKMATH\_13\_\_
+
+---
+
+\section{🌊 Lesson 1.5: Risk Sensitivity: Convexity}
+
+\begin{tcolorbox}
+Convexity measures the curvature of the bond price-yield relationship, showing how duration changes as yields shift, and correcting the duration estimate for larger interest rate moves.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+If you draw a graph of a bond's price against interest rates, it is not a straight line; it is a curved, smiley-face shape (convex).
+\begin{itemize}
+  \item \textbf{Duration} is a straight tangent line at your current position. It is a good approximation for tiny steps, but if yields jump, the straight line drifts away from the actual curve.
+  \item \textbf{Convexity} measures the curve itself. It tells us how much the duration changes when yields move.
+\end{itemize}
+\textit{ Because of this curve, when rates fall, prices go up }faster\textit{ than duration predicts. When rates rise, prices fall }slower* than duration predicts. \textbf{Convexity is always good for the bondholder.}
+
+\subsection{2. Formulas}
+Convexity (\_\_INLINEMATH\_42\_\_) is proportional to the second derivative of the bond price with respect to the yield:
+\_\_BLOCKMATH\_14\_\_
+
+\begin{itemize}
+  \item \textbf{Continuous Compounding Formula:}
+\end{itemize}
+  \_\_BLOCKMATH\_15\_\_
+\begin{itemize}
+  \item \textbf{Discrete Compounding Formula:}
+\end{itemize}
+  \_\_BLOCKMATH\_16\_\_
+
+\subsubsection{The Complete Taylor Approximation}
+To estimate the percentage price change of a bond for any yield shock \_\_INLINEMATH\_43\_\_, we combine Duration and Convexity:
+\_\_BLOCKMATH\_17\_\_
+
+
+\newpage
+
+\chapter{Applied Linear Algebra in Quantitative Finance}
+
+---
+
+\section{🕒 Lesson 2.1: Matrices as Transformations}
+
+\begin{tcolorbox}
+Matrices act as geometric operators that rotate, scale, or project vector spaces, allowing us to translate coordinate systems to find the natural axes of data.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Imagine you are looking at a 3D statue. If you look at it from the front, it looks like a flat circle. If you look from the side, it looks like a rectangle. By rotating the statue (or moving your camera), you change your perspective.
+In finance, a matrix is a tool that takes a set of stock returns and transforms them (rotates or scales them) into a new perspective. Instead of looking at 500 individual stocks, we can rotate our view to align with the overall movements of the market.
+
+\subsection{2. Formulas}
+A matrix \_\_INLINEMATH\_4\_\_ transforms a vector \_\_INLINEMATH\_5\_\_ into a new vector \_\_INLINEMATH\_6\_\_:
+\_\_BLOCKMATH\_0\_\_
+
+---
+
+\section{🕒 Lesson 2.2: Eigenvalues \& Eigenvectors}
+
+\begin{tcolorbox}
+Eigenvectors are the directions that remain unchanged in orientation when transformed by a matrix, and eigenvalues measure the scale of stretch along those directions.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Imagine blowing up a balloon. Most points on the balloon's surface move in different directions. However, there are usually a few lines of points (like the vertical axis from the knot to the top) that point in the exact same direction before and after inflation—they just got stretched.
+\begin{itemize}
+  \item The \textbf{Eigenvector} is that line which did not change its direction.
+  \item The \textbf{Eigenvalue} is the factor by which that line stretched (e.g., it doubled in length, so eigenvalue = 2).
+\end{itemize}
+
+In finance, if \_\_INLINEMATH\_7\_\_ is the covariance matrix of asset returns, the eigenvector with the largest eigenvalue represents the direction of the market's maximum volatility (the "Market Factor").
+
+\subsection{2. Formulas}
+An eigenvector \_\_INLINEMATH\_8\_\_ and its corresponding eigenvalue \_\_INLINEMATH\_9\_\_ for a square matrix \_\_INLINEMATH\_10\_\_ satisfy:
+\_\_BLOCKMATH\_1\_\_
+To solve for eigenvalues, we find the roots of the characteristic equation:
+\_\_BLOCKMATH\_2\_\_
+
+---
+
+\section{🕒 Lesson 2.3: Covariance Matrices \& Quadratic Forms}
+
+\begin{tcolorbox}
+Covariance matrices capture the joint variability of assets, and quadratic forms allow us to compute aggregate portfolio variance from asset weights.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+If you own two stocks, their combined risk isn't just the sum of their individual risks. You also need to know if they move together (covariance). 
+\begin{itemize}
+  \item Positive covariance: they rise and fall together (like two tech stocks).
+  \item Negative covariance: one rises when the other falls (like gold and tech).
+\end{itemize}
+A \textbf{Covariance Matrix} is a grid of numbers showing the relationship between every pair of stocks. A \textbf{quadratic form} is the mathematical operation of weighting these relationships to calculate your portfolio's total risk.
+
+\subsection{2. Formulas}
+For a portfolio with weight vector \_\_INLINEMATH\_11\_\_ and asset covariance matrix \_\_INLINEMATH\_12\_\_:
+\_\_BLOCKMATH\_3\_\_
+
+
+\newpage
+
+\chapter{Quantitative Equity Investing & Portfolio Optimization}
+
+---
+
+\section{🕒 Lesson 3.1: Modern Portfolio Theory (MPT)}
+
+\begin{tcolorbox}
+Modern Portfolio Theory defines the optimal combination of risky assets that maximizes expected return for a given level of risk (variance).
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Imagine you are packing a lunchbox. You want it to be as tasty as possible (high return) but with the lowest risk of causing an allergic reaction (low risk). Some ingredients taste great but are risky; others are safe but bland. MPT is a recipe that mixes these ingredients to give you the most delicious lunch possible for whatever level of risk you are willing to tolerate.
+
+\subsection{2. Formulas}
+\begin{itemize}
+  \item \textbf{Portfolio Return:}
+\end{itemize}
+  \_\_BLOCKMATH\_0\_\_
+\begin{itemize}
+  \item \textbf{Portfolio Variance:}
+\end{itemize}
+  \_\_BLOCKMATH\_1\_\_
+\begin{itemize}
+  \item \textbf{Sharpe Ratio:}
+\end{itemize}
+  \_\_BLOCKMATH\_2\_\_
+
+---
+
+\section{🕒 Lesson 3.2: Mean-Variance Optimization \& The Efficient Frontier}
+
+\begin{tcolorbox}
+The Efficient Frontier is the set of optimal portfolios that offer the highest expected return for defined risk levels, solved using quadratic programming.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+If you plot all possible asset combinations on a chart with "Risk" on the bottom and "Return" on the side, you get a curved region. The top edge of this curve is the \textbf{Efficient Frontier}. Any portfolio on this line is optimal: you cannot get more return without taking more risk, and you cannot lower risk without giving up return.
+
+\subsection{2. Formulas}
+To find the weights \_\_INLINEMATH\_5\_\_ of the optimal portfolio for risk aversion parameter \_\_INLINEMATH\_6\_\_:
+\_\_BLOCKMATH\_3\_\_
+subject to:
+\_\_BLOCKMATH\_4\_\_
+
+
+\newpage
+
+\chapter{Probability Theory & Random Variables}
+
+---
+
+\section{🕒 Lesson 4.1: Random Variables \& Distributions}
+
+\begin{tcolorbox}
+Random variables model uncertain numerical outcomes, and probability density functions (PDFs) map the relative likelihood of these outcomes.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Imagine rolling a die. Before you roll, you don't know the number, but you know it must be 1, 2, 3, 4, 5, or 6, and each has a 1-in-6 chance. A \textbf{random variable} is the mathematical placeholder for this rolling die. The \textbf{probability distribution} is the rulebook that tells you how likely each outcome is.
+
+\subsection{2. Formulas}
+\begin{itemize}
+  \item \textbf{Expected Value (Mean \_\_INLINEMATH\_3\_\_):}
+\end{itemize}
+  \_\_BLOCKMATH\_0\_\_
+\begin{itemize}
+  \item \textbf{Variance (\_\_INLINEMATH\_4\_\_):}
+\end{itemize}
+  \_\_BLOCKMATH\_1\_\_
+
+---
+
+\section{🕒 Lesson 4.2: Normal vs. Log-Normal Distributions in Finance}
+
+\begin{tcolorbox}
+Financial models assume asset returns are normally distributed (can be positive or negative) and asset prices are log-normally distributed (bounded below by zero).
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+A normal distribution (bell curve) goes off to infinity in both directions. However, a stock price cannot drop below zero (companies have limited liability; you can't owe money just for holding stock).
+Therefore, we assume:
+\begin{itemize}
+  \item \textbf{Asset Returns} follow a Normal distribution (you can lose -10\% or gain +10\%).
+  \item \textbf{Asset Prices} follow a Log-Normal distribution (always positive, ranging from 0 to infinity).
+\end{itemize}
+
+\subsection{2. Formulas}
+If \_\_INLINEMATH\_5\_\_, then \_\_INLINEMATH\_6\_\_ is log-normally distributed with PDF:
+\_\_BLOCKMATH\_2\_\_
+
+
+\newpage
+
+\chapter{Stochastic Processes I & Asset Return Modeling}
+
+---
+
+\section{🕒 Lesson 5.1: Random Walks \& The Markov Property}
+
+\begin{tcolorbox}
+A stochastic process is a sequence of random variables index by time, and the Markov property states that the future is conditionally independent of the past, given the present.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Imagine a frog jumping on lily pads. The frog's next jump depends only on the lily pad it is standing on \textit{right now}. It doesn't matter if it traveled north, south, or did a flip to get there. The frog's path has no memory of the past. This memoryless rule is the \textbf{Markov Property}.
+
+\subsection{2. Formulas}
+For a sequence of states \_\_INLINEMATH\_3\_\_:
+\_\_BLOCKMATH\_0\_\_
+
+---
+
+\section{🕒 Lesson 5.2: Martingales (Fair Games)}
+
+\begin{tcolorbox}
+A martingale is a stochastic model of a fair game where the expected future value, given all historical information, is equal to the current value.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Imagine playing a fair game of coin flipping with a friend. If you have \_\_INLINEMATH\_4\_\_1 on each flip, on average you expect to have exactly $100 after the next flip because your chance of winning is 50/50. A \textbf{martingale} is any process where your best guess for the future is simply what you have right now.
+
+\subsection{2. Formulas}
+A process \_\_INLINEMATH\_5\_\_ is a martingale with respect to information filtration \_\_INLINEMATH\_6\_\_ if:
+\_\_BLOCKMATH\_1\_\_
+\_\_BLOCKMATH\_2\_\_
+
+
+\newpage
+
+\chapter{Regression Analysis & Regularization}
+
+---
+
+\section{🕒 Lesson 6.1: Ordinary Least Squares (OLS)}
+
+\begin{tcolorbox}
+Ordinary Least Squares fits a linear relationship by minimizing the sum of squared differences between observed values and predictions.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Imagine you want to predict a student's test score based on how many hours they studied. You plot the data points on a graph and use a ruler to draw a straight line through the middle of them. To make it the "best" line, you measure the vertical distance from each point to your line, square those distances (so positive and negative errors don't cancel out), and adjust the line until that total sum is as small as possible.
+
+\subsection{2. Formulas}
+We fit \_\_INLINEMATH\_4\_\_ by solving:
+\_\_BLOCKMATH\_0\_\_
+The closed-form OLS solution is:
+\_\_BLOCKMATH\_1\_\_
+
+---
+
+\section{🕒 Lesson 6.2: Regularization: Ridge \& Lasso}
+
+\begin{tcolorbox}
+Regularization prevents overfitting by adding a penalty term to the OLS loss function based on the magnitude of the model coefficients.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+If you give a model too many variables (like predicting stock price using height of the CEO, weather in London, and interest rates), it will try to find patterns in the noise. Regularization is like a speed limit or a leash:
+\begin{itemize}
+  \item \textbf{Ridge (\_\_INLINEMATH\_5\_\_):} Shinks all coefficients toward zero, preventing any single variable from dominating.
+  \item \textbf{Lasso (\_\_INLINEMATH\_6\_\_):} Completely zeros out less important variables, acting as a built-in feature filter.
+\end{itemize}
+
+\subsection{2. Formulas}
+\begin{itemize}
+  \item \textbf{Ridge (L2 Penalty):}
+\end{itemize}
+  \_\_BLOCKMATH\_2\_\_
+\begin{itemize}
+  \item \textbf{Lasso (L1 Penalty):}
+\end{itemize}
+  \_\_BLOCKMATH\_3\_\_
+
+
+\newpage
+
+\chapter{Linear Rates, Swaps, and Short-Rate Models}
+
+---
+
+\section{🕒 Lesson 7.1: Libor, SOFR, and Forward Rates}
+
+\begin{tcolorbox}
+Interest rate benchmarks represent the cost of borrowing cash, and forward rates are the implied future interest rates locked in today.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Imagine ordering a custom car today to be delivered in 1 year, and agreeing today on the price you will pay. A \textbf{Forward Rate} is the same thing for borrowing money: you lock in the interest rate today for a loan that starts in the future.
+
+\subsection{2. Formulas}
+The continuously compounded forward rate between \_\_INLINEMATH\_2\_\_ and \_\_INLINEMATH\_3\_\_ is:
+\_\_BLOCKMATH\_0\_\_
+
+---
+
+\section{🕒 Lesson 7.2: Interest Rate Swaps (IRS)}
+
+\begin{tcolorbox}
+An Interest Rate Swap is an agreement to exchange fixed-rate interest payments for floating-rate interest payments over a specified horizon.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Imagine you borrow money to buy a house with a mortgage that changes price every month based on market rates (floating rate). You get nervous about rates rising, so you make a deal with a bank: you pay them a fixed amount every month, and in return, they pay your changing mortgage bill. You have swapped a floating-rate risk for a stable fixed-rate.
+
+\subsection{2. Formulas}
+The swap rate \_\_INLINEMATH\_4\_\_ that makes the initial value of the swap zero is:
+\_\_BLOCKMATH\_1\_\_
+Where \_\_INLINEMATH\_5\_\_ is the discount factor to time \_\_INLINEMATH\_6\_\_, and \_\_INLINEMATH\_7\_\_ is the day-count fraction.
+
+
+\newpage
+
+\chapter{Time Series Analysis & Volatility Forecasting}
+
+---
+
+\section{🕒 Lesson 8.1: Stationarity \& ARMA Models}
+
+\begin{tcolorbox}
+Time series models analyze sequential data dependencies, requiring stationarity (constant mean and variance over time) to make stable forecasts.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Imagine you want to predict a child's height over time. If they are growing, the average height is constantly shifting upward (non-stationary). To model this, we look at the \textit{change} in height from year to year, which is stable (stationary). 
+\begin{itemize}
+  \item \textbf{Autoregressive (AR):} Uses past values to predict the future (e.g., if it rained yesterday, it might rain today).
+  \item \textbf{Moving Average (MA):} Uses past random surprises (shocks) to adjust predictions.
+\end{itemize}
+
+\subsection{2. Formulas}
+\begin{itemize}
+  \item \textbf{AR(1) Model:}
+\end{itemize}
+  \_\_BLOCKMATH\_0\_\_
+\begin{itemize}
+  \item \textbf{MA(1) Model:}
+\end{itemize}
+  \_\_BLOCKMATH\_1\_\_
+
+---
+
+\section{🕒 Lesson 8.2: GARCH Volatility Modeling}
+
+\begin{tcolorbox}
+GARCH models volatility clustering in financial returns, where high-volatility periods tend to feed into future high-volatility states.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Stock markets don't fluctuate at a constant speed. Instead, they have periods of relative calm and periods of extreme panic (volatility clustering). If the market was highly volatile yesterday, it is likely to remain volatile today. GARCH is the mathematical formula that models this "memory of volatility."
+
+\subsection{2. Formulas}
+For GARCH(1,1), the conditional variance \_\_INLINEMATH\_3\_\_ is modeled as:
+\_\_BLOCKMATH\_2\_\_
+Where:
+\begin{itemize}
+  \item \_\_INLINEMATH\_4\_\_ = Baseline constant variance
+  \item \_\_INLINEMATH\_5\_\_ = Sensitivity to yesterday's return shock (\_\_INLINEMATH\_6\_\_)
+  \item \_\_INLINEMATH\_7\_\_ = Persistence of yesterday's volatility forecast (\_\_INLINEMATH\_8\_\_)
+\end{itemize}
+
+
+\newpage
+
+\chapter{Principal Component Analysis (PCA) in Finance}
+
+---
+
+\section{🕒 Lesson 9.1: PCA as Dimensionality Reduction}
+
+\begin{tcolorbox}
+PCA identifies orthogonal linear combinations of variables that capture the maximum variance in a high-dimensional dataset.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Imagine you want to describe a model airplane. You could list the 3D coordinates of 1,000 points on its surface. Or, you could describe its length, wingspan, and height. By focusing on the directions of greatest variation, you reduce the description from 1,000 coordinates to just 3 core dimensions. PCA is the mathematical tool that finds these key dimensions for complex data.
+
+\subsection{2. Formulas}
+We compute the eigenvalues \_\_INLINEMATH\_2\_\_ and eigenvectors \_\_INLINEMATH\_3\_\_ of the covariance matrix \_\_INLINEMATH\_4\_\_:
+\_\_BLOCKMATH\_0\_\_
+The transformed principal components are:
+\_\_BLOCKMATH\_1\_\_
+
+---
+
+\section{🕒 Lesson 9.2: Yield Curve Factors (Level, Slope, Curvature)}
+
+\begin{tcolorbox}
+Applying PCA to bond yields reveals three principal components that explain over 95\% of yield curve movements: level shifts, slope twists, and belly curvature.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Instead of tracking 30 different interest rates (from 1-month to 30-year yields), PCA tells us that yield curves move in three main patterns:
+1. \textbf{Level (PC1 ~90\%):} The entire curve moves up or down in parallel.
+2. \textbf{Slope (PC2 ~5-8\%):} The curve tilts (short rates drop, long rates rise, or vice versa).
+3. \textbf{Curvature (PC3 ~1-2\%):} The middle of the curve bulges or flattens while the ends remain stable.
+
+
+\newpage
+
+\chapter{Counterparty Credit Risk & Event Trading}
+
+---
+
+\section{🕒 Lesson 10.1: Counterparty Exposure \& Default}
+
+\begin{tcolorbox}
+Counterparty Credit Risk is the risk that a counterparty defaults prior to the final settlement of a contract's cash flows.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Imagine you pay a store $1,000 today to deliver a TV next month. The risk is not that the TV breaks, but that the store goes out of business and closes down before they ship your TV. In financial markets, when you trade derivatives, you face this exact risk with your trading partners.
+
+\subsection{2. Formulas}
+\begin{itemize}
+  \item \textbf{Exposure at default (positive replacement value):}
+\end{itemize}
+  \_\_BLOCKMATH\_0\_\_
+  Where \_\_INLINEMATH\_2\_\_ is the current market value of the contract.
+
+---
+
+\section{🕒 Lesson 10.2: Credit Valuation Adjustment (CVA)}
+
+\begin{tcolorbox}
+CVA is the market price of counterparty credit risk, calculated as the expected loss discounted to the present day.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+If you buy an investment from a risky bank, you shouldn't pay full price. You should demand a discount to cover the risk that they might default. \textbf{CVA} is the mathematical calculation of that discount. It takes into account:
+1. How much they owe you over time (Exposure).
+2. How likely they are to default (Probability of Default).
+3. What percentage of your money you can recover in bankruptcy court (Recovery Rate).
+
+\subsection{2. Formulas}
+\_\_BLOCKMATH\_1\_\_
+Where:
+\begin{itemize}
+  \item \_\_INLINEMATH\_3\_\_ = Recovery rate
+  \item \_\_INLINEMATH\_4\_\_ = Risk-free discount factor
+  \item \_\_INLINEMATH\_5\_\_ = Expected Exposure at time \_\_INLINEMATH\_6\_\_
+  \item \_\_INLINEMATH\_7\_\_ = Probability of default function
+\end{itemize}
+
+
+\newpage
+
+\chapter{Portfolio Management & Multi-Factor Models}
+
+---
+
+\section{🕒 Lesson 11.1: The Capital Asset Pricing Model (CAPM)}
+
+\begin{tcolorbox}
+CAPM states that an asset's expected return is determined solely by its sensitivity to systematic market risk (Beta).
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Imagine opening a business. You face two types of risk:
+1. \textbf{Specific Risk:} The risk that your chef quits. You can fix this by hiring backup chefs (diversification). The market doesn't pay you extra for this risk because it's easy to avoid.
+2. \textbf{Systemic Risk:} The risk of a major recession where no one goes out to eat. You cannot avoid this. The market rewards you with higher expected returns for taking this unavoidable risk.
+\textbf{Beta (\_\_INLINEMATH\_3\_\_)} measures how sensitive your business is to the general economy.
+
+\subsection{2. Formulas}
+\begin{itemize}
+  \item \textbf{Expected Return of Asset \_\_INLINEMATH\_4\_\_:}
+\end{itemize}
+  \_\_BLOCKMATH\_0\_\_
+\begin{itemize}
+  \item \textbf{Beta Calculation:}
+\end{itemize}
+  \_\_BLOCKMATH\_1\_\_
+
+---
+
+\section{🕒 Lesson 11.2: Multi-Factor Risk Models}
+
+\begin{tcolorbox}
+Multi-factor models decompose asset returns into exposures to multiple systematic risk factors plus an idiosyncratic residual.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Instead of saying a stock moves only because of the general market, we can use multiple factors to explain its return. For example, a stock might be sensitive to:
+\begin{itemize}
+  \item The general stock market.
+  \item Interest rate shifts.
+  \item Oil prices.
+  \item Inflation.
+\end{itemize}
+By identifying these "factors," we can build portfolios that are immune to specific risks (e.g., building a portfolio that doesn't care about oil price changes).
+
+\subsection{2. Formulas}
+\_\_BLOCKMATH\_2\_\_
+Where \_\_INLINEMATH\_5\_\_ are factor returns, \_\_INLINEMATH\_6\_\_ are factor exposures (loadings), and \_\_INLINEMATH\_7\_\_ is idiosyncratic noise.
+
+
+\newpage
+
+\chapter{Stochastic Processes II: Continuous Time}
+
+---
+
+\section{🕒 Lesson 14.1: Wiener Process (Brownian Motion)}
+
+\begin{tcolorbox}
+A Wiener process is a continuous-time stochastic process characterized by stationary, independent, normally distributed increments.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Imagine a dust particle floating in a glass of water. It is hit constantly by tiny water molecules from random directions. The path of the dust particle is a \textbf{Wiener Process} (Brownian Motion). 
+It is continuous (no teleporting), but it is so jagged that if you zoom in, it looks like a zigzag at every scale—it is nowhere differentiable (has no smooth slope).
+
+\subsection{2. Formulas}
+A process \_\_INLINEMATH\_1\_\_ is a standard Wiener process if:
+1. \_\_INLINEMATH\_2\_\_
+2. For any \_\_INLINEMATH\_3\_\_, the increment \_\_INLINEMATH\_4\_\_
+3. Increments are independent over non-overlapping intervals.
+4. The path \_\_INLINEMATH\_5\_\_ is continuous.
+
+---
+
+\section{🕒 Lesson 14.2: Geometric Brownian Motion (GBM)}
+
+\begin{tcolorbox}
+Geometric Brownian Motion models stock prices by assuming log-returns grow with a constant drift rate and random normal shocks.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+We cannot use standard Brownian motion to model stock prices directly because:
+1. A stock price cannot be negative.
+2. A \_\_INLINEMATH\_6\_\_100 stock is minor, but a \_\_INLINEMATH\_7\_\_1 stock is huge.
+\textbf{Geometric Brownian Motion} solves this: it models the \textit{percentage} change in the stock price. It assumes the stock grows at a steady average rate (drift) plus a random wiggle that scales with the price of the stock.
+
+\subsection{2. Formulas}
+\_\_BLOCKMATH\_0\_\_
+Where:
+\begin{itemize}
+  \item \_\_INLINEMATH\_8\_\_ = Stock price
+  \item \_\_INLINEMATH\_9\_\_ = Drift (expected annual growth rate)
+  \item \_\_INLINEMATH\_10\_\_ = Volatility
+  \item \_\_INLINEMATH\_11\_\_ = Standard Brownian motion increment
+\end{itemize}
+
+
+\newpage
+
+\chapter{Volatility Modeling & Volatility Term Structure}
+
+---
+
+\section{🕒 Lesson 19.1: Realized vs. Implied Volatility}
+
+\begin{tcolorbox}
+Realized volatility measures past price dispersion from historical data, whereas implied volatility reflects forward-looking market expectations backed out of option prices.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+\begin{itemize}
+  \item \textbf{Realized Volatility:} Look at the weather records for the last 30 days and calculate how much the temperature fluctuated. This is historical fact.
+  \item \textbf{Implied Volatility:} Look at the price of umbrellas being sold today. If umbrellas are expensive, people expect a storm soon. Implied volatility is what option prices tell us about the market's expectation of future volatility.
+\end{itemize}
+
+\subsection{2. Formulas}
+\begin{itemize}
+  \item \textbf{Realized Volatility (Annualized):}
+\end{itemize}
+  \_\_BLOCKMATH\_0\_\_
+\begin{itemize}
+  \item \textbf{Implied Volatility (\_\_INLINEMATH\_2\_\_):}
+\end{itemize}
+  Solved by finding the root:
+  \_\_BLOCKMATH\_1\_\_
+
+
+\newpage
+
+\chapter{The Black-Scholes Model & Option Pricing}
+
+---
+
+\section{🕒 Lesson 21.1: Replicating Portfolios \& Delta Hedging}
+
+\begin{tcolorbox}
+Option pricing relies on the principle of dynamic replication, where a derivative's payoff is matched by continuously adjusting a portfolio of stock and risk-free cash.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+How do you price an option? Black and Scholes realized that you don't need to guess if the stock will go up or down. Instead, you can build a synthetic version of the option by buying a specific amount of the stock (called \textbf{Delta}) and borrowing cash. 
+If the stock price rises, you buy a bit more stock; if it falls, you sell some. The price of the option is simply the initial cost of setting up this replicating portfolio.
+
+\subsection{2. Formulas}
+\begin{itemize}
+  \item \textbf{Replicating Portfolio Value:}
+\end{itemize}
+  \_\_BLOCKMATH\_0\_\_
+  Where \_\_INLINEMATH\_2\_\_ is the option delta, and \_\_INLINEMATH\_3\_\_ is the risk-free bond.
+
+---
+
+\section{🕒 Lesson 21.2: The Black-Scholes Formula}
+
+\begin{tcolorbox}
+The Black-Scholes formula provides the analytical price of European options under constant interest rates and log-normal asset volatility.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+The Black-Scholes formula is a recipe to calculate the fair price of an option. It takes 5 inputs: stock price (\_\_INLINEMATH\_4\_\_), strike price (\_\_INLINEMATH\_5\_\_), time to maturity (\_\_INLINEMATH\_6\_\_), interest rate (\_\_INLINEMATH\_7\_\_), and volatility (\_\_INLINEMATH\_8\_\_). It outputs the exact price of the option by weighting the probability that the option will end up in-the-money.
+
+\subsection{2. Formulas}
+The European call price \_\_INLINEMATH\_9\_\_ is:
+\_\_BLOCKMATH\_1\_\_
+Where:
+\begin{itemize}
+  \item $d\_1 = rac{\ln(S\_t/K) + \left(r + \sigma^2/2
+\end{itemize}
+ight)(T-t)}{\sigma\sqrt{T-t}}$
+\begin{itemize}
+  \item \_\_INLINEMATH\_10\_\_
+  \item \_\_INLINEMATH\_11\_\_ = Cumulative normal distribution function
+\end{itemize}
+
+
+\newpage
+
+\chapter{Systematic Trading Strategies}
+
+---
+
+\section{🕒 Lesson 22.1: Trend Following \& Mean Reversion}
+
+\begin{tcolorbox}
+Systematic trading applies rule-based algorithms to capture market inefficiencies, categorized into trend-following (momentum) and mean-reversion strategies.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Systematic trading means taking the human emotion out of investing by writing a strict rulebook for a computer:
+\begin{itemize}
+  \item \textbf{Trend Following:} "If a stock has been rising for a month, buy it because it has momentum." (Like hopping onto a moving train).
+  \item \textbf{Mean Reversion:} "If a stock's price drops way lower than its historic average, buy it because it will likely snap back to normal." (Like stretching a rubber band).
+\end{itemize}
+
+\subsection{2. Formulas}
+\begin{itemize}
+  \item \textbf{Simple Moving Average (SMA):}
+\end{itemize}
+  \_\_BLOCKMATH\_0\_\_
+\begin{itemize}
+  \item \textbf{Trading Signal (Crossover):}
+\end{itemize}
+  \_\_BLOCKMATH\_1\_\_
+
+---
+
+\section{🕒 Lesson 22.2: Strategy Evaluation Metrics}
+
+\begin{tcolorbox}
+Quantitative strategies are evaluated on risk-adjusted metrics like the Sharpe ratio, Maximum Drawdown, and Information Ratio.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+You shouldn't just look at how much money a trading bot made. If it made 50\% but almost went bankrupt three times during the year, it is highly dangerous. We use metrics to judge if the returns were worth the stress:
+\begin{itemize}
+  \item \textbf{Max Drawdown:} The biggest peak-to-trough drop in account value.
+  \item \textbf{Sharpe Ratio:} Reward per unit of risk.
+\end{itemize}
+
+\subsection{2. Formulas}
+\begin{itemize}
+  \item \textbf{Annualized Sharpe Ratio:}
+\end{itemize}
+  \_\_BLOCKMATH\_2\_\_
+\begin{itemize}
+  \item \textbf{Maximum Drawdown (MDD):}
+\end{itemize}
+  \_\_BLOCKMATH\_3\_\_
+
+
+\newpage
+
+\chapter{Machine Learning in Finance}
+
+---
+
+\section{🕒 Lesson 23.1: Supervised Learning \& Overfitting in Finance}
+
+\begin{tcolorbox}
+Machine learning identifies complex, non-linear relationships in financial data, but requires strict validation to prevent memorizing historical noise.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+Financial data is incredibly noisy. If you give a highly flexible machine learning model free rein to predict tomorrow's stock price, it will memorize historical patterns that were pure coincidence (like "the stock always rises on rainy Tuesdays when the CEO wears blue"). This is \textbf{overfitting}. When you run the model on new data, it fails.
+
+\subsection{2. Formulas}
+We minimize training loss plus a complexity penalty (regularization):
+\_\_BLOCKMATH\_0\_\_
+
+---
+
+\section{🕒 Lesson 23.2: Ensemble Models \& Decision Trees}
+
+\begin{tcolorbox}
+Ensemble methods, such as Random Forests, aggregate predictions from multiple weak models (decision trees) to reduce variance and improve robustness.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+A single decision tree makes predictions by asking yes/no questions (e.g., "Is interest rate > 5\%?"). If you rely on one tree, it is easily tricked.
+Instead, we use a \textbf{Random Forest}: we train 100 different trees on slightly different subsets of data. Each tree votes, and we take the average. It is much harder to trick a crowd of trees than a single tree.
+
+\subsection{2. Formulas}
+For a random forest of \_\_INLINEMATH\_2\_\_ bootstrap-aggregated trees \_\_INLINEMATH\_3\_\_:
+\_\_BLOCKMATH\_1\_\_
+
+
+\newpage
+
+\chapter{Stochastic Calculus & Stochastic Differential Equations}
+
+---
+
+\section{🕒 Lesson 24.1: Itô's Lemma (The Core of Quant Math)}
+
+\begin{tcolorbox}
+Itô's Lemma is the stochastic equivalent of the chain rule in calculus, introducing a second-order term to account for the quadratic variation of Brownian motion.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+In normal calculus, if you have a function \_\_INLINEMATH\_3\_\_ and \_\_INLINEMATH\_4\_\_ moves by a tiny step \_\_INLINEMATH\_5\_\_, the change in \_\_INLINEMATH\_6\_\_ is just the slope times the step: \_\_INLINEMATH\_7\_\_.
+But if \_\_INLINEMATH\_8\_\_ is a random, jittery path (like a stock price driven by Brownian motion), the jitters are so violent that their squared wiggles \_\_INLINEMATH\_9\_\_ actually add up over time. If your function is curved, these wiggles create an extra drift. \textbf{Itô's Lemma} is the formula that captures this extra drift (the curvature effect).
+
+\subsection{2. Formulas}
+If \_\_INLINEMATH\_10\_\_, and \_\_INLINEMATH\_11\_\_ is twice-differentiable, then:
+\_\_BLOCKMATH\_0\_\_
+Note that the extra term \_\_INLINEMATH\_12\_\_ arises because \_\_INLINEMATH\_13\_\_.
+
+---
+
+\section{🕒 Lesson 24.2: Stochastic Differential Equations (SDEs)}
+
+\begin{tcolorbox}
+SDEs model paths that evolve under a deterministic drift and a random diffusion term, solved using stochastic integration.
+\end{tcolorbox}
+
+\subsection{1. Intuition (ELIF5)}
+An SDE is like a recipe for a random path. It tells you:
+1. \textbf{Drift:} Which direction the path wants to go on average (e.g., drift up by 5\% per year).
+2. \textbf{Diffusion:} How much random jitter to add at each step.
+We use SDEs to model interest rates, asset prices, and volatility.
+
+\subsection{2. Formulas}
+A general SDE has the form:
+\_\_BLOCKMATH\_1\_\_
+Example: The \textbf{Ornstein-Uhlenbeck Process} (used to model mean-reverting interest rates or volatility):
+\_\_BLOCKMATH\_2\_\_
+Where \_\_INLINEMATH\_14\_\_ is the speed of mean reversion, and \_\_INLINEMATH\_15\_\_ is the long-term mean.
+
+
+\newpage
+
+\end{document}
