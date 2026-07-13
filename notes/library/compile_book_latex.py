@@ -2,28 +2,42 @@ import os
 import re
 
 def markdown_to_latex(md_content):
-    # Helper to check if a block is a math block
-    # We will temporarily mask math blocks to avoid escaping characters inside them
-    math_blocks = []
+    # 1. Normalize escaped dollar signs to raw dollar signs
+    md_content = md_content.replace("\\$", "$")
     
-    # 1. Mask block math $$ ... $$
+    # 2. Convert currency dollar signs to LaTeX escaped format: \$
+    # Match a dollar sign followed by a digit (e.g. $100, $10,000, $1.5)
+    md_content = re.sub(r"\$(\d)", r"\\$\1", md_content)
+    
+    # 3. Mask block math $$ ... $$
+    block_math_blocks = []
     def mask_block_math(match):
-        math_blocks.append(match.group(0))
-        return f"__BLOCKMATH_{len(math_blocks)-1}__"
+        block_math_blocks.append(match.group(0))
+        return f"BLOCKMATHMASK{len(block_math_blocks)-1}BLOCK"
     md_content = re.sub(r"\$\$(.*?)\$\$", mask_block_math, md_content, flags=re.DOTALL)
     
-    # 2. Mask inline math $ ... $
+    # 4. Mask inline math $ ... $
+    # Since we already converted currency $ to \$, any remaining $ signs are math mode delimiters!
+    inline_math_blocks = []
     def mask_inline_math(match):
-        math_blocks.append(match.group(0))
-        return f"__INLINEMATH_{len(math_blocks)-1}__"
+        inline_math_blocks.append(match.group(0))
+        return f"INLINEMATHMASK{len(inline_math_blocks)-1}INLINE"
     md_content = re.sub(r"\$(.*?)\$", mask_inline_math, md_content)
 
-    # 3. Convert markdown formatting (bold, italics, links)
+    # 5. Mask URLs in links to prevent escaping characters in URLs
+    url_blocks = []
+    def mask_url(match):
+        text = match.group(1)
+        url = match.group(2)
+        url_blocks.append(url)
+        return f"\\href{{URLMASK{len(url_blocks)-1}URL}}{{{text}}}"
+    md_content = re.sub(r"\[(.*?)\]\((.*?)\)", mask_url, md_content)
+
+    # 6. Convert other markdown formatting (bold, italics)
     md_content = re.sub(r"\*\*(.*?)\*\*", r"\\textbf{\1}", md_content)
     md_content = re.sub(r"\*(.*?)\*", r"\\textit{\1}", md_content)
-    md_content = re.sub(r"\[(.*?)\]\((.*?)\)", r"\\href{\2}{\1}", md_content)
 
-    # 4. Handle headers, lists, and quote/note blocks line by line
+    # 7. Process line by line for headers, lists, and quotes
     lines = md_content.split("\n")
     in_list = False
     in_quote = False
@@ -38,7 +52,7 @@ def markdown_to_latex(md_content):
                 new_lines.append("\\begin{itemize}")
                 in_list = True
             item_text = stripped[2:]
-            # Escape text inside item
+            # Escape LaTeX special characters in the text part
             item_text = item_text.replace("&", "\\&").replace("%", "\\%").replace("_", "\\_").replace("#", "\\#")
             new_lines.append(f"  \\item {item_text}")
             continue
@@ -64,7 +78,8 @@ def markdown_to_latex(md_content):
                 continue
         else:
             if in_quote:
-                if "tcolorbox" in new_lines[-1] or "\\begin{tcolorbox}" in new_lines:
+                tcolorbox_count = sum(1 for l in new_lines if "\\begin{tcolorbox}" in l) - sum(1 for l in new_lines if "\\end{tcolorbox}" in l)
+                if tcolorbox_count > 0:
                     new_lines.append("\\end{tcolorbox}")
                 else:
                     new_lines.append("\\end{quote}")
@@ -81,7 +96,6 @@ def markdown_to_latex(md_content):
             header_text = stripped[3:].strip().replace("&", "\\&").replace("%", "\\%").replace("_", "\\_").replace("#", "\\#")
             new_lines.append(f"\\section{{{header_text}}}")
         elif stripped.startswith("# "):
-            # Main file titles, we skip them since we add \chapter{} manually
             continue
         else:
             # Escape ordinary text characters
@@ -91,14 +105,23 @@ def markdown_to_latex(md_content):
     if in_list:
         new_lines.append("\\end{itemize}")
     if in_quote:
-        new_lines.append("\\end{tcolorbox}")
+        tcolorbox_count = sum(1 for l in new_lines if "\\begin{tcolorbox}" in l) - sum(1 for l in new_lines if "\\end{tcolorbox}" in l)
+        if tcolorbox_count > 0:
+            new_lines.append("\\end{tcolorbox}")
+        else:
+            new_lines.append("\\end{quote}")
 
     content = "\n".join(new_lines)
 
-    # 5. Unmask math blocks (so LaTeX can compile math correctly)
-    for i, math in enumerate(math_blocks):
-        content = content.replace(f"__BLOCKMATH_{i}__", math)
-        content = content.replace(f"__INLINEMATH_{i}__", math)
+    # 8. Unmask math blocks
+    for i, math in enumerate(block_math_blocks):
+        content = content.replace(f"BLOCKMATHMASK{i}BLOCK", math)
+    for i, math in enumerate(inline_math_blocks):
+        content = content.replace(f"INLINEMATHMASK{i}INLINE", math)
+        
+    # 9. Unmask URLs
+    for i, url in enumerate(url_blocks):
+        content = content.replace(f"URLMASK{i}URL", url)
         
     return content
 

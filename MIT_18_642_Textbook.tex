@@ -42,9 +42,9 @@ Money has a time value because you can earn interest on it; therefore, a dollar 
 \end{tcolorbox}
 
 \subsection{1. Intuition (ELIF5)}
-If you have \textbf{$100 today}, you can put it in a bank. The bank pays you "rent" to borrow your money. This rent is called \textbf{interest}. 
+If you have \textbf{\$100 today}, you can put it in a bank. The bank pays you "rent" to borrow your money. This rent is called \textbf{interest}. 
 
-If you choose to receive that $100 five years from now instead, you lose out on 5 years of interest. 
+If you choose to receive that \$100 five years from now instead, you lose out on 5 years of interest. 
 
 \begin{itemize}
   \item \textbf{Future Value (FV):} What your money grows into over time.
@@ -54,14 +54,14 @@ If you choose to receive that $100 five years from now instead, you lose out on 
 \subsection{2. Formulas}
 
 \subsubsection{Discrete Compounding}
-Interest calculated at regular intervals \_\_INLINEMATH\_18\_\_ times a year (e.g., quarterly \_\_INLINEMATH\_19\_\_, semi-annually \_\_INLINEMATH\_20\_\_, monthly \_\_INLINEMATH\_21\_\_).
-\_\_BLOCKMATH\_0\_\_
-\_\_BLOCKMATH\_1\_\_
+Interest calculated at regular intervals $m$ times a year (e.g., quarterly $m=4$, semi-annually $m=2$, monthly $m=12$).
+$$FV = PV \left(1 + \frac{r}{m}\right)^{m \cdot t}$$
+$$PV = \frac{FV}{\left(1 + \frac{r}{m}\right)^{m \cdot t}}$$
 
 \subsubsection{Continuous Compounding}
 Interest calculated every infinitesimally small instant. Quants prefer continuous compounding because it makes calculus and derivative pricing much cleaner.
-\_\_BLOCKMATH\_2\_\_
-\_\_BLOCKMATH\_3\_\_
+$$FV = PV \cdot e^{r \cdot t}$$
+$$PV = FV \cdot e^{-r \cdot t}$$
 
 ---
 
@@ -83,27 +83,27 @@ To figure out how much you should pay for this bond \textit{today}, you just nee
 \begin{itemize}
   \item \textbf{Zero-Coupon Bonds (ZCBs):} These do not pay any coupons. They are sold at a discount (less than face value) and pay the full face value at maturity.
 \end{itemize}
-  \_\_BLOCKMATH\_4\_\_
-  \_\_BLOCKMATH\_5\_\_
+  $$P_{zcb} = \frac{F}{(1 + y/m)^{m \cdot T}} \quad \text{(Discrete)}$$
+  $$P_{zcb} = F \cdot e^{-y \cdot T} \quad \text{(Continuous)}$$
 
 \begin{itemize}
-  \item \textbf{Coupon-Bearing Bonds:} These make periodic coupon payments \_\_INLINEMATH\_22\_\_ and pay the face value \_\_INLINEMATH\_23\_\_ at maturity.
+  \item \textbf{Coupon-Bearing Bonds:} These make periodic coupon payments $C$ and pay the face value $F$ at maturity.
 \end{itemize}
-  \_\_BLOCKMATH\_6\_\_
+  $$P = \sum_{k=1}^{n} \frac{C}{\left(1 + \frac{y}{m}\right)^k} + \frac{F}{\left(1 + \frac{y}{m}\right)^n}$$
   Where:
 \begin{itemize}
-  \item \_\_INLINEMATH\_24\_\_ = Bond Price
-  \item \_\_INLINEMATH\_25\_\_ = Periodic coupon payment (\_\_INLINEMATH\_26\_\_)
-  \item \_\_INLINEMATH\_27\_\_ = Face Value (usually \\_\_INLINEMATH\_28\_\_100)
-  \item \_\_INLINEMATH\_29\_\_ = Yield to Maturity (YTM)
-  \item \_\_INLINEMATH\_30\_\_ = Number of coupon payments per year
-  \item \_\_INLINEMATH\_31\_\_ = Total number of remaining coupon payments (\_\_INLINEMATH\_32\_\_)
+  \item $P$ = Bond Price
+  \item $C$ = Periodic coupon payment ($C = \frac{\text{Annual Coupon Rate} \times F}{m}$)
+  \item $F$ = Face Value (usually \$1,000 or \$100)
+  \item $y$ = Yield to Maturity (YTM)
+  \item $m$ = Number of coupon payments per year
+  \item $n$ = Total number of remaining coupon payments ($m \times T$)
 \end{itemize}
 
 \subsection{3. Yield to Maturity (YTM)}
-The \textbf{YTM} is the single interest rate \_\_INLINEMATH\_33\_\_ that makes the present value of the bond's cash flows exactly equal to its current market price. 
+The \textbf{YTM} is the single interest rate $y$ that makes the present value of the bond's cash flows exactly equal to its current market price. 
 \begin{itemize}
-  \item There is no algebraic way to solve for \_\_INLINEMATH\_34\_\_ in a coupon bond formula. Instead, we use numerical methods (like Newton-Raphson or Brent's method in Python) to find it.
+  \item There is no algebraic way to solve for $y$ in a coupon bond formula. Instead, we use numerical methods (like Newton-Raphson or Brent's method in Python) to find it.
 \end{itemize}
 
 ---
@@ -119,14 +119,14 @@ Imagine buying tickets for a train. A 1-mile ticket, a 5-mile ticket, and a 10-m
 
 \begin{itemize}
   \item \textbf{Yield Curve:} A line graph showing the yields of bonds of similar credit quality across different maturities. Usually, it slopes upward because lenders want higher interest for locking their money away longer.
-  \item \textbf{Spot Rate (\_\_INLINEMATH\_35\_\_):} The rate of interest for a single, isolated cash flow occurring at time \_\_INLINEMATH\_36\_\_.
+  \item \textbf{Spot Rate ($r_t$):} The rate of interest for a single, isolated cash flow occurring at time $t$.
   \item \textbf{Why YTM is NOT a Spot Rate:} YTM is a weighted average of spot rates across all coupon dates of a bond. For precise pricing, we must discount each individual coupon using the spot rate corresponding to its exact payment date.
 \end{itemize}
 
 \subsection{2. Discount Factors and Bootstrapping}
-A \textbf{Discount Factor} \_\_INLINEMATH\_37\_\_ is the present value of \\_\_INLINEMATH\_38\_\_t$.
-\_\_BLOCKMATH\_7\_\_
-\_\_BLOCKMATH\_8\_\_
+A \textbf{Discount Factor} $d(t)$ is the present value of \$1 received at time $t$.
+$$d(t) = e^{-r(t) \cdot t} \quad \text{(Continuous)}$$
+$$d(t) = \frac{1}{(1 + r(t))^t} \quad \text{(Discrete Annual)}$$
 
 If we know the market prices of liquid coupon bonds, we can use a process called \textbf{bootstrapping} to solve for the spot rates (or discount factors) step-by-step:
 1. Start with the shortest maturity bond (which acts like a zero-coupon bond). Solve for its spot rate.
@@ -153,25 +153,25 @@ Imagine you are balancing a long plank of wood on your shoulder. On the plank, t
 
 \subsection{2. Mathematical Formulations}
 
-\subsubsection{Macaulay Duration (\_\_INLINEMATH\_39\_\_)}
+\subsubsection{Macaulay Duration ($D_{\text{mac}}$)}
 The weighted average time until cash flows are received, where the weights are the present values of the cash flows.
-\_\_BLOCKMATH\_9\_\_
+$$D_{\text{mac}} = \frac{\sum_{t} t \cdot \text{PV}(CF_t)}{P} = \frac{\sum_{t} t \cdot CF_t \cdot e^{-y \cdot t}}{P}$$
 
-\subsubsection{Modified Duration (\_\_INLINEMATH\_40\_\_)}
+\subsubsection{Modified Duration ($D_{\text{mod}}$)}
 Measures the percentage change in price for a unit change in yield.
-\_\_BLOCKMATH\_10\_\_
+$$D_{\text{mod}} = -\frac{1}{P} \frac{dP}{dy}$$
 
 \begin{itemize}
   \item \textbf{Discrete Compounding Relationship:}
 \end{itemize}
-  \_\_BLOCKMATH\_11\_\_
+  $$D_{\text{mod}} = \frac{D_{\text{mac}}}{1 + \frac{y}{m}}$$
 \begin{itemize}
   \item \textbf{Continuous Compounding Relationship:}
 \end{itemize}
-  \_\_BLOCKMATH\_12\_\_
+  $$D_{\text{mod}} = D_{\text{mac}}$$
 
-For small changes in yield \_\_INLINEMATH\_41\_\_:
-\_\_BLOCKMATH\_13\_\_
+For small changes in yield $\Delta y$:
+$$\frac{\Delta P}{P} \approx -D_{\text{mod}} \cdot \Delta y$$
 
 ---
 
@@ -190,21 +190,21 @@ If you draw a graph of a bond's price against interest rates, it is not a straig
 \textit{ Because of this curve, when rates fall, prices go up }faster\textit{ than duration predicts. When rates rise, prices fall }slower* than duration predicts. \textbf{Convexity is always good for the bondholder.}
 
 \subsection{2. Formulas}
-Convexity (\_\_INLINEMATH\_42\_\_) is proportional to the second derivative of the bond price with respect to the yield:
-\_\_BLOCKMATH\_14\_\_
+Convexity ($C$) is proportional to the second derivative of the bond price with respect to the yield:
+$$C = \frac{1}{P} \frac{d^2 P}{dy^2}$$
 
 \begin{itemize}
   \item \textbf{Continuous Compounding Formula:}
 \end{itemize}
-  \_\_BLOCKMATH\_15\_\_
+  $$C = \frac{1}{P} \sum_{t} t^2 \cdot CF_t \cdot e^{-y \cdot t}$$
 \begin{itemize}
   \item \textbf{Discrete Compounding Formula:}
 \end{itemize}
-  \_\_BLOCKMATH\_16\_\_
+  $$C = \frac{1}{P \cdot (1 + y/m)^2} \sum_{k=1}^{n} \frac{k(k+1) \cdot CF_k}{m^2 \cdot (1 + y/m)^k}$$
 
 \subsubsection{The Complete Taylor Approximation}
-To estimate the percentage price change of a bond for any yield shock \_\_INLINEMATH\_43\_\_, we combine Duration and Convexity:
-\_\_BLOCKMATH\_17\_\_
+To estimate the percentage price change of a bond for any yield shock $\Delta y$, we combine Duration and Convexity:
+$$\frac{\Delta P}{P} \approx -D_{\text{mod}} \cdot \Delta y + \frac{1}{2} C \cdot (\Delta y)^2$$
 
 
 \newpage
@@ -224,8 +224,8 @@ Imagine you are looking at a 3D statue. If you look at it from the front, it loo
 In finance, a matrix is a tool that takes a set of stock returns and transforms them (rotates or scales them) into a new perspective. Instead of looking at 500 individual stocks, we can rotate our view to align with the overall movements of the market.
 
 \subsection{2. Formulas}
-A matrix \_\_INLINEMATH\_4\_\_ transforms a vector \_\_INLINEMATH\_5\_\_ into a new vector \_\_INLINEMATH\_6\_\_:
-\_\_BLOCKMATH\_0\_\_
+A matrix $A$ transforms a vector $x$ into a new vector $y$:
+$$y = A x$$
 
 ---
 
@@ -242,13 +242,13 @@ Imagine blowing up a balloon. Most points on the balloon's surface move in diffe
   \item The \textbf{Eigenvalue} is the factor by which that line stretched (e.g., it doubled in length, so eigenvalue = 2).
 \end{itemize}
 
-In finance, if \_\_INLINEMATH\_7\_\_ is the covariance matrix of asset returns, the eigenvector with the largest eigenvalue represents the direction of the market's maximum volatility (the "Market Factor").
+In finance, if $A$ is the covariance matrix of asset returns, the eigenvector with the largest eigenvalue represents the direction of the market's maximum volatility (the "Market Factor").
 
 \subsection{2. Formulas}
-An eigenvector \_\_INLINEMATH\_8\_\_ and its corresponding eigenvalue \_\_INLINEMATH\_9\_\_ for a square matrix \_\_INLINEMATH\_10\_\_ satisfy:
-\_\_BLOCKMATH\_1\_\_
+An eigenvector $v$ and its corresponding eigenvalue $\lambda$ for a square matrix $A$ satisfy:
+$$A v = \lambda v$$
 To solve for eigenvalues, we find the roots of the characteristic equation:
-\_\_BLOCKMATH\_2\_\_
+$$\det(A - \lambda I) = 0$$
 
 ---
 
@@ -267,8 +267,8 @@ If you own two stocks, their combined risk isn't just the sum of their individua
 A \textbf{Covariance Matrix} is a grid of numbers showing the relationship between every pair of stocks. A \textbf{quadratic form} is the mathematical operation of weighting these relationships to calculate your portfolio's total risk.
 
 \subsection{2. Formulas}
-For a portfolio with weight vector \_\_INLINEMATH\_11\_\_ and asset covariance matrix \_\_INLINEMATH\_12\_\_:
-\_\_BLOCKMATH\_3\_\_
+For a portfolio with weight vector $w$ and asset covariance matrix $\Sigma$:
+$$\sigma_p^2 = w^T \Sigma w = \sum_{i=1}^n \sum_{j=1}^n w_i w_j 	ext{Cov}(R_i, R_j)$$
 
 
 \newpage
@@ -290,15 +290,15 @@ Imagine you are packing a lunchbox. You want it to be as tasty as possible (high
 \begin{itemize}
   \item \textbf{Portfolio Return:}
 \end{itemize}
-  \_\_BLOCKMATH\_0\_\_
+  $$E[R_p] = w^T E[R]$$
 \begin{itemize}
   \item \textbf{Portfolio Variance:}
 \end{itemize}
-  \_\_BLOCKMATH\_1\_\_
+  $$\sigma_p^2 = w^T \Sigma w$$
 \begin{itemize}
   \item \textbf{Sharpe Ratio:}
 \end{itemize}
-  \_\_BLOCKMATH\_2\_\_
+  $$	ext{Sharpe} = rac{E[R_p] - R_f}{\sigma_p}$$
 
 ---
 
@@ -312,10 +312,11 @@ The Efficient Frontier is the set of optimal portfolios that offer the highest e
 If you plot all possible asset combinations on a chart with "Risk" on the bottom and "Return" on the side, you get a curved region. The top edge of this curve is the \textbf{Efficient Frontier}. Any portfolio on this line is optimal: you cannot get more return without taking more risk, and you cannot lower risk without giving up return.
 
 \subsection{2. Formulas}
-To find the weights \_\_INLINEMATH\_5\_\_ of the optimal portfolio for risk aversion parameter \_\_INLINEMATH\_6\_\_:
-\_\_BLOCKMATH\_3\_\_
+To find the weights $w$ of the optimal portfolio for risk aversion parameter $\lambda > 0$:
+$$\max_{w} \left( w^T E[R] - rac{\lambda}{2} w^T \Sigma w 
+ight)$$
 subject to:
-\_\_BLOCKMATH\_4\_\_
+$$w^T \mathbf{1} = 1 \quad 	ext{(Fully invested constraint)}$$
 
 
 \newpage
@@ -335,13 +336,13 @@ Imagine rolling a die. Before you roll, you don't know the number, but you know 
 
 \subsection{2. Formulas}
 \begin{itemize}
-  \item \textbf{Expected Value (Mean \_\_INLINEMATH\_3\_\_):}
+  \item \textbf{Expected Value (Mean $\mu$):}
 \end{itemize}
-  \_\_BLOCKMATH\_0\_\_
+  $$E[X] = \int_{-\infty}^{\infty} x f(x) dx$$
 \begin{itemize}
-  \item \textbf{Variance (\_\_INLINEMATH\_4\_\_):}
+  \item \textbf{Variance ($\sigma^2$):}
 \end{itemize}
-  \_\_BLOCKMATH\_1\_\_
+  $$	ext{Var}(X) = E[(X - E[X])^2] = E[X^2] - (E[X])^2$$
 
 ---
 
@@ -360,8 +361,8 @@ Therefore, we assume:
 \end{itemize}
 
 \subsection{2. Formulas}
-If \_\_INLINEMATH\_5\_\_, then \_\_INLINEMATH\_6\_\_ is log-normally distributed with PDF:
-\_\_BLOCKMATH\_2\_\_
+If $\ln(S_t) \sim N(\mu, \sigma^2)$, then $S_t$ is log-normally distributed with PDF:
+$$f(s) = rac{1}{s \sigma \sqrt{2\pi}} e^{-rac{(\ln s - \mu)^2}{2\sigma^2}} \quad (s > 0)$$
 
 
 \newpage
@@ -380,8 +381,8 @@ A stochastic process is a sequence of random variables index by time, and the Ma
 Imagine a frog jumping on lily pads. The frog's next jump depends only on the lily pad it is standing on \textit{right now}. It doesn't matter if it traveled north, south, or did a flip to get there. The frog's path has no memory of the past. This memoryless rule is the \textbf{Markov Property}.
 
 \subsection{2. Formulas}
-For a sequence of states \_\_INLINEMATH\_3\_\_:
-\_\_BLOCKMATH\_0\_\_
+For a sequence of states $X_0, X_1, X_2, \dots$:
+$$P(X_{t+1} = x_{t+1} \mid X_t = x_t, X_{t-1} = x_{t-1}, \dots, X_0 = x_0) = P(X_{t+1} = x_{t+1} \mid X_t = x_t)$$
 
 ---
 
@@ -392,12 +393,12 @@ A martingale is a stochastic model of a fair game where the expected future valu
 \end{tcolorbox}
 
 \subsection{1. Intuition (ELIF5)}
-Imagine playing a fair game of coin flipping with a friend. If you have \_\_INLINEMATH\_4\_\_1 on each flip, on average you expect to have exactly $100 after the next flip because your chance of winning is 50/50. A \textbf{martingale} is any process where your best guess for the future is simply what you have right now.
+Imagine playing a fair game of coin flipping with a friend. If you have \$100 right now, and you bet \$1 on each flip, on average you expect to have exactly \$100 after the next flip because your chance of winning is 50/50. A \textbf{martingale} is any process where your best guess for the future is simply what you have right now.
 
 \subsection{2. Formulas}
-A process \_\_INLINEMATH\_5\_\_ is a martingale with respect to information filtration \_\_INLINEMATH\_6\_\_ if:
-\_\_BLOCKMATH\_1\_\_
-\_\_BLOCKMATH\_2\_\_
+A process $X_t$ is a martingale with respect to information filtration $\mathcal{F}_t$ if:
+$$E[|X_t|] < \infty$$
+$$E[X_{t+1} \mid \mathcal{F}_t] = X_t$$
 
 
 \newpage
@@ -416,10 +417,10 @@ Ordinary Least Squares fits a linear relationship by minimizing the sum of squar
 Imagine you want to predict a student's test score based on how many hours they studied. You plot the data points on a graph and use a ruler to draw a straight line through the middle of them. To make it the "best" line, you measure the vertical distance from each point to your line, square those distances (so positive and negative errors don't cancel out), and adjust the line until that total sum is as small as possible.
 
 \subsection{2. Formulas}
-We fit \_\_INLINEMATH\_4\_\_ by solving:
-\_\_BLOCKMATH\_0\_\_
+We fit $y = Xeta + \epsilon$ by solving:
+$$\min_{eta} \|y - Xeta\|^2$$
 The closed-form OLS solution is:
-\_\_BLOCKMATH\_1\_\_
+$$\hat{eta} = (X^T X)^{-1} X^T y$$
 
 ---
 
@@ -432,19 +433,19 @@ Regularization prevents overfitting by adding a penalty term to the OLS loss fun
 \subsection{1. Intuition (ELIF5)}
 If you give a model too many variables (like predicting stock price using height of the CEO, weather in London, and interest rates), it will try to find patterns in the noise. Regularization is like a speed limit or a leash:
 \begin{itemize}
-  \item \textbf{Ridge (\_\_INLINEMATH\_5\_\_):} Shinks all coefficients toward zero, preventing any single variable from dominating.
-  \item \textbf{Lasso (\_\_INLINEMATH\_6\_\_):} Completely zeros out less important variables, acting as a built-in feature filter.
+  \item \textbf{Ridge ($L_2$):} Shinks all coefficients toward zero, preventing any single variable from dominating.
+  \item \textbf{Lasso ($L_1$):} Completely zeros out less important variables, acting as a built-in feature filter.
 \end{itemize}
 
 \subsection{2. Formulas}
 \begin{itemize}
   \item \textbf{Ridge (L2 Penalty):}
 \end{itemize}
-  \_\_BLOCKMATH\_2\_\_
+  $$\min_{eta} \|y - Xeta\|^2 + \lambda \|eta\|_2^2 = \min_{eta} \sum_{i=1}^n (y_i - x_i^T eta)^2 + \lambda \sum_{j=1}^p eta_j^2$$
 \begin{itemize}
   \item \textbf{Lasso (L1 Penalty):}
 \end{itemize}
-  \_\_BLOCKMATH\_3\_\_
+  $$\min_{eta} \|y - Xeta\|^2 + \lambda \|eta\|_1 = \min_{eta} \sum_{i=1}^n (y_i - x_i^T eta)^2 + \lambda \sum_{j=1}^p |eta_j|$$
 
 
 \newpage
@@ -463,8 +464,8 @@ Interest rate benchmarks represent the cost of borrowing cash, and forward rates
 Imagine ordering a custom car today to be delivered in 1 year, and agreeing today on the price you will pay. A \textbf{Forward Rate} is the same thing for borrowing money: you lock in the interest rate today for a loan that starts in the future.
 
 \subsection{2. Formulas}
-The continuously compounded forward rate between \_\_INLINEMATH\_2\_\_ and \_\_INLINEMATH\_3\_\_ is:
-\_\_BLOCKMATH\_0\_\_
+The continuously compounded forward rate between $T_1$ and $T_2$ is:
+$$f(0, T_1, T_2) = rac{r(0, T_2) T_2 - r(0, T_1) T_1}{T_2 - T_1}$$
 
 ---
 
@@ -478,9 +479,9 @@ An Interest Rate Swap is an agreement to exchange fixed-rate interest payments f
 Imagine you borrow money to buy a house with a mortgage that changes price every month based on market rates (floating rate). You get nervous about rates rising, so you make a deal with a bank: you pay them a fixed amount every month, and in return, they pay your changing mortgage bill. You have swapped a floating-rate risk for a stable fixed-rate.
 
 \subsection{2. Formulas}
-The swap rate \_\_INLINEMATH\_4\_\_ that makes the initial value of the swap zero is:
-\_\_BLOCKMATH\_1\_\_
-Where \_\_INLINEMATH\_5\_\_ is the discount factor to time \_\_INLINEMATH\_6\_\_, and \_\_INLINEMATH\_7\_\_ is the day-count fraction.
+The swap rate $S_n$ that makes the initial value of the swap zero is:
+$$S_n = rac{1 - P(0, T_n)}{\sum_{i=1}^n lpha_i P(0, T_i)}$$
+Where $P(0, T_i)$ is the discount factor to time $T_i$, and $lpha_i$ is the day-count fraction.
 
 
 \newpage
@@ -506,11 +507,11 @@ Imagine you want to predict a child's height over time. If they are growing, the
 \begin{itemize}
   \item \textbf{AR(1) Model:}
 \end{itemize}
-  \_\_BLOCKMATH\_0\_\_
+  $$X_t = c + \phi X_{t-1} + \epsilon_t$$
 \begin{itemize}
   \item \textbf{MA(1) Model:}
 \end{itemize}
-  \_\_BLOCKMATH\_1\_\_
+  $$X_t = \mu + \epsilon_t + 	heta \epsilon_{t-1}$$
 
 ---
 
@@ -524,13 +525,13 @@ GARCH models volatility clustering in financial returns, where high-volatility p
 Stock markets don't fluctuate at a constant speed. Instead, they have periods of relative calm and periods of extreme panic (volatility clustering). If the market was highly volatile yesterday, it is likely to remain volatile today. GARCH is the mathematical formula that models this "memory of volatility."
 
 \subsection{2. Formulas}
-For GARCH(1,1), the conditional variance \_\_INLINEMATH\_3\_\_ is modeled as:
-\_\_BLOCKMATH\_2\_\_
+For GARCH(1,1), the conditional variance $\sigma_t^2$ is modeled as:
+$$\sigma_t^2 = \omega + lpha \epsilon_{t-1}^2 + eta \sigma_{t-1}^2$$
 Where:
 \begin{itemize}
-  \item \_\_INLINEMATH\_4\_\_ = Baseline constant variance
-  \item \_\_INLINEMATH\_5\_\_ = Sensitivity to yesterday's return shock (\_\_INLINEMATH\_6\_\_)
-  \item \_\_INLINEMATH\_7\_\_ = Persistence of yesterday's volatility forecast (\_\_INLINEMATH\_8\_\_)
+  \item $\omega$ = Baseline constant variance
+  \item $lpha$ = Sensitivity to yesterday's return shock ($\epsilon_{t-1}^2$)
+  \item $eta$ = Persistence of yesterday's volatility forecast ($\sigma_{t-1}^2$)
 \end{itemize}
 
 
@@ -550,10 +551,10 @@ PCA identifies orthogonal linear combinations of variables that capture the maxi
 Imagine you want to describe a model airplane. You could list the 3D coordinates of 1,000 points on its surface. Or, you could describe its length, wingspan, and height. By focusing on the directions of greatest variation, you reduce the description from 1,000 coordinates to just 3 core dimensions. PCA is the mathematical tool that finds these key dimensions for complex data.
 
 \subsection{2. Formulas}
-We compute the eigenvalues \_\_INLINEMATH\_2\_\_ and eigenvectors \_\_INLINEMATH\_3\_\_ of the covariance matrix \_\_INLINEMATH\_4\_\_:
-\_\_BLOCKMATH\_0\_\_
+We compute the eigenvalues $\Lambda$ and eigenvectors $V$ of the covariance matrix $\Sigma$:
+$$\Sigma = V \Lambda V^T$$
 The transformed principal components are:
-\_\_BLOCKMATH\_1\_\_
+$$Y = V^T X$$
 
 ---
 
@@ -583,14 +584,14 @@ Counterparty Credit Risk is the risk that a counterparty defaults prior to the f
 \end{tcolorbox}
 
 \subsection{1. Intuition (ELIF5)}
-Imagine you pay a store $1,000 today to deliver a TV next month. The risk is not that the TV breaks, but that the store goes out of business and closes down before they ship your TV. In financial markets, when you trade derivatives, you face this exact risk with your trading partners.
+Imagine you pay a store \$1,000 today to deliver a TV next month. The risk is not that the TV breaks, but that the store goes out of business and closes down before they ship your TV. In financial markets, when you trade derivatives, you face this exact risk with your trading partners.
 
 \subsection{2. Formulas}
 \begin{itemize}
   \item \textbf{Exposure at default (positive replacement value):}
 \end{itemize}
-  \_\_BLOCKMATH\_0\_\_
-  Where \_\_INLINEMATH\_2\_\_ is the current market value of the contract.
+  $$E(t) = \max(V(t), 0)$$
+  Where $V(t)$ is the current market value of the contract.
 
 ---
 
@@ -607,13 +608,13 @@ If you buy an investment from a risky bank, you shouldn't pay full price. You sh
 3. What percentage of your money you can recover in bankruptcy court (Recovery Rate).
 
 \subsection{2. Formulas}
-\_\_BLOCKMATH\_1\_\_
+$$	ext{CVA} = (1 - R) \int_0^T D(0, t) \cdot 	ext{EE}(t) \cdot d	ext{PD}(t)$$
 Where:
 \begin{itemize}
-  \item \_\_INLINEMATH\_3\_\_ = Recovery rate
-  \item \_\_INLINEMATH\_4\_\_ = Risk-free discount factor
-  \item \_\_INLINEMATH\_5\_\_ = Expected Exposure at time \_\_INLINEMATH\_6\_\_
-  \item \_\_INLINEMATH\_7\_\_ = Probability of default function
+  \item $R$ = Recovery rate
+  \item $D(0, t)$ = Risk-free discount factor
+  \item $	ext{EE}(t)$ = Expected Exposure at time $t$
+  \item $	ext{PD}(t)$ = Probability of default function
 \end{itemize}
 
 
@@ -633,17 +634,17 @@ CAPM states that an asset's expected return is determined solely by its sensitiv
 Imagine opening a business. You face two types of risk:
 1. \textbf{Specific Risk:} The risk that your chef quits. You can fix this by hiring backup chefs (diversification). The market doesn't pay you extra for this risk because it's easy to avoid.
 2. \textbf{Systemic Risk:} The risk of a major recession where no one goes out to eat. You cannot avoid this. The market rewards you with higher expected returns for taking this unavoidable risk.
-\textbf{Beta (\_\_INLINEMATH\_3\_\_)} measures how sensitive your business is to the general economy.
+\textbf{Beta ($eta$)} measures how sensitive your business is to the general economy.
 
 \subsection{2. Formulas}
 \begin{itemize}
-  \item \textbf{Expected Return of Asset \_\_INLINEMATH\_4\_\_:}
+  \item \textbf{Expected Return of Asset $i$:}
 \end{itemize}
-  \_\_BLOCKMATH\_0\_\_
+  $$E[R_i] = R_f + eta_i (E[R_m] - R_f)$$
 \begin{itemize}
   \item \textbf{Beta Calculation:}
 \end{itemize}
-  \_\_BLOCKMATH\_1\_\_
+  $$eta_i = rac{	ext{Cov}(R_i, R_m)}{	ext{Var}(R_m)}$$
 
 ---
 
@@ -664,8 +665,8 @@ Instead of saying a stock moves only because of the general market, we can use m
 By identifying these "factors," we can build portfolios that are immune to specific risks (e.g., building a portfolio that doesn't care about oil price changes).
 
 \subsection{2. Formulas}
-\_\_BLOCKMATH\_2\_\_
-Where \_\_INLINEMATH\_5\_\_ are factor returns, \_\_INLINEMATH\_6\_\_ are factor exposures (loadings), and \_\_INLINEMATH\_7\_\_ is idiosyncratic noise.
+$$R_i = lpha_i + eta_{i,1} F_1 + eta_{i,2} F_2 + \dots + eta_{i,k} F_k + \epsilon_i$$
+Where $F_j$ are factor returns, $eta_{i,j}$ are factor exposures (loadings), and $\epsilon_i$ is idiosyncratic noise.
 
 
 \newpage
@@ -685,11 +686,11 @@ Imagine a dust particle floating in a glass of water. It is hit constantly by ti
 It is continuous (no teleporting), but it is so jagged that if you zoom in, it looks like a zigzag at every scale—it is nowhere differentiable (has no smooth slope).
 
 \subsection{2. Formulas}
-A process \_\_INLINEMATH\_1\_\_ is a standard Wiener process if:
-1. \_\_INLINEMATH\_2\_\_
-2. For any \_\_INLINEMATH\_3\_\_, the increment \_\_INLINEMATH\_4\_\_
+A process $W_t$ is a standard Wiener process if:
+1. $W_0 = 0$
+2. For any $t > s$, the increment $W_t - W_s \sim N(0, t-s)$
 3. Increments are independent over non-overlapping intervals.
-4. The path \_\_INLINEMATH\_5\_\_ is continuous.
+4. The path $t \mapsto W_t$ is continuous.
 
 ---
 
@@ -702,17 +703,17 @@ Geometric Brownian Motion models stock prices by assuming log-returns grow with 
 \subsection{1. Intuition (ELIF5)}
 We cannot use standard Brownian motion to model stock prices directly because:
 1. A stock price cannot be negative.
-2. A \_\_INLINEMATH\_6\_\_100 stock is minor, but a \_\_INLINEMATH\_7\_\_1 stock is huge.
+2. A \$1 change in a \$100 stock is minor, but a \$1 change in a \$1 stock is huge.
 \textbf{Geometric Brownian Motion} solves this: it models the \textit{percentage} change in the stock price. It assumes the stock grows at a steady average rate (drift) plus a random wiggle that scales with the price of the stock.
 
 \subsection{2. Formulas}
-\_\_BLOCKMATH\_0\_\_
+$$dS_t = \mu S_t dt + \sigma S_t dW_t$$
 Where:
 \begin{itemize}
-  \item \_\_INLINEMATH\_8\_\_ = Stock price
-  \item \_\_INLINEMATH\_9\_\_ = Drift (expected annual growth rate)
-  \item \_\_INLINEMATH\_10\_\_ = Volatility
-  \item \_\_INLINEMATH\_11\_\_ = Standard Brownian motion increment
+  \item $S_t$ = Stock price
+  \item $\mu$ = Drift (expected annual growth rate)
+  \item $\sigma$ = Volatility
+  \item $dW_t$ = Standard Brownian motion increment
 \end{itemize}
 
 
@@ -738,12 +739,12 @@ Realized volatility measures past price dispersion from historical data, whereas
 \begin{itemize}
   \item \textbf{Realized Volatility (Annualized):}
 \end{itemize}
-  \_\_BLOCKMATH\_0\_\_
+  $$\sigma_{	ext{historical}} = \sqrt{rac{252}{N-1} \sum_{i=1}^N (R_i - ar{R})^2}$$
 \begin{itemize}
-  \item \textbf{Implied Volatility (\_\_INLINEMATH\_2\_\_):}
+  \item \textbf{Implied Volatility ($\sigma_{	ext{impl}}$):}
 \end{itemize}
   Solved by finding the root:
-  \_\_BLOCKMATH\_1\_\_
+  $$C_{	ext{market}} - 	ext{BlackScholesCall}(S, K, T, r, \sigma_{	ext{impl}}) = 0$$
 
 
 \newpage
@@ -766,8 +767,8 @@ If the stock price rises, you buy a bit more stock; if it falls, you sell some. 
 \begin{itemize}
   \item \textbf{Replicating Portfolio Value:}
 \end{itemize}
-  \_\_BLOCKMATH\_0\_\_
-  Where \_\_INLINEMATH\_2\_\_ is the option delta, and \_\_INLINEMATH\_3\_\_ is the risk-free bond.
+  $$V_{	ext{portfolio}} = \Delta_t S_t + \psi_t B_t$$
+  Where $\Delta_t = rac{\partial V}{\partial S}$ is the option delta, and $B_t$ is the risk-free bond.
 
 ---
 
@@ -778,19 +779,19 @@ The Black-Scholes formula provides the analytical price of European options unde
 \end{tcolorbox}
 
 \subsection{1. Intuition (ELIF5)}
-The Black-Scholes formula is a recipe to calculate the fair price of an option. It takes 5 inputs: stock price (\_\_INLINEMATH\_4\_\_), strike price (\_\_INLINEMATH\_5\_\_), time to maturity (\_\_INLINEMATH\_6\_\_), interest rate (\_\_INLINEMATH\_7\_\_), and volatility (\_\_INLINEMATH\_8\_\_). It outputs the exact price of the option by weighting the probability that the option will end up in-the-money.
+The Black-Scholes formula is a recipe to calculate the fair price of an option. It takes 5 inputs: stock price ($S$), strike price ($K$), time to maturity ($T$), interest rate ($r$), and volatility ($\sigma$). It outputs the exact price of the option by weighting the probability that the option will end up in-the-money.
 
 \subsection{2. Formulas}
-The European call price \_\_INLINEMATH\_9\_\_ is:
-\_\_BLOCKMATH\_1\_\_
+The European call price $C(S, t)$ is:
+$$C(S, t) = S_t N(d_1) - K e^{-r(T-t)} N(d_2)$$
 Where:
 \begin{itemize}
   \item $d\_1 = rac{\ln(S\_t/K) + \left(r + \sigma^2/2
 \end{itemize}
 ight)(T-t)}{\sigma\sqrt{T-t}}$
 \begin{itemize}
-  \item \_\_INLINEMATH\_10\_\_
-  \item \_\_INLINEMATH\_11\_\_ = Cumulative normal distribution function
+  \item $d_2 = d_1 - \sigma\sqrt{T-t}$
+  \item $N(x)$ = Cumulative normal distribution function
 \end{itemize}
 
 
@@ -817,11 +818,11 @@ Systematic trading means taking the human emotion out of investing by writing a 
 \begin{itemize}
   \item \textbf{Simple Moving Average (SMA):}
 \end{itemize}
-  \_\_BLOCKMATH\_0\_\_
+  $$	ext{SMA}_n(t) = rac{1}{n} \sum_{i=0}^{n-1} S_{t-i}$$
 \begin{itemize}
   \item \textbf{Trading Signal (Crossover):}
 \end{itemize}
-  \_\_BLOCKMATH\_1\_\_
+  $$	ext{Signal}_t = 	ext{sign}(	ext{SMA}_{	ext{fast}}(t) - 	ext{SMA}_{	ext{slow}}(t))$$
 
 ---
 
@@ -842,11 +843,12 @@ You shouldn't just look at how much money a trading bot made. If it made 50\% bu
 \begin{itemize}
   \item \textbf{Annualized Sharpe Ratio:}
 \end{itemize}
-  \_\_BLOCKMATH\_2\_\_
+  $$	ext{Sharpe} = rac{	ext{Mean Annualized Return} - R_f}{	ext{Standard Deviation of Annualized Returns}}$$
 \begin{itemize}
   \item \textbf{Maximum Drawdown (MDD):}
 \end{itemize}
-  \_\_BLOCKMATH\_3\_\_
+  $$	ext{MDD}_T = \max_{t \in [0, T]} \left( rac{\max_{s \in [0, t]} P_s - P_t}{\max_{s \in [0, t]} P_s} 
+ight)$$
 
 
 \newpage
@@ -866,7 +868,7 @@ Financial data is incredibly noisy. If you give a highly flexible machine learni
 
 \subsection{2. Formulas}
 We minimize training loss plus a complexity penalty (regularization):
-\_\_BLOCKMATH\_0\_\_
+$$\mathcal{L}(	heta) = \sum_{i=1}^n L(y_i, f(x_i; 	heta)) + \Omega(	heta)$$
 
 ---
 
@@ -881,8 +883,8 @@ A single decision tree makes predictions by asking yes/no questions (e.g., "Is i
 Instead, we use a \textbf{Random Forest}: we train 100 different trees on slightly different subsets of data. Each tree votes, and we take the average. It is much harder to trick a crowd of trees than a single tree.
 
 \subsection{2. Formulas}
-For a random forest of \_\_INLINEMATH\_2\_\_ bootstrap-aggregated trees \_\_INLINEMATH\_3\_\_:
-\_\_BLOCKMATH\_1\_\_
+For a random forest of $B$ bootstrap-aggregated trees $T_b$:
+$$\hat{f}_{	ext{rf}}(x) = rac{1}{B} \sum_{b=1}^B T_b(x)$$
 
 
 \newpage
@@ -898,13 +900,14 @@ Itô's Lemma is the stochastic equivalent of the chain rule in calculus, introdu
 \end{tcolorbox}
 
 \subsection{1. Intuition (ELIF5)}
-In normal calculus, if you have a function \_\_INLINEMATH\_3\_\_ and \_\_INLINEMATH\_4\_\_ moves by a tiny step \_\_INLINEMATH\_5\_\_, the change in \_\_INLINEMATH\_6\_\_ is just the slope times the step: \_\_INLINEMATH\_7\_\_.
-But if \_\_INLINEMATH\_8\_\_ is a random, jittery path (like a stock price driven by Brownian motion), the jitters are so violent that their squared wiggles \_\_INLINEMATH\_9\_\_ actually add up over time. If your function is curved, these wiggles create an extra drift. \textbf{Itô's Lemma} is the formula that captures this extra drift (the curvature effect).
+In normal calculus, if you have a function $f(x)$ and $x$ moves by a tiny step $dx$, the change in $f$ is just the slope times the step: $df = f'(x) dx$.
+But if $x$ is a random, jittery path (like a stock price driven by Brownian motion), the jitters are so violent that their squared wiggles $(dx)^2$ actually add up over time. If your function is curved, these wiggles create an extra drift. \textbf{Itô's Lemma} is the formula that captures this extra drift (the curvature effect).
 
 \subsection{2. Formulas}
-If \_\_INLINEMATH\_10\_\_, and \_\_INLINEMATH\_11\_\_ is twice-differentiable, then:
-\_\_BLOCKMATH\_0\_\_
-Note that the extra term \_\_INLINEMATH\_12\_\_ arises because \_\_INLINEMATH\_13\_\_.
+If $dX_t = \mu_t dt + \sigma_t dW_t$, and $f(t, X_t)$ is twice-differentiable, then:
+$$df(t, X_t) = \left( rac{\partial f}{\partial t} + \mu_t rac{\partial f}{\partial X} + rac{1}{2} \sigma_t^2 rac{\partial^2 f}{\partial X^2} 
+ight) dt + \sigma_t rac{\partial f}{\partial X} dW_t$$
+Note that the extra term $rac{1}{2} \sigma_t^2 rac{\partial^2 f}{\partial X^2} dt$ arises because $(dW_t)^2 = dt$.
 
 ---
 
@@ -922,10 +925,10 @@ We use SDEs to model interest rates, asset prices, and volatility.
 
 \subsection{2. Formulas}
 A general SDE has the form:
-\_\_BLOCKMATH\_1\_\_
+$$dX_t = b(t, X_t) dt + \sigma(t, X_t) dW_t$$
 Example: The \textbf{Ornstein-Uhlenbeck Process} (used to model mean-reverting interest rates or volatility):
-\_\_BLOCKMATH\_2\_\_
-Where \_\_INLINEMATH\_14\_\_ is the speed of mean reversion, and \_\_INLINEMATH\_15\_\_ is the long-term mean.
+$$dX_t = 	heta(\mu - X_t) dt + \sigma dW_t$$
+Where $	heta$ is the speed of mean reversion, and $\mu$ is the long-term mean.
 
 
 \newpage
