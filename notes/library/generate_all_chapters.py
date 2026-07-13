@@ -1,192 +1,12 @@
-# 📖 MIT 18.642: Quantitative Finance & Mathematical Foundations
-## Personal Student Companion (Printable Version)
+import os
 
----
+def write_chapters():
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    theory_dir = os.path.join(base_dir, "notes", "theory")
+    os.makedirs(theory_dir, exist_ok=True)
 
-> **Format:** Applied & Practical (Intuition Focus)
-> **Code & Derivations:** Omitted from print layout (Interactive code remains in lab files)
-
-
----
-
-## 📋 Table of Contents
-
-1. [Chapter 1: Financial Terms, Concepts, and Bond Math](#financial-terms-concepts-and-bond-math)
-2. [Chapter 2: Applied Linear Algebra in Quantitative Finance](#applied-linear-algebra-in-quantitative-finance)
-3. [Chapter 3: Quantitative Equity Investing & Portfolio Optimization](#quantitative-equity-investing-and-portfolio-optimization)
-4. [Chapter 4: Probability Theory & Random Variables](#probability-theory-and-random-variables)
-5. [Chapter 5: Stochastic Processes I & Asset Return Modeling](#stochastic-processes-i-and-asset-return-modeling)
-6. [Chapter 6: Regression Analysis & Regularization](#regression-analysis-and-regularization)
-7. [Chapter 7: Linear Rates, Swaps, and Short-Rate Models](#linear-rates-swaps-and-short-rate-models)
-8. [Chapter 8: Time Series Analysis & Volatility Forecasting](#time-series-analysis-and-volatility-forecasting)
-9. [Chapter 9: Principal Component Analysis (PCA) in Finance](#principal-component-analysis-(pca)-in-finance)
-10. [Chapter 10: Counterparty Credit Risk & Event Trading](#counterparty-credit-risk-and-event-trading)
-11. [Chapter 11: Portfolio Management & Multi-Factor Models](#portfolio-management-and-multi-factor-models)
-12. [Chapter 12: Stochastic Processes II: Continuous Time](#stochastic-processes-ii-continuous-time)
-13. [Chapter 13: Volatility Modeling & Volatility Term Structure](#volatility-modeling-and-volatility-term-structure)
-14. [Chapter 14: The Black-Scholes Model & Option Pricing](#the-black-scholes-model-and-option-pricing)
-15. [Chapter 15: Systematic Trading Strategies](#systematic-trading-strategies)
-16. [Chapter 16: Machine Learning in Finance](#machine-learning-in-finance)
-17. [Chapter 17: Stochastic Calculus & Stochastic Differential Equations](#stochastic-calculus-and-stochastic-differential-equations)
-
-<div style='page-break-after: always;'></div>
-
-
-# <a name='financial-terms-concepts-and-bond-math'></a>Chapter 1: Financial Terms, Concepts, and Bond Math
-
-This chapter covers the foundations of bond math and fixed-income analytics, which form the bedrock of quantitative finance.
-
----
-
-## 🕒 Lesson 1.1: Time Value of Money & Compounding
-
-> [!NOTE]
-> **Summary in 1 Sentence:** 
-> Money has a time value because you can earn interest on it; therefore, a dollar today is worth more than a dollar tomorrow.
-
-### 1. Intuition (ELIF5)
-If you have **$100 today**, you can put it in a bank. The bank pays you "rent" to borrow your money. This rent is called **interest**. 
-
-If you choose to receive that $100 five years from now instead, you lose out on 5 years of interest. 
-
-* **Future Value (FV):** What your money grows into over time.
-* **Present Value (PV):** What a future payment is worth to you right now (discounted to today).
-
-### 2. Formulas
-
-#### Discrete Compounding
-Interest calculated at regular intervals $m$ times a year (e.g., quarterly $m=4$, semi-annually $m=2$, monthly $m=12$).
-$$FV = PV \left(1 + \frac{r}{m}\right)^{m \cdot t}$$
-$$PV = \frac{FV}{\left(1 + \frac{r}{m}\right)^{m \cdot t}}$$
-
-#### Continuous Compounding
-Interest calculated every infinitesimally small instant. Quants prefer continuous compounding because it makes calculus and derivative pricing much cleaner.
-$$FV = PV \cdot e^{r \cdot t}$$
-$$PV = FV \cdot e^{-r \cdot t}$$
-
----
-
-## 🎟️ Lesson 1.2: Bond Pricing Mechanics
-
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> The fair price of a bond is simply the sum of all its future cash flows (coupons and principal repayment) discounted back to today using a chosen discount rate.
-
-### 1. Intuition (ELIF5)
-A bond is a loan certificate. If you buy a bond from a company or government, you are lending them money. In return, they promise to do two things:
-1. Pay you regular "thank you" payments (called **coupons**).
-2. Give you back your original loan amount (called the **face value** or **principal**) when the bond expires (**maturity**).
-
-To figure out how much you should pay for this bond *today*, you just need to estimate what all those future cash flows are worth to you right now, and add them up.
-
-### 2. Types of Bonds
-
-* **Zero-Coupon Bonds (ZCBs):** These do not pay any coupons. They are sold at a discount (less than face value) and pay the full face value at maturity.
-  $$P_{zcb} = \frac{F}{(1 + y/m)^{m \cdot T}} \quad \text{(Discrete)}$$
-  $$P_{zcb} = F \cdot e^{-y \cdot T} \quad \text{(Continuous)}$$
-
-* **Coupon-Bearing Bonds:** These make periodic coupon payments $C$ and pay the face value $F$ at maturity.
-  $$P = \sum_{k=1}^{n} \frac{C}{\left(1 + \frac{y}{m}\right)^k} + \frac{F}{\left(1 + \frac{y}{m}\right)^n}$$
-  Where:
-  * $P$ = Bond Price
-  * $C$ = Periodic coupon payment ($C = \frac{\text{Annual Coupon Rate} \times F}{m}$)
-  * $F$ = Face Value (usually \$1,000 or \$100)
-  * $y$ = Yield to Maturity (YTM)
-  * $m$ = Number of coupon payments per year
-  * $n$ = Total number of remaining coupon payments ($m \times T$)
-
-### 3. Yield to Maturity (YTM)
-The **YTM** is the single interest rate $y$ that makes the present value of the bond's cash flows exactly equal to its current market price. 
-* There is no algebraic way to solve for $y$ in a coupon bond formula. Instead, we use numerical methods (like Newton-Raphson or Brent's method in Python) to find it.
-
----
-
-## 📈 Lesson 1.3: Yield Curves & Spot Rates
-
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> A yield curve shows how interest rates change across different horizons (maturities), and spot rates are the true interest rates for single cash flows at specific future dates.
-
-### 1. Intuition (ELIF5)
-Imagine buying tickets for a train. A 1-mile ticket, a 5-mile ticket, and a 10-mile ticket don't cost the same per mile. Similarly, the interest rate you get for lending money for 1 month, 1 year, or 10 years is usually different. 
-
-* **Yield Curve:** A line graph showing the yields of bonds of similar credit quality across different maturities. Usually, it slopes upward because lenders want higher interest for locking their money away longer.
-* **Spot Rate ($r_t$):** The rate of interest for a single, isolated cash flow occurring at time $t$. 
-* **Why YTM is NOT a Spot Rate:** YTM is a weighted average of spot rates across all coupon dates of a bond. For precise pricing, we must discount each individual coupon using the spot rate corresponding to its exact payment date.
-
-### 2. Discount Factors and Bootstrapping
-A **Discount Factor** $d(t)$ is the present value of \$1 received at time $t$.
-$$d(t) = e^{-r(t) \cdot t} \quad \text{(Continuous)}$$
-$$d(t) = \frac{1}{(1 + r(t))^t} \quad \text{(Discrete Annual)}$$
-
-If we know the market prices of liquid coupon bonds, we can use a process called **bootstrapping** to solve for the spot rates (or discount factors) step-by-step:
-1. Start with the shortest maturity bond (which acts like a zero-coupon bond). Solve for its spot rate.
-2. Move to the next shortest bond. Use the spot rate found in Step 1 to discount its first coupon, and solve for the new spot rate for its final payment.
-3. Repeat recursively.
-
----
-
-## ⚖️ Lesson 1.4: Risk Sensitivity: Duration
-
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Duration measures how long it takes to get your money back from a bond, and serves as a gauge for how sensitive the bond's price is to interest rate changes.
-
-### 1. Intuition (ELIF5)
-Imagine you are balancing a long plank of wood on your shoulder. On the plank, there are buckets of water (cash flows) at different distances (years). 
-* **Macaulay Duration** is the exact balance point (the center of gravity) of those buckets. If you get coupons early, the balance point is closer to you.
-* **Modified Duration** is the sensitivity of the balance point to a wobble. It tells you: *"If interest rates go up by 1%, by what percentage will my bond price fall?"*
-  * **Higher Duration = Higher Risk (Wobbliness).**
-
-### 2. Mathematical Formulations
-
-#### Macaulay Duration ($D_{\text{mac}}$)
-The weighted average time until cash flows are received, where the weights are the present values of the cash flows.
-$$D_{\text{mac}} = \frac{\sum_{t} t \cdot \text{PV}(CF_t)}{P} = \frac{\sum_{t} t \cdot CF_t \cdot e^{-y \cdot t}}{P}$$
-
-#### Modified Duration ($D_{\text{mod}}$)
-Measures the percentage change in price for a unit change in yield.
-$$D_{\text{mod}} = -\frac{1}{P} \frac{dP}{dy}$$
-
-* **Discrete Compounding Relationship:**
-  $$D_{\text{mod}} = \frac{D_{\text{mac}}}{1 + \frac{y}{m}}$$
-* **Continuous Compounding Relationship:**
-  $$D_{\text{mod}} = D_{\text{mac}}$$
-
-For small changes in yield $\Delta y$:
-$$\frac{\Delta P}{P} \approx -D_{\text{mod}} \cdot \Delta y$$
-
----
-
-## 🌊 Lesson 1.5: Risk Sensitivity: Convexity
-
-> [!NOTE]
-> **Summary in 1 Sentence:**
-> Convexity measures the curvature of the bond price-yield relationship, showing how duration changes as yields shift, and correcting the duration estimate for larger interest rate moves.
-
-### 1. Intuition (ELIF5)
-If you draw a graph of a bond's price against interest rates, it is not a straight line; it is a curved, smiley-face shape (convex).
-* **Duration** is a straight tangent line at your current position. It is a good approximation for tiny steps, but if yields jump, the straight line drifts away from the actual curve.
-* **Convexity** measures the curve itself. It tells us how much the duration changes when yields move.
-* Because of this curve, when rates fall, prices go up *faster* than duration predicts. When rates rise, prices fall *slower* than duration predicts. **Convexity is always good for the bondholder.**
-
-### 2. Formulas
-Convexity ($C$) is proportional to the second derivative of the bond price with respect to the yield:
-$$C = \frac{1}{P} \frac{d^2 P}{dy^2}$$
-
-* **Continuous Compounding Formula:**
-  $$C = \frac{1}{P} \sum_{t} t^2 \cdot CF_t \cdot e^{-y \cdot t}$$
-* **Discrete Compounding Formula:**
-  $$C = \frac{1}{P \cdot (1 + y/m)^2} \sum_{k=1}^{n} \frac{k(k+1) \cdot CF_k}{m^2 \cdot (1 + y/m)^k}$$
-
-#### The Complete Taylor Approximation
-To estimate the percentage price change of a bond for any yield shock $\Delta y$, we combine Duration and Convexity:
-$$\frac{\Delta P}{P} \approx -D_{\text{mod}} \cdot \Delta y + \frac{1}{2} C \cdot (\Delta y)^2$$
-
-<div style='page-break-after: always;'></div>
-
-
-# <a name='applied-linear-algebra-in-quantitative-finance'></a>Chapter 2: Applied Linear Algebra in Quantitative Finance
+    chapters = {
+        "L02_Linear_Algebra.md": """# Applied Linear Algebra in Quantitative Finance
 
 ---
 
@@ -241,12 +61,10 @@ A **Covariance Matrix** is a grid of numbers showing the relationship between ev
 
 ### 2. Formulas
 For a portfolio with weight vector $w$ and asset covariance matrix $\Sigma$:
-$$\sigma_p^2 = w^T \Sigma w = \sum_{i=1}^n \sum_{j=1}^n w_i w_j 	ext{Cov}(R_i, R_j)$$
+$$\sigma_p^2 = w^T \Sigma w = \sum_{i=1}^n \sum_{j=1}^n w_i w_j \text{Cov}(R_i, R_j)$$
+""",
 
-<div style='page-break-after: always;'></div>
-
-
-# <a name='quantitative-equity-investing-and-portfolio-optimization'></a>Chapter 3: Quantitative Equity Investing & Portfolio Optimization
+        "L03_Quant_Equity.md": """# Quantitative Equity Investing & Portfolio Optimization
 
 ---
 
@@ -265,7 +83,7 @@ Imagine you are packing a lunchbox. You want it to be as tasty as possible (high
 * **Portfolio Variance:**
   $$\sigma_p^2 = w^T \Sigma w$$
 * **Sharpe Ratio:**
-  $$	ext{Sharpe} = rac{E[R_p] - R_f}{\sigma_p}$$
+  $$\text{Sharpe} = \frac{E[R_p] - R_f}{\sigma_p}$$
 
 ---
 
@@ -280,15 +98,12 @@ If you plot all possible asset combinations on a chart with "Risk" on the bottom
 
 ### 2. Formulas
 To find the weights $w$ of the optimal portfolio for risk aversion parameter $\lambda > 0$:
-$$\max_{w} \left( w^T E[R] - rac{\lambda}{2} w^T \Sigma w 
-ight)$$
+$$\max_{w} \left( w^T E[R] - \frac{\lambda}{2} w^T \Sigma w \right)$$
 subject to:
-$$w^T \mathbf{1} = 1 \quad 	ext{(Fully invested constraint)}$$
+$$w^T \mathbf{1} = 1 \quad \text{(Fully invested constraint)}$$
+""",
 
-<div style='page-break-after: always;'></div>
-
-
-# <a name='probability-theory-and-random-variables'></a>Chapter 4: Probability Theory & Random Variables
+        "L04_Probability_Theory.md": """# Probability Theory & Random Variables
 
 ---
 
@@ -305,7 +120,7 @@ Imagine rolling a die. Before you roll, you don't know the number, but you know 
 * **Expected Value (Mean $\mu$):**
   $$E[X] = \int_{-\infty}^{\infty} x f(x) dx$$
 * **Variance ($\sigma^2$):**
-  $$	ext{Var}(X) = E[(X - E[X])^2] = E[X^2] - (E[X])^2$$
+  $$\text{Var}(X) = E[(X - E[X])^2] = E[X^2] - (E[X])^2$$
 
 ---
 
@@ -323,12 +138,10 @@ Therefore, we assume:
 
 ### 2. Formulas
 If $\ln(S_t) \sim N(\mu, \sigma^2)$, then $S_t$ is log-normally distributed with PDF:
-$$f(s) = rac{1}{s \sigma \sqrt{2\pi}} e^{-rac{(\ln s - \mu)^2}{2\sigma^2}} \quad (s > 0)$$
+$$f(s) = \frac{1}{s \sigma \sqrt{2\pi}} e^{-\frac{(\ln s - \mu)^2}{2\sigma^2}} \quad (s > 0)$$
+""",
 
-<div style='page-break-after: always;'></div>
-
-
-# <a name='stochastic-processes-i-and-asset-return-modeling'></a>Chapter 5: Stochastic Processes I & Asset Return Modeling
+        "L05_Stochastic_Processes_I.md": """# Stochastic Processes I & Asset Return Modeling
 
 ---
 
@@ -360,11 +173,9 @@ Imagine playing a fair game of coin flipping with a friend. If you have $100 rig
 A process $X_t$ is a martingale with respect to information filtration $\mathcal{F}_t$ if:
 $$E[|X_t|] < \infty$$
 $$E[X_{t+1} \mid \mathcal{F}_t] = X_t$$
+""",
 
-<div style='page-break-after: always;'></div>
-
-
-# <a name='regression-analysis-and-regularization'></a>Chapter 6: Regression Analysis & Regularization
+        "L06_Regression_Analysis.md": """# Regression Analysis & Regularization
 
 ---
 
@@ -378,10 +189,10 @@ $$E[X_{t+1} \mid \mathcal{F}_t] = X_t$$
 Imagine you want to predict a student's test score based on how many hours they studied. You plot the data points on a graph and use a ruler to draw a straight line through the middle of them. To make it the "best" line, you measure the vertical distance from each point to your line, square those distances (so positive and negative errors don't cancel out), and adjust the line until that total sum is as small as possible.
 
 ### 2. Formulas
-We fit $y = Xeta + \epsilon$ by solving:
-$$\min_{eta} \|y - Xeta\|^2$$
+We fit $y = X\beta + \epsilon$ by solving:
+$$\min_{\beta} \|y - X\beta\|^2$$
 The closed-form OLS solution is:
-$$\hat{eta} = (X^T X)^{-1} X^T y$$
+$$\hat{\beta} = (X^T X)^{-1} X^T y$$
 
 ---
 
@@ -398,14 +209,12 @@ If you give a model too many variables (like predicting stock price using height
 
 ### 2. Formulas
 * **Ridge (L2 Penalty):**
-  $$\min_{eta} \|y - Xeta\|^2 + \lambda \|eta\|_2^2 = \min_{eta} \sum_{i=1}^n (y_i - x_i^T eta)^2 + \lambda \sum_{j=1}^p eta_j^2$$
+  $$\min_{\beta} \|y - X\beta\|^2 + \lambda \|\beta\|_2^2 = \min_{\beta} \sum_{i=1}^n (y_i - x_i^T \beta)^2 + \lambda \sum_{j=1}^p \beta_j^2$$
 * **Lasso (L1 Penalty):**
-  $$\min_{eta} \|y - Xeta\|^2 + \lambda \|eta\|_1 = \min_{eta} \sum_{i=1}^n (y_i - x_i^T eta)^2 + \lambda \sum_{j=1}^p |eta_j|$$
+  $$\min_{\beta} \|y - X\beta\|^2 + \lambda \|\beta\|_1 = \min_{\beta} \sum_{i=1}^n (y_i - x_i^T \beta)^2 + \lambda \sum_{j=1}^p |\beta_j|$$
+""",
 
-<div style='page-break-after: always;'></div>
-
-
-# <a name='linear-rates-swaps-and-short-rate-models'></a>Chapter 7: Linear Rates, Swaps, and Short-Rate Models
+        "L07_Linear_Rates.md": """# Linear Rates, Swaps, and Short-Rate Models
 
 ---
 
@@ -420,7 +229,7 @@ Imagine ordering a custom car today to be delivered in 1 year, and agreeing toda
 
 ### 2. Formulas
 The continuously compounded forward rate between $T_1$ and $T_2$ is:
-$$f(0, T_1, T_2) = rac{r(0, T_2) T_2 - r(0, T_1) T_1}{T_2 - T_1}$$
+$$f(0, T_1, T_2) = \frac{r(0, T_2) T_2 - r(0, T_1) T_1}{T_2 - T_1}$$
 
 ---
 
@@ -435,13 +244,11 @@ Imagine you borrow money to buy a house with a mortgage that changes price every
 
 ### 2. Formulas
 The swap rate $S_n$ that makes the initial value of the swap zero is:
-$$S_n = rac{1 - P(0, T_n)}{\sum_{i=1}^n lpha_i P(0, T_i)}$$
-Where $P(0, T_i)$ is the discount factor to time $T_i$, and $lpha_i$ is the day-count fraction.
+$$S_n = \frac{1 - P(0, T_n)}{\sum_{i=1}^n \alpha_i P(0, T_i)}$$
+Where $P(0, T_i)$ is the discount factor to time $T_i$, and $\alpha_i$ is the day-count fraction.
+""",
 
-<div style='page-break-after: always;'></div>
-
-
-# <a name='time-series-analysis-and-volatility-forecasting'></a>Chapter 8: Time Series Analysis & Volatility Forecasting
+        "L08_Time_Series.md": """# Time Series Analysis & Volatility Forecasting
 
 ---
 
@@ -460,7 +267,7 @@ Imagine you want to predict a child's height over time. If they are growing, the
 * **AR(1) Model:**
   $$X_t = c + \phi X_{t-1} + \epsilon_t$$
 * **MA(1) Model:**
-  $$X_t = \mu + \epsilon_t + 	heta \epsilon_{t-1}$$
+  $$X_t = \mu + \epsilon_t + \theta \epsilon_{t-1}$$
 
 ---
 
@@ -475,16 +282,14 @@ Stock markets don't fluctuate at a constant speed. Instead, they have periods of
 
 ### 2. Formulas
 For GARCH(1,1), the conditional variance $\sigma_t^2$ is modeled as:
-$$\sigma_t^2 = \omega + lpha \epsilon_{t-1}^2 + eta \sigma_{t-1}^2$$
+$$\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2$$
 Where:
 * $\omega$ = Baseline constant variance
-* $lpha$ = Sensitivity to yesterday's return shock ($\epsilon_{t-1}^2$)
-* $eta$ = Persistence of yesterday's volatility forecast ($\sigma_{t-1}^2$)
+* $\alpha$ = Sensitivity to yesterday's return shock ($\epsilon_{t-1}^2$)
+* $\beta$ = Persistence of yesterday's volatility forecast ($\sigma_{t-1}^2$)
+""",
 
-<div style='page-break-after: always;'></div>
-
-
-# <a name='principal-component-analysis-(pca)-in-finance'></a>Chapter 9: Principal Component Analysis (PCA) in Finance
+        "L09_PCA.md": """# Principal Component Analysis (PCA) in Finance
 
 ---
 
@@ -516,11 +321,9 @@ Instead of tracking 30 different interest rates (from 1-month to 30-year yields)
 1. **Level (PC1 ~90%):** The entire curve moves up or down in parallel.
 2. **Slope (PC2 ~5-8%):** The curve tilts (short rates drop, long rates rise, or vice versa).
 3. **Curvature (PC3 ~1-2%):** The middle of the curve bulges or flattens while the ends remain stable.
+""",
 
-<div style='page-break-after: always;'></div>
-
-
-# <a name='counterparty-credit-risk-and-event-trading'></a>Chapter 10: Counterparty Credit Risk & Event Trading
+        "L10_Counterparty_Risk.md": """# Counterparty Credit Risk & Event Trading
 
 ---
 
@@ -553,17 +356,15 @@ If you buy an investment from a risky bank, you shouldn't pay full price. You sh
 3. What percentage of your money you can recover in bankruptcy court (Recovery Rate).
 
 ### 2. Formulas
-$$	ext{CVA} = (1 - R) \int_0^T D(0, t) \cdot 	ext{EE}(t) \cdot d	ext{PD}(t)$$
+$$\text{CVA} = (1 - R) \int_0^T D(0, t) \cdot \text{EE}(t) \cdot d\text{PD}(t)$$
 Where:
 * $R$ = Recovery rate
 * $D(0, t)$ = Risk-free discount factor
-* $	ext{EE}(t)$ = Expected Exposure at time $t$
-* $	ext{PD}(t)$ = Probability of default function
+* $\text{EE}(t)$ = Expected Exposure at time $t$
+* $\text{PD}(t)$ = Probability of default function
+""",
 
-<div style='page-break-after: always;'></div>
-
-
-# <a name='portfolio-management-and-multi-factor-models'></a>Chapter 11: Portfolio Management & Multi-Factor Models
+        "L11_Portfolio_Management.md": """# Portfolio Management & Multi-Factor Models
 
 ---
 
@@ -577,13 +378,13 @@ Where:
 Imagine opening a business. You face two types of risk:
 1. **Specific Risk:** The risk that your chef quits. You can fix this by hiring backup chefs (diversification). The market doesn't pay you extra for this risk because it's easy to avoid.
 2. **Systemic Risk:** The risk of a major recession where no one goes out to eat. You cannot avoid this. The market rewards you with higher expected returns for taking this unavoidable risk.
-**Beta ($eta$)** measures how sensitive your business is to the general economy.
+**Beta ($\beta$)** measures how sensitive your business is to the general economy.
 
 ### 2. Formulas
 * **Expected Return of Asset $i$:**
-  $$E[R_i] = R_f + eta_i (E[R_m] - R_f)$$
+  $$E[R_i] = R_f + \beta_i (E[R_m] - R_f)$$
 * **Beta Calculation:**
-  $$eta_i = rac{	ext{Cov}(R_i, R_m)}{	ext{Var}(R_m)}$$
+  $$\beta_i = \frac{\text{Cov}(R_i, R_m)}{\text{Var}(R_m)}$$
 
 ---
 
@@ -602,13 +403,11 @@ Instead of saying a stock moves only because of the general market, we can use m
 By identifying these "factors," we can build portfolios that are immune to specific risks (e.g., building a portfolio that doesn't care about oil price changes).
 
 ### 2. Formulas
-$$R_i = lpha_i + eta_{i,1} F_1 + eta_{i,2} F_2 + \dots + eta_{i,k} F_k + \epsilon_i$$
-Where $F_j$ are factor returns, $eta_{i,j}$ are factor exposures (loadings), and $\epsilon_i$ is idiosyncratic noise.
+$$R_i = \alpha_i + \beta_{i,1} F_1 + \beta_{i,2} F_2 + \dots + \beta_{i,k} F_k + \epsilon_i$$
+Where $F_j$ are factor returns, $\beta_{i,j}$ are factor exposures (loadings), and $\epsilon_i$ is idiosyncratic noise.
+""",
 
-<div style='page-break-after: always;'></div>
-
-
-# <a name='stochastic-processes-ii-continuous-time'></a>Chapter 12: Stochastic Processes II: Continuous Time
+        "L14_Stochastic_Processes_II.md": """# Stochastic Processes II: Continuous Time
 
 ---
 
@@ -650,11 +449,9 @@ Where:
 * $\mu$ = Drift (expected annual growth rate)
 * $\sigma$ = Volatility
 * $dW_t$ = Standard Brownian motion increment
+""",
 
-<div style='page-break-after: always;'></div>
-
-
-# <a name='volatility-modeling-and-volatility-term-structure'></a>Chapter 13: Volatility Modeling & Volatility Term Structure
+        "L19_Volatility_Modeling.md": """# Volatility Modeling & The Term Structure of Volatility
 
 ---
 
@@ -670,15 +467,13 @@ Where:
 
 ### 2. Formulas
 * **Realized Volatility (Annualized):**
-  $$\sigma_{	ext{historical}} = \sqrt{rac{252}{N-1} \sum_{i=1}^N (R_i - ar{R})^2}$$
-* **Implied Volatility ($\sigma_{	ext{impl}}$):**
+  $$\sigma_{\text{historical}} = \sqrt{\frac{252}{N-1} \sum_{i=1}^N (R_i - \bar{R})^2}$$
+* **Implied Volatility ($\sigma_{\text{impl}}$):**
   Solved by finding the root:
-  $$C_{	ext{market}} - 	ext{BlackScholesCall}(S, K, T, r, \sigma_{	ext{impl}}) = 0$$
+  $$C_{\text{market}} - \text{BlackScholesCall}(S, K, T, r, \sigma_{\text{impl}}) = 0$$
+""",
 
-<div style='page-break-after: always;'></div>
-
-
-# <a name='the-black-scholes-model-and-option-pricing'></a>Chapter 14: The Black-Scholes Model & Option Pricing
+        "L21_Black_Scholes.md": """# The Black-Scholes Model & Option Pricing
 
 ---
 
@@ -694,8 +489,8 @@ If the stock price rises, you buy a bit more stock; if it falls, you sell some. 
 
 ### 2. Formulas
 * **Replicating Portfolio Value:**
-  $$V_{	ext{portfolio}} = \Delta_t S_t + \psi_t B_t$$
-  Where $\Delta_t = rac{\partial V}{\partial S}$ is the option delta, and $B_t$ is the risk-free bond.
+  $$V_{\text{portfolio}} = \Delta_t S_t + \psi_t B_t$$
+  Where $\Delta_t = \frac{\partial V}{\partial S}$ is the option delta, and $B_t$ is the risk-free bond.
 
 ---
 
@@ -712,15 +507,12 @@ The Black-Scholes formula is a recipe to calculate the fair price of an option. 
 The European call price $C(S, t)$ is:
 $$C(S, t) = S_t N(d_1) - K e^{-r(T-t)} N(d_2)$$
 Where:
-* $d_1 = rac{\ln(S_t/K) + \left(r + \sigma^2/2
-ight)(T-t)}{\sigma\sqrt{T-t}}$
+* $d_1 = \frac{\ln(S_t/K) + \left(r + \sigma^2/2\right)(T-t)}{\sigma\sqrt{T-t}}$
 * $d_2 = d_1 - \sigma\sqrt{T-t}$
 * $N(x)$ = Cumulative normal distribution function
+""",
 
-<div style='page-break-after: always;'></div>
-
-
-# <a name='systematic-trading-strategies'></a>Chapter 15: Systematic Trading Strategies
+        "L22_Systematic_Trading.md": """# Systematic Trading Strategies
 
 ---
 
@@ -737,9 +529,9 @@ Systematic trading means taking the human emotion out of investing by writing a 
 
 ### 2. Formulas
 * **Simple Moving Average (SMA):**
-  $$	ext{SMA}_n(t) = rac{1}{n} \sum_{i=0}^{n-1} S_{t-i}$$
+  $$\text{SMA}_n(t) = \frac{1}{n} \sum_{i=0}^{n-1} S_{t-i}$$
 * **Trading Signal (Crossover):**
-  $$	ext{Signal}_t = 	ext{sign}(	ext{SMA}_{	ext{fast}}(t) - 	ext{SMA}_{	ext{slow}}(t))$$
+  $$\text{Signal}_t = \text{sign}(\text{SMA}_{\text{fast}}(t) - \text{SMA}_{\text{slow}}(t))$$
 
 ---
 
@@ -756,15 +548,12 @@ You shouldn't just look at how much money a trading bot made. If it made 50% but
 
 ### 2. Formulas
 * **Annualized Sharpe Ratio:**
-  $$	ext{Sharpe} = rac{	ext{Mean Annualized Return} - R_f}{	ext{Standard Deviation of Annualized Returns}}$$
+  $$\text{Sharpe} = \frac{\text{Mean Annualized Return} - R_f}{\text{Standard Deviation of Annualized Returns}}$$
 * **Maximum Drawdown (MDD):**
-  $$	ext{MDD}_T = \max_{t \in [0, T]} \left( rac{\max_{s \in [0, t]} P_s - P_t}{\max_{s \in [0, t]} P_s} 
-ight)$$
+  $$\text{MDD}_T = \max_{t \in [0, T]} \left( \frac{\max_{s \in [0, t]} P_s - P_t}{\max_{s \in [0, t]} P_s} \right)$$
+""",
 
-<div style='page-break-after: always;'></div>
-
-
-# <a name='machine-learning-in-finance'></a>Chapter 16: Machine Learning in Finance
+        "L23_Machine_Learning.md": """# Machine Learning in Finance
 
 ---
 
@@ -779,7 +568,7 @@ Financial data is incredibly noisy. If you give a highly flexible machine learni
 
 ### 2. Formulas
 We minimize training loss plus a complexity penalty (regularization):
-$$\mathcal{L}(	heta) = \sum_{i=1}^n L(y_i, f(x_i; 	heta)) + \Omega(	heta)$$
+$$\mathcal{L}(\theta) = \sum_{i=1}^n L(y_i, f(x_i; \theta)) + \Omega(\theta)$$
 
 ---
 
@@ -795,12 +584,10 @@ Instead, we use a **Random Forest**: we train 100 different trees on slightly di
 
 ### 2. Formulas
 For a random forest of $B$ bootstrap-aggregated trees $T_b$:
-$$\hat{f}_{	ext{rf}}(x) = rac{1}{B} \sum_{b=1}^B T_b(x)$$
+$$\hat{f}_{\text{rf}}(x) = \frac{1}{B} \sum_{b=1}^B T_b(x)$$
+""",
 
-<div style='page-break-after: always;'></div>
-
-
-# <a name='stochastic-calculus-and-stochastic-differential-equations'></a>Chapter 17: Stochastic Calculus & Stochastic Differential Equations
+        "L24_Stochastic_Calculus.md": """# Stochastic Calculus & Stochastic Differential Equations (SDEs)
 
 ---
 
@@ -816,9 +603,8 @@ But if $x$ is a random, jittery path (like a stock price driven by Brownian moti
 
 ### 2. Formulas
 If $dX_t = \mu_t dt + \sigma_t dW_t$, and $f(t, X_t)$ is twice-differentiable, then:
-$$df(t, X_t) = \left( rac{\partial f}{\partial t} + \mu_t rac{\partial f}{\partial X} + rac{1}{2} \sigma_t^2 rac{\partial^2 f}{\partial X^2} 
-ight) dt + \sigma_t rac{\partial f}{\partial X} dW_t$$
-Note that the extra term $rac{1}{2} \sigma_t^2 rac{\partial^2 f}{\partial X^2} dt$ arises because $(dW_t)^2 = dt$.
+$$df(t, X_t) = \left( \frac{\partial f}{\partial t} + \mu_t \frac{\partial f}{\partial X} + \frac{1}{2} \sigma_t^2 \frac{\partial^2 f}{\partial X^2} \right) dt + \sigma_t \frac{\partial f}{\partial X} dW_t$$
+Note that the extra term $\frac{1}{2} \sigma_t^2 \frac{\partial^2 f}{\partial X^2} dt$ arises because $(dW_t)^2 = dt$.
 
 ---
 
@@ -838,7 +624,16 @@ We use SDEs to model interest rates, asset prices, and volatility.
 A general SDE has the form:
 $$dX_t = b(t, X_t) dt + \sigma(t, X_t) dW_t$$
 Example: The **Ornstein-Uhlenbeck Process** (used to model mean-reverting interest rates or volatility):
-$$dX_t = 	heta(\mu - X_t) dt + \sigma dW_t$$
-Where $	heta$ is the speed of mean reversion, and $\mu$ is the long-term mean.
+$$dX_t = \theta(\mu - X_t) dt + \sigma dW_t$$
+Where $\theta$ is the speed of mean reversion, and $\mu$ is the long-term mean.
+"""
+    }
 
-<div style='page-break-after: always;'></div>
+    for filename, content in chapters.items():
+        file_path = os.path.join(theory_dir, filename)
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(content.strip() + "\n")
+        print(f"Created file: {file_path}")
+
+if __name__ == "__main__":
+    write_chapters()
