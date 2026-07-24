@@ -8,7 +8,7 @@
 * **Active Lecture:** Lecture 1 (Financial Terms, Concepts, and Bond Math)
 * **Last Completed Lesson:** Lesson 1.4: Risk Sensitivity: Duration (Completed)
 * **Current Lesson:** Lesson 1.5: Risk Sensitivity: Convexity
-* **Current Task:** User is watching "Lecture 1, Part III: Bond 'Mathematics'" video.
+* **Current Task:** User will start studying Lesson 1.5 (Convexity) tomorrow.
 
 ---
 
@@ -47,4 +47,7 @@
   * Implemented user request to add algorithmic pseudo-code blocks across all core chapters.
   * Updated [generate_all_chapters.py](file:///C:/Users/HP/OneDrive/Desktop/mit-quant-finance-applications/notes/library/generate_all_chapters.py) to write clean pseudo-code specifications (e.g. YTM solver, spot rate bootstrapping, Lasso coordinate descent, GARCH forecasting, Euler-Maruyama simulation).
   * Upgraded [compile_book_latex.py](file:///C:/Users/HP/OneDrive/Desktop/mit-quant-finance-applications/notes/library/compile_book_latex.py) with a code block regex masking filter to compile markdown fenced code blocks into clean LaTeX `tcolorbox` framed `verbatim` structures. Pushed updated [MIT_18_642_Textbook.tex](file:///C:/Users/HP/OneDrive/Desktop/mit-quant-finance-applications/MIT_18_642_Textbook.tex) to main branch.
+* **2026-07-25 (Session 8):**
+  * Resumed session. Shared the official MIT 18.642 YouTube playlist and created a helper script `play.ps1` and workspace automatic tasks to easily launch it.
+  * Logged that the user will study Lesson 1.5 (Convexity) tomorrow.
 
